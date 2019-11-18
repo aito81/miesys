@@ -19,6 +19,7 @@ import py.com.sgipy.miesys.entities.Ciudad;
 import py.com.sgipy.miesys.entities.Empresa;
 import py.com.sgipy.miesys.entities.EstadoCivil;
 import py.com.sgipy.miesys.entities.Genero;
+import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
 import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.TipoDocumento;
@@ -26,6 +27,7 @@ import py.com.sgipy.miesys.jpa.JpaCiudad;
 import py.com.sgipy.miesys.jpa.JpaEmpresa;
 import py.com.sgipy.miesys.jpa.JpaEstadoCivil;
 import py.com.sgipy.miesys.jpa.JpaGenero;
+import py.com.sgipy.miesys.jpa.JpaNacionalidad;
 import py.com.sgipy.miesys.jpa.JpaOcupacion;
 import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.jpa.JpaTipoDocumento;
@@ -58,6 +60,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private ComboBox<Ocupacion> cbxOcupacion;
 	private ComboBox<Empresa> cbxEmpresa;
 	private ComboBox<Genero> cbxGenero;
+	private ComboBox<Nacionalidad> cbxNacionalidad;
 	
 	private DateField dfNacimiento;
 	
@@ -74,6 +77,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private JpaEmpresa jpaEmp = new JpaEmpresa(JpaUtil.getEntityManagerFactory());
 	private JpaGenero jpaGene = new JpaGenero(JpaUtil.getEntityManagerFactory());
 	private JpaPersona jpaPer = new JpaPersona(JpaUtil.getEntityManagerFactory());
+	private JpaNacionalidad jpaNac = new JpaNacionalidad(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -224,6 +228,13 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxGenero.setItems(jpaGene.findGeneroEntities());
 		cbxGenero.setEmptySelectionAllowed(false);
 		cbxGenero.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		
+		cbxNacionalidad.setItems(jpaNac.findNacionalidadEntities());
+		cbxNacionalidad.setEmptySelectionAllowed(false);
+		cbxNacionalidad.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		
+		
+		
 		
 		
 	}
@@ -478,6 +489,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		txtNroDoc.setCaption("Nro de Documento");
 		datosPersonalesLayout.addComponent(txtNroDoc);
 		
+		cbxNacionalidad = new ComboBox<Nacionalidad>();
+		cbxNacionalidad.setCaption("Nacionalidad");
+		datosPersonalesLayout.addComponent(cbxNacionalidad);
+		
 		cbxEstadoCivil = new ComboBox<EstadoCivil>();
 		cbxEstadoCivil.setCaption("Estado Civil");
 		datosPersonalesLayout.addComponent(cbxEstadoCivil);
@@ -485,6 +500,8 @@ public class AltaPersonaView extends CustomComponent implements View {
 		dfNacimiento = new DateField();
 		dfNacimiento.setCaption("Fecha de Nacimiento");
 		datosPersonalesLayout.addComponent(dfNacimiento);
+		
+		
 		
 		
 		
