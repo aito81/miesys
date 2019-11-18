@@ -257,6 +257,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		//addPer.setFechaNacimiento(dfNacimiento.getValue());
 		addPer.setEmpresa(cbxEmpresa.getValue());
 		addPer.setGenero(1);
+		addPer.setNacionalidad(cbxNacionalidad.getValue());
 		//addPer.setDivision();
 		jpaPer.create(addPer);
 		
