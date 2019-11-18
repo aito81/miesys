@@ -13,6 +13,7 @@ import javax.persistence.criteria.Root;
 import py.com.sgipy.miesys.entities.Division;
 import py.com.sgipy.miesys.entities.Empresa;
 import py.com.sgipy.miesys.entities.EstadoCivil;
+import py.com.sgipy.miesys.entities.Genero;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
@@ -78,6 +79,11 @@ public class PersonaJpaController implements Serializable {
                 estadoCivil = em.getReference(estadoCivil.getClass(), estadoCivil.getEstadoCivil());
                 persona.setEstadoCivil(estadoCivil);
             }
+            Genero genero = persona.getGenero();
+            if (genero != null) {
+                genero = em.getReference(genero.getClass(), genero.getGenero());
+                persona.setGenero(genero);
+            }
             Han han = persona.getHan();
             if (han != null) {
                 han = em.getReference(han.getClass(), han.getHan());
@@ -140,6 +146,10 @@ public class PersonaJpaController implements Serializable {
             if (estadoCivil != null) {
                 estadoCivil.getPersonaList().add(persona);
                 estadoCivil = em.merge(estadoCivil);
+            }
+            if (genero != null) {
+                genero.getPersonaList().add(persona);
+                genero = em.merge(genero);
             }
             if (han != null) {
                 han.getPersonaList().add(persona);
@@ -222,6 +232,8 @@ public class PersonaJpaController implements Serializable {
             Empresa empresaNew = persona.getEmpresa();
             EstadoCivil estadoCivilOld = persistentPersona.getEstadoCivil();
             EstadoCivil estadoCivilNew = persona.getEstadoCivil();
+            Genero generoOld = persistentPersona.getGenero();
+            Genero generoNew = persona.getGenero();
             Han hanOld = persistentPersona.getHan();
             Han hanNew = persona.getHan();
             Nacionalidad nacionalidadOld = persistentPersona.getNacionalidad();
@@ -279,6 +291,10 @@ public class PersonaJpaController implements Serializable {
             if (estadoCivilNew != null) {
                 estadoCivilNew = em.getReference(estadoCivilNew.getClass(), estadoCivilNew.getEstadoCivil());
                 persona.setEstadoCivil(estadoCivilNew);
+            }
+            if (generoNew != null) {
+                generoNew = em.getReference(generoNew.getClass(), generoNew.getGenero());
+                persona.setGenero(generoNew);
             }
             if (hanNew != null) {
                 hanNew = em.getReference(hanNew.getClass(), hanNew.getHan());
@@ -355,6 +371,14 @@ public class PersonaJpaController implements Serializable {
             if (estadoCivilNew != null && !estadoCivilNew.equals(estadoCivilOld)) {
                 estadoCivilNew.getPersonaList().add(persona);
                 estadoCivilNew = em.merge(estadoCivilNew);
+            }
+            if (generoOld != null && !generoOld.equals(generoNew)) {
+                generoOld.getPersonaList().remove(persona);
+                generoOld = em.merge(generoOld);
+            }
+            if (generoNew != null && !generoNew.equals(generoOld)) {
+                generoNew.getPersonaList().add(persona);
+                generoNew = em.merge(generoNew);
             }
             if (hanOld != null && !hanOld.equals(hanNew)) {
                 hanOld.getPersonaList().remove(persona);
@@ -523,6 +547,11 @@ public class PersonaJpaController implements Serializable {
             if (estadoCivil != null) {
                 estadoCivil.getPersonaList().remove(persona);
                 estadoCivil = em.merge(estadoCivil);
+            }
+            Genero genero = persona.getGenero();
+            if (genero != null) {
+                genero.getPersonaList().remove(persona);
+                genero = em.merge(genero);
             }
             Han han = persona.getHan();
             if (han != null) {

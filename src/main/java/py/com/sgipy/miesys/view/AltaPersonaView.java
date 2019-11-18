@@ -16,6 +16,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import py.com.sgipy.miesys.entities.Ciudad;
+import py.com.sgipy.miesys.entities.Departamento;
 import py.com.sgipy.miesys.entities.Empresa;
 import py.com.sgipy.miesys.entities.EstadoCivil;
 import py.com.sgipy.miesys.entities.Genero;
@@ -24,6 +25,7 @@ import py.com.sgipy.miesys.entities.Ocupacion;
 import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.TipoDocumento;
 import py.com.sgipy.miesys.jpa.JpaCiudad;
+import py.com.sgipy.miesys.jpa.JpaDepartamento;
 import py.com.sgipy.miesys.jpa.JpaEmpresa;
 import py.com.sgipy.miesys.jpa.JpaEstadoCivil;
 import py.com.sgipy.miesys.jpa.JpaGenero;
@@ -61,6 +63,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private ComboBox<Empresa> cbxEmpresa;
 	private ComboBox<Genero> cbxGenero;
 	private ComboBox<Nacionalidad> cbxNacionalidad;
+	private ComboBox<Departamento> cbxDepartamento;
 	
 	private DateField dfNacimiento;
 	
@@ -78,6 +81,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private JpaGenero jpaGene = new JpaGenero(JpaUtil.getEntityManagerFactory());
 	private JpaPersona jpaPer = new JpaPersona(JpaUtil.getEntityManagerFactory());
 	private JpaNacionalidad jpaNac = new JpaNacionalidad(JpaUtil.getEntityManagerFactory());
+	private JpaDepartamento jpaDep = new JpaDepartamento(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -89,6 +93,17 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cargarcombos();
 		//btnMas.addClickListener(e -> cargarNuevo(e.getButton().getCaption()));
 		
+		
+	}
+
+
+
+
+	private void cargarCiudades(Departamento value) {
+
+		cbxCiudad.setItems(jpaCiudad.findCiudadesbyDepto(value));
+		cbxCiudad.setEmptySelectionAllowed(false);
+		cbxCiudad.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
 		
 	}
 
@@ -213,12 +228,6 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxTipoDoc.setEmptySelectionAllowed(false);
 		cbxTipoDoc.setItemCaptionGenerator(tipoDoc -> tipoDoc.getDescripcion());
 		
-		
-		cbxCiudad.setItems(jpaCiudad.findCiudadEntities());
-		cbxCiudad.setEmptySelectionAllowed(false);
-		cbxCiudad.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
-		
-		
 		cbxOcupacion.setItems(jpaOcu.findOcupacionEntities());
 		cbxOcupacion.setItemCaptionGenerator(ocu -> ocu.getDescripcion());
 		
@@ -233,6 +242,11 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxNacionalidad.setEmptySelectionAllowed(false);
 		cbxNacionalidad.setItemCaptionGenerator(gen -> gen.getDescripcion());
 		
+		cbxDepartamento.setItems(jpaDep.findDepartamentoEntities());
+		cbxDepartamento.setEmptySelectionAllowed(false);
+		cbxDepartamento.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		cbxDepartamento.addValueChangeListener(e -> cargarCiudades(e.getValue()));
+		
 		
 		
 		
@@ -246,8 +260,8 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		Persona addPer = new Persona();
 		addPer.setPersona(1);
-		addPer.setNombre(txtNombre.getValue());
-		addPer.setApellido(txtApellido.getValue());
+		addPer.setNombre(txtNombre.getValue().toUpperCase());
+		addPer.setApellido(txtApellido.getValue().toUpperCase());
 		addPer.setNumeroDocumento(txtNroDoc.getValue());
 		addPer.setTipoDocumento(cbxTipoDoc.getValue());
 		//addPer.setNacionalidad(cbxn);
@@ -256,10 +270,34 @@ public class AltaPersonaView extends CustomComponent implements View {
 		addPer.setOcupacion(cbxOcupacion.getValue());
 		//addPer.setFechaNacimiento(dfNacimiento.getValue());
 		addPer.setEmpresa(cbxEmpresa.getValue());
-		addPer.setGenero(1);
+		addPer.setGenero(cbxGenero.getValue());
 		addPer.setNacionalidad(cbxNacionalidad.getValue());
 		//addPer.setDivision();
-		jpaPer.create(addPer);
+		try {
+			jpaPer.create(addPer);
+			Notification.show("Persona agregada correctamente.");
+			limpiarDatos();
+		} catch (Exception e) {
+			Notification.show("Error al dar de alta una persona.", Notification.TYPE_ERROR_MESSAGE);
+		}
+		
+		
+		
+	}
+
+
+
+
+	private void limpiarDatos() {
+		
+		txtNombre.clear();
+		txtApellido.clear();
+		cbxCiudad.clear();
+		cbxGenero.clear();
+		cbxTipoDoc.clear();
+		cbxNacionalidad.clear();
+		cbxEstadoCivil.clear();
+		dfNacimiento.clear();
 		
 		
 	}
@@ -270,7 +308,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private void buildMainLayout() {
 	
 		mainLayout = new VerticalLayout();
-		mainLayout.setWidth("100%");
+		mainLayout.setWidth("70%");
 		mainLayout.setHeight("-1px");
 		mainLayout.setMargin(false);
 		
@@ -441,6 +479,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		direccionLayout.setHeight("-1px");
 		//direccionLayout.setMargin(true);
 		direccionLayout.setSpacing(true);
+		
+		cbxDepartamento = new ComboBox<Departamento>();
+		cbxDepartamento.setCaption("Departamento");
+		direccionLayout.addComponent(cbxDepartamento);
 		
 		cbxCiudad = new ComboBox<Ciudad>();
 		cbxCiudad.setCaption("Ciudad");
