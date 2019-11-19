@@ -18,6 +18,9 @@
     <class>py.com.sgipy.miesys.entities.TipoDocumento</class>
     <class>py.com.sgipy.miesys.entities.Genero</class>
     <class>py.com.sgipy.miesys.entities.Departamento</class>
+    <class>py.com.sgipy.miesys.entities.Reunion</class>
+    <class>py.com.sgipy.miesys.entities.Estudio</class>
+    <class>py.com.sgipy.miesys.entities.ReunionAsistencia</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/SGIpyDB"/>
       <property name="javax.persistence.jdbc.user" value="postgres"/>

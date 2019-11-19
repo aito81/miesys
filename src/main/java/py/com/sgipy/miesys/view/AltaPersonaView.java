@@ -19,6 +19,7 @@ import py.com.sgipy.miesys.entities.Cabildo;
 import py.com.sgipy.miesys.entities.Ciudad;
 import py.com.sgipy.miesys.entities.Departamento;
 import py.com.sgipy.miesys.entities.Distrito;
+import py.com.sgipy.miesys.entities.Division;
 import py.com.sgipy.miesys.entities.Empresa;
 import py.com.sgipy.miesys.entities.EstadoCivil;
 import py.com.sgipy.miesys.entities.Genero;
@@ -27,16 +28,21 @@ import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
 import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.TipoDocumento;
+import py.com.sgipy.miesys.jpa.JpaCabildo;
 import py.com.sgipy.miesys.jpa.JpaCiudad;
 import py.com.sgipy.miesys.jpa.JpaDepartamento;
+import py.com.sgipy.miesys.jpa.JpaDistrito;
+import py.com.sgipy.miesys.jpa.JpaDivision;
 import py.com.sgipy.miesys.jpa.JpaEmpresa;
 import py.com.sgipy.miesys.jpa.JpaEstadoCivil;
 import py.com.sgipy.miesys.jpa.JpaGenero;
+import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaNacionalidad;
 import py.com.sgipy.miesys.jpa.JpaOcupacion;
 import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.jpa.JpaTipoDocumento;
 import py.com.sgipy.miesys.util.JpaUtil;
+import py.com.sgipy.miesys.util.StringUtils;
 
 public class AltaPersonaView extends CustomComponent implements View {
 	
@@ -47,7 +53,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private VerticalLayout ubicacionLayout;
 	private HorizontalLayout direccionLayout;
 	private VerticalLayout profesionLayout;
-	private VerticalLayout distritoLayout;
+	private VerticalLayout cabildoLayout;
 	private HorizontalLayout addOcupacionLayout;
 	private HorizontalLayout addEmpresaLayout;
 	private HorizontalLayout botonLayout;
@@ -57,6 +63,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private TextField txtApellido;
 	private TextField txtNroDoc;
 	private TextField txtDir;
+	private TextField txtNroHijo;
 	
 	
 	
@@ -71,8 +78,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private ComboBox<Han> cbxHan;
 	private ComboBox<Cabildo> cbxCabildo;
 	private ComboBox<Distrito> cbxDistrito;
+	private ComboBox<Division> cbxDivision;
 	
 	private DateField dfNacimiento;
+	private DateField dfInicio;
 	
 	private Button btnMas;
 	private Button btnAceptar;
@@ -89,6 +98,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private JpaPersona jpaPer = new JpaPersona(JpaUtil.getEntityManagerFactory());
 	private JpaNacionalidad jpaNac = new JpaNacionalidad(JpaUtil.getEntityManagerFactory());
 	private JpaDepartamento jpaDep = new JpaDepartamento(JpaUtil.getEntityManagerFactory());
+	private JpaCabildo jpaCab = new JpaCabildo(JpaUtil.getEntityManagerFactory());
+	private JpaDistrito jpaDis = new JpaDistrito(JpaUtil.getEntityManagerFactory());
+	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
+	private JpaDivision jpaDiv = new JpaDivision(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -254,9 +267,41 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxDepartamento.setItemCaptionGenerator(gen -> gen.getDescripcion());
 		cbxDepartamento.addValueChangeListener(e -> cargarCiudades(e.getValue()));
 		
+		cbxCabildo.setItems(jpaCab.findCabildoEntities());
+		cbxCabildo.setEmptySelectionAllowed(false);
+		cbxCabildo.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		cbxCabildo.addValueChangeListener(e -> cargarDistrito(e.getValue()));
+		
+		cbxDistrito.addValueChangeListener(e -> cargarHan(e.getValue()));
+		
+		cbxDivision.setItems(jpaDiv.findDivisionEntities());
+		cbxDivision.setEmptySelectionAllowed(false);
+		cbxDivision.setItemCaptionGenerator(gen -> gen.getDescripcion());
 		
 		
 		
+		
+		
+	}
+
+
+
+
+	private void cargarHan(Distrito value) {
+		
+		cbxHan.setItems(jpaHan.findHanByDistrito(value));
+		cbxHan.setEmptySelectionAllowed(false);
+		cbxHan.setItemCaptionGenerator(gen -> gen.getDescripcion());
+	}
+
+
+
+
+	private void cargarDistrito(Cabildo cabildo) {
+		
+		cbxDistrito.setItems(jpaDis.findDistritoByCabildo(cabildo));
+		cbxDistrito.setEmptySelectionAllowed(false);
+		cbxDistrito.setItemCaptionGenerator(gen -> gen.getDescripcion());
 		
 	}
 
@@ -271,14 +316,34 @@ public class AltaPersonaView extends CustomComponent implements View {
 		addPer.setApellido(txtApellido.getValue().toUpperCase());
 		addPer.setNumeroDocumento(txtNroDoc.getValue());
 		addPer.setTipoDocumento(cbxTipoDoc.getValue());
-		//addPer.setNacionalidad(cbxn);
 		addPer.setEstadoCivil(cbxEstadoCivil.getValue());
-		//addPer.setCantidadHijos();
 		addPer.setOcupacion(cbxOcupacion.getValue());
-		//addPer.setFechaNacimiento(dfNacimiento.getValue());
+		if (dfInicio.getValue() != null) {
+			
+			addPer.setFechaInicio(StringUtils.convertirLocalDateToDate(dfInicio.getValue()));
+			
+		}
+		
+		if (dfNacimiento.getValue() != null) {
+		
+			addPer.setFechaNacimiento(StringUtils.convertirLocalDateToDate(dfNacimiento.getValue()));
+			
+		}
+		
+		
 		addPer.setEmpresa(cbxEmpresa.getValue());
 		addPer.setGenero(cbxGenero.getValue());
 		addPer.setNacionalidad(cbxNacionalidad.getValue());
+		addPer.setHan(cbxHan.getValue());
+		addPer.setDivision(cbxDivision.getValue());
+		if (txtNroHijo.getValue() != null) {
+			if (StringUtils.isNumeric(txtNroHijo.getValue())) {
+				addPer.setCantidadHijos(Integer.valueOf(txtNroHijo.getValue()));
+			}else {
+				txtNroHijo.clear();
+			}
+		}
+		
 		//addPer.setDivision();
 		try {
 			jpaPer.create(addPer);
@@ -397,8 +462,8 @@ public class AltaPersonaView extends CustomComponent implements View {
 		addEmpresaLayout = buildAddEmpresaLayout();
 		profesionLayout.addComponent(addEmpresaLayout);
 		
-		distritoLayout = buildDistritoLayout();
-		profesionLayout.addComponent(distritoLayout);
+		cabildoLayout = buildDistritoLayout();
+		profesionLayout.addComponent(cabildoLayout);
 		
 		/*cbxEmpresa = new ComboBox<Empresa>();
 		cbxEmpresa.setCaption("Empresa");
@@ -414,21 +479,33 @@ public class AltaPersonaView extends CustomComponent implements View {
 
 	private VerticalLayout buildDistritoLayout() {
 		
-		distritoLayout = new VerticalLayout();
-		distritoLayout.setHeight("-1px");
-		
-		cbxDistrito = new ComboBox<Distrito>();
-		cbxDistrito.setCaption("Distrito");
-		distritoLayout.addComponent(cbxDistrito);
+		cabildoLayout = new VerticalLayout();
+		cabildoLayout.setHeight("-1px");
+		cabildoLayout.setMargin(false);
+		cabildoLayout.setSpacing(false);
+		cabildoLayout.setCaption("Cabildo");
 		
 		cbxCabildo = new ComboBox<Cabildo>();
 		cbxCabildo.setCaption("Cabildo");
-		distritoLayout.addComponent(cbxCabildo);
+		cabildoLayout.addComponent(cbxCabildo);
+		
+		cbxDistrito = new ComboBox<Distrito>();
+		cbxDistrito.setCaption("Distrito");
+		cabildoLayout.addComponent(cbxDistrito);
 		
 		cbxHan = new ComboBox<Han>();
 		cbxHan.setCaption("Han");
-		distritoLayout.addComponent(cbxHan);
-		return distritoLayout;
+		cabildoLayout.addComponent(cbxHan);
+		
+		cbxDivision = new ComboBox<Division>();
+		cbxDivision.setCaption("División");
+		cabildoLayout.addComponent(cbxDivision);
+		
+		dfInicio = new DateField();
+		dfInicio.setCaption("Fecha de Inicio");
+		cabildoLayout.addComponent(dfInicio);
+		
+		return cabildoLayout;
 	}
 
 
@@ -575,6 +652,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		dfNacimiento = new DateField();
 		dfNacimiento.setCaption("Fecha de Nacimiento");
 		datosPersonalesLayout.addComponent(dfNacimiento);
+		
+		txtNroHijo = new TextField();
+		txtNroHijo.setCaption("Cantidad de hijos");
+		datosPersonalesLayout.addComponent(txtNroHijo);
 		
 		
 		
