@@ -120,7 +120,13 @@ public class AltaPersonaView extends CustomComponent implements View {
 
 
 	private void cargarCiudades(Departamento value) {
-
+		
+		if (value == null) {
+			
+			return;
+			
+		}
+		
 		cbxCiudad.setItems(jpaCiudad.findCiudadesbyDepto(value));
 		cbxCiudad.setEmptySelectionAllowed(false);
 		cbxCiudad.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
@@ -289,6 +295,12 @@ public class AltaPersonaView extends CustomComponent implements View {
 
 	private void cargarHan(Distrito value) {
 		
+		if (value == null) {
+			
+			return;
+			
+		}
+		
 		cbxHan.setItems(jpaHan.findHanByDistrito(value));
 		cbxHan.setEmptySelectionAllowed(false);
 		cbxHan.setItemCaptionGenerator(gen -> gen.getDescripcion());
@@ -298,6 +310,12 @@ public class AltaPersonaView extends CustomComponent implements View {
 
 
 	private void cargarDistrito(Cabildo cabildo) {
+		
+		if (cabildo == null) {
+			
+			return;
+			
+		}
 		
 		cbxDistrito.setItems(jpaDis.findDistritoByCabildo(cabildo));
 		cbxDistrito.setEmptySelectionAllowed(false);
@@ -370,6 +388,13 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxNacionalidad.clear();
 		cbxEstadoCivil.clear();
 		dfNacimiento.clear();
+		txtNroHijo.clear();
+		cbxOcupacion.clear();
+		cbxEmpresa.clear();
+		cbxCabildo.clear();
+		cbxDistrito.clear();
+		cbxHan.clear();
+		cbxDivision.clear();
 		
 		
 	}
