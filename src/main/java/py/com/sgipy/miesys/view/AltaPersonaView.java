@@ -15,11 +15,14 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import py.com.sgipy.miesys.entities.Cabildo;
 import py.com.sgipy.miesys.entities.Ciudad;
 import py.com.sgipy.miesys.entities.Departamento;
+import py.com.sgipy.miesys.entities.Distrito;
 import py.com.sgipy.miesys.entities.Empresa;
 import py.com.sgipy.miesys.entities.EstadoCivil;
 import py.com.sgipy.miesys.entities.Genero;
+import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
 import py.com.sgipy.miesys.entities.Persona;
@@ -44,6 +47,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private VerticalLayout ubicacionLayout;
 	private HorizontalLayout direccionLayout;
 	private VerticalLayout profesionLayout;
+	private VerticalLayout distritoLayout;
 	private HorizontalLayout addOcupacionLayout;
 	private HorizontalLayout addEmpresaLayout;
 	private HorizontalLayout botonLayout;
@@ -64,6 +68,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private ComboBox<Genero> cbxGenero;
 	private ComboBox<Nacionalidad> cbxNacionalidad;
 	private ComboBox<Departamento> cbxDepartamento;
+	private ComboBox<Han> cbxHan;
+	private ComboBox<Cabildo> cbxCabildo;
+	private ComboBox<Distrito> cbxDistrito;
 	
 	private DateField dfNacimiento;
 	
@@ -390,6 +397,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 		addEmpresaLayout = buildAddEmpresaLayout();
 		profesionLayout.addComponent(addEmpresaLayout);
 		
+		distritoLayout = buildDistritoLayout();
+		profesionLayout.addComponent(distritoLayout);
+		
 		/*cbxEmpresa = new ComboBox<Empresa>();
 		cbxEmpresa.setCaption("Empresa");
 		profesionLayout.addComponent(cbxEmpresa);*/
@@ -397,6 +407,28 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		
 		return profesionLayout;
+	}
+
+
+
+
+	private VerticalLayout buildDistritoLayout() {
+		
+		distritoLayout = new VerticalLayout();
+		distritoLayout.setHeight("-1px");
+		
+		cbxDistrito = new ComboBox<Distrito>();
+		cbxDistrito.setCaption("Distrito");
+		distritoLayout.addComponent(cbxDistrito);
+		
+		cbxCabildo = new ComboBox<Cabildo>();
+		cbxCabildo.setCaption("Cabildo");
+		distritoLayout.addComponent(cbxCabildo);
+		
+		cbxHan = new ComboBox<Han>();
+		cbxHan.setCaption("Han");
+		distritoLayout.addComponent(cbxHan);
+		return distritoLayout;
 	}
 
 
