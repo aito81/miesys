@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.Persona;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class DireccionJpaController implements Serializable {
 

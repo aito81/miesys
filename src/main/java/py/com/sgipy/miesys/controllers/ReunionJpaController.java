@@ -18,7 +18,7 @@ import py.com.sgipy.miesys.entities.Reunion;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class ReunionJpaController implements Serializable {
 

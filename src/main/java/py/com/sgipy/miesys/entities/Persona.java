@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 @Entity
 @Table(name = "persona")
@@ -98,6 +98,8 @@ public class Persona implements Serializable {
     private List<Recomendado> recomendadoList1;
     @OneToMany(mappedBy = "recomendador2")
     private List<Recomendado> recomendadoList2;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
+    private List<Usuario> usuarioList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
     private List<Telefono> telefonoList;
 
@@ -268,6 +270,15 @@ public class Persona implements Serializable {
 
     public void setRecomendadoList2(List<Recomendado> recomendadoList2) {
         this.recomendadoList2 = recomendadoList2;
+    }
+
+    @XmlTransient
+    public List<Usuario> getUsuarioList() {
+        return usuarioList;
+    }
+
+    public void setUsuarioList(List<Usuario> usuarioList) {
+        this.usuarioList = usuarioList;
     }
 
     @XmlTransient

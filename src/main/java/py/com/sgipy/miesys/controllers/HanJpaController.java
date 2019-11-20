@@ -21,7 +21,7 @@ import py.com.sgipy.miesys.entities.Han;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class HanJpaController implements Serializable {
 

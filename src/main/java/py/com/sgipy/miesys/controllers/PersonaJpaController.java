@@ -27,11 +27,12 @@ import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.Recomendado;
+import py.com.sgipy.miesys.entities.Usuario;
 import py.com.sgipy.miesys.entities.Telefono;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class PersonaJpaController implements Serializable {
 
@@ -56,6 +57,9 @@ public class PersonaJpaController implements Serializable {
         }
         if (persona.getRecomendadoList2() == null) {
             persona.setRecomendadoList2(new ArrayList<Recomendado>());
+        }
+        if (persona.getUsuarioList() == null) {
+            persona.setUsuarioList(new ArrayList<Usuario>());
         }
         if (persona.getTelefonoList() == null) {
             persona.setTelefonoList(new ArrayList<Telefono>());
@@ -128,6 +132,12 @@ public class PersonaJpaController implements Serializable {
                 attachedRecomendadoList2.add(recomendadoList2RecomendadoToAttach);
             }
             persona.setRecomendadoList2(attachedRecomendadoList2);
+            List<Usuario> attachedUsuarioList = new ArrayList<Usuario>();
+            for (Usuario usuarioListUsuarioToAttach : persona.getUsuarioList()) {
+                usuarioListUsuarioToAttach = em.getReference(usuarioListUsuarioToAttach.getClass(), usuarioListUsuarioToAttach.getUsuario());
+                attachedUsuarioList.add(usuarioListUsuarioToAttach);
+            }
+            persona.setUsuarioList(attachedUsuarioList);
             List<Telefono> attachedTelefonoList = new ArrayList<Telefono>();
             for (Telefono telefonoListTelefonoToAttach : persona.getTelefonoList()) {
                 telefonoListTelefonoToAttach = em.getReference(telefonoListTelefonoToAttach.getClass(), telefonoListTelefonoToAttach.getIdTelefono());
@@ -203,6 +213,15 @@ public class PersonaJpaController implements Serializable {
                     oldRecomendador2OfRecomendadoList2Recomendado = em.merge(oldRecomendador2OfRecomendadoList2Recomendado);
                 }
             }
+            for (Usuario usuarioListUsuario : persona.getUsuarioList()) {
+                Persona oldPersonaOfUsuarioListUsuario = usuarioListUsuario.getPersona();
+                usuarioListUsuario.setPersona(persona);
+                usuarioListUsuario = em.merge(usuarioListUsuario);
+                if (oldPersonaOfUsuarioListUsuario != null) {
+                    oldPersonaOfUsuarioListUsuario.getUsuarioList().remove(usuarioListUsuario);
+                    oldPersonaOfUsuarioListUsuario = em.merge(oldPersonaOfUsuarioListUsuario);
+                }
+            }
             for (Telefono telefonoListTelefono : persona.getTelefonoList()) {
                 Persona oldPersonaOfTelefonoListTelefono = telefonoListTelefono.getPersona();
                 telefonoListTelefono.setPersona(persona);
@@ -250,6 +269,8 @@ public class PersonaJpaController implements Serializable {
             List<Recomendado> recomendadoList1New = persona.getRecomendadoList1();
             List<Recomendado> recomendadoList2Old = persistentPersona.getRecomendadoList2();
             List<Recomendado> recomendadoList2New = persona.getRecomendadoList2();
+            List<Usuario> usuarioListOld = persistentPersona.getUsuarioList();
+            List<Usuario> usuarioListNew = persona.getUsuarioList();
             List<Telefono> telefonoListOld = persistentPersona.getTelefonoList();
             List<Telefono> telefonoListNew = persona.getTelefonoList();
             List<String> illegalOrphanMessages = null;
@@ -267,6 +288,14 @@ public class PersonaJpaController implements Serializable {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
                     illegalOrphanMessages.add("You must retain Recomendado " + recomendadoListOldRecomendado + " since its persona field is not nullable.");
+                }
+            }
+            for (Usuario usuarioListOldUsuario : usuarioListOld) {
+                if (!usuarioListNew.contains(usuarioListOldUsuario)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Usuario " + usuarioListOldUsuario + " since its persona field is not nullable.");
                 }
             }
             for (Telefono telefonoListOldTelefono : telefonoListOld) {
@@ -340,6 +369,13 @@ public class PersonaJpaController implements Serializable {
             }
             recomendadoList2New = attachedRecomendadoList2New;
             persona.setRecomendadoList2(recomendadoList2New);
+            List<Usuario> attachedUsuarioListNew = new ArrayList<Usuario>();
+            for (Usuario usuarioListNewUsuarioToAttach : usuarioListNew) {
+                usuarioListNewUsuarioToAttach = em.getReference(usuarioListNewUsuarioToAttach.getClass(), usuarioListNewUsuarioToAttach.getUsuario());
+                attachedUsuarioListNew.add(usuarioListNewUsuarioToAttach);
+            }
+            usuarioListNew = attachedUsuarioListNew;
+            persona.setUsuarioList(usuarioListNew);
             List<Telefono> attachedTelefonoListNew = new ArrayList<Telefono>();
             for (Telefono telefonoListNewTelefonoToAttach : telefonoListNew) {
                 telefonoListNewTelefonoToAttach = em.getReference(telefonoListNewTelefonoToAttach.getClass(), telefonoListNewTelefonoToAttach.getIdTelefono());
@@ -468,6 +504,17 @@ public class PersonaJpaController implements Serializable {
                     }
                 }
             }
+            for (Usuario usuarioListNewUsuario : usuarioListNew) {
+                if (!usuarioListOld.contains(usuarioListNewUsuario)) {
+                    Persona oldPersonaOfUsuarioListNewUsuario = usuarioListNewUsuario.getPersona();
+                    usuarioListNewUsuario.setPersona(persona);
+                    usuarioListNewUsuario = em.merge(usuarioListNewUsuario);
+                    if (oldPersonaOfUsuarioListNewUsuario != null && !oldPersonaOfUsuarioListNewUsuario.equals(persona)) {
+                        oldPersonaOfUsuarioListNewUsuario.getUsuarioList().remove(usuarioListNewUsuario);
+                        oldPersonaOfUsuarioListNewUsuario = em.merge(oldPersonaOfUsuarioListNewUsuario);
+                    }
+                }
+            }
             for (Telefono telefonoListNewTelefono : telefonoListNew) {
                 if (!telefonoListOld.contains(telefonoListNewTelefono)) {
                     Persona oldPersonaOfTelefonoListNewTelefono = telefonoListNewTelefono.getPersona();
@@ -522,6 +569,13 @@ public class PersonaJpaController implements Serializable {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
                 illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the Recomendado " + recomendadoListOrphanCheckRecomendado + " in its recomendadoList field has a non-nullable persona field.");
+            }
+            List<Usuario> usuarioListOrphanCheck = persona.getUsuarioList();
+            for (Usuario usuarioListOrphanCheckUsuario : usuarioListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the Usuario " + usuarioListOrphanCheckUsuario + " in its usuarioList field has a non-nullable persona field.");
             }
             List<Telefono> telefonoListOrphanCheck = persona.getTelefonoList();
             for (Telefono telefonoListOrphanCheckTelefono : telefonoListOrphanCheck) {

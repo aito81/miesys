@@ -43,6 +43,8 @@ import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.jpa.JpaTipoDocumento;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.StringUtils;
+import py.com.sgipy.miesys.util.ViewConfig;
+
 
 public class AltaPersonaView extends CustomComponent implements View {
 	

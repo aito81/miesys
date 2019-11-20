@@ -18,7 +18,7 @@ import py.com.sgipy.miesys.entities.ReunionAsistencia;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class ReunionAsistenciaJpaController implements Serializable {
 

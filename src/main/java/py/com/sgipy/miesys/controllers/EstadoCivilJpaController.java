@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.EstadoCivil;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class EstadoCivilJpaController implements Serializable {
 

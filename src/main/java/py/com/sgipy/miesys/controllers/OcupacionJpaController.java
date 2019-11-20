@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.Ocupacion;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class OcupacionJpaController implements Serializable {
 

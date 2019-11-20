@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.Division;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class DivisionJpaController implements Serializable {
 

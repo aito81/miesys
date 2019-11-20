@@ -19,7 +19,7 @@ import py.com.sgipy.miesys.entities.Telefono;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class TelefonoJpaController implements Serializable {
 

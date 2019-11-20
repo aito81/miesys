@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.TipoDocumento;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class TipoDocumentoJpaController implements Serializable {
 

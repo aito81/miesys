@@ -18,7 +18,7 @@ import py.com.sgipy.miesys.entities.Departamento;
 
 /**
  *
- * @author aito8
+ * @author Santiago
  */
 public class DepartamentoJpaController implements Serializable {
 
