@@ -292,7 +292,7 @@ public class LoginView extends CustomComponent {
 		
 		
 		txtUsuario = new TextField();
-		txtUsuario.setCaption("Funcionario");
+		txtUsuario.setCaption("Usuario");
 		logueoLayout.addComponent(txtUsuario);
 		
 		txtpass = new PasswordField();

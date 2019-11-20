@@ -45,7 +45,7 @@ import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.StringUtils;
 import py.com.sgipy.miesys.util.ViewConfig;
 
-
+@ViewConfig(uri = "personaAlta", displayName = "Alta de persona")
 public class AltaPersonaView extends CustomComponent implements View {
 	
 	

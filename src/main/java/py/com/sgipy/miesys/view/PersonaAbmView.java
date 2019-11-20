@@ -1,6 +1,9 @@
 package py.com.sgipy.miesys.view;
 
+import java.text.SimpleDateFormat;
+
 import com.vaadin.navigator.View;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
@@ -8,6 +11,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.renderers.HtmlRenderer;
 
 import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Persona;
@@ -57,10 +61,26 @@ public class PersonaAbmView extends CustomComponent implements View {
 		
 		gridPersona.setItems(jpaPer.findPersonaEntities());
 		gridPersona.addColumn(persona -> persona.getNombre()).setId("nombre").setCaption("Nombre");
-		gridPersona.addColumn(persona -> persona.getApellido()).setId("apellido").setCaption("Apellido");
+		gridPersona.addColumn(Persona::getApellido).setId("apellido").setCaption("Apellido");
 		gridPersona.addColumn(persona -> persona.getNumeroDocumento()).setId("nroDoc").setCaption("Numero Documento");
 		gridPersona.addColumn(persona -> persona.getHan().getDescripcion()).setId("han").setCaption("Han");
-		gridPersona.addColumn(persona -> persona.getFechaNacimiento()).setId("fechaNac").setCaption("Fecha Nacimiento");
+		
+		
+		gridPersona.addColumn(persona ->{
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			
+			return sdf.format(persona.getFechaNacimiento());
+		}).setId("fechaNac").setCaption("Fecha Nacimiento");
+		
+		gridPersona.addColumn(Persona -> FontAwesome.EYE.getHtml(), 
+				new HtmlRenderer()).setId("ver").setStyleGenerator(matriz ->
+				"align-center").setWidth(70).setCaption("Ver");
+		
+		gridPersona.addColumn(Persona -> FontAwesome.EDIT.getHtml(),
+				new HtmlRenderer()).setId("editar").setStyleGenerator(matriz ->
+		"align-center").setWidth(70).setCaption("Editar");
+		
+		gridPersona.getDefaultHeaderRow().join("ver","editar").setText("Opciones");
 		
 	}
 	
