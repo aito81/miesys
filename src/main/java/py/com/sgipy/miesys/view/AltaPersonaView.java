@@ -15,6 +15,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Cabildo;
 import py.com.sgipy.miesys.entities.Ciudad;
 import py.com.sgipy.miesys.entities.Departamento;
@@ -59,6 +60,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private HorizontalLayout addOcupacionLayout;
 	private HorizontalLayout addEmpresaLayout;
 	private HorizontalLayout botonLayout;
+	private HorizontalLayout telefonoLayout;
 	
 	
 	private TextField txtNombre;
@@ -89,7 +91,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private Button btnAceptar;
 	private Button btnCancelar;
 
-	private CheckBox chkLaboral;
+	
 	
 	private JpaCiudad jpaCiudad = new JpaCiudad(JpaUtil.getEntityManagerFactory());
 	private JpaEstadoCivil jpaEstCiv = new JpaEstadoCivil(JpaUtil.getEntityManagerFactory());
@@ -115,6 +117,17 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cargarcombos();
 		//btnMas.addClickListener(e -> cargarNuevo(e.getButton().getCaption()));
 		
+		btnCancelar.addClickListener(e -> salir());
+		
+		
+	}
+
+
+
+
+	private void salir() {
+		// TODO Auto-generated method stub
+		MiesysUI.getCurrent().getNavigator().navigateTo("");
 		
 	}
 
@@ -508,7 +521,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		cabildoLayout = new VerticalLayout();
 		cabildoLayout.setHeight("-1px");
-		cabildoLayout.setMargin(false);
+		//cabildoLayout.setMargin(false);
 		cabildoLayout.setSpacing(false);
 		cabildoLayout.setCaption("Cabildo");
 		
@@ -590,13 +603,18 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private VerticalLayout buildUbicacionLayout() {
 	
 		ubicacionLayout = new VerticalLayout();
-		//ubicacionLayout.setMargin(true);
+		ubicacionLayout.setMargin(true);
 		//ubicacionLayout.setSpacing(true);
 	//	ubicacionLayout.setWidth("100%");
 		ubicacionLayout.setHeight("-1px");
 		ubicacionLayout.setCaption("Ubicacion y telefono");
 		
 		direccionLayout = buildDireccionLayout();
+		direccionLayout.setCaption("Laboral");
+		ubicacionLayout.addComponent(direccionLayout);
+		
+		direccionLayout = buildDireccionLayout();
+		direccionLayout.setCaption("Particular");
 		ubicacionLayout.addComponent(direccionLayout);
 		
 		
@@ -613,7 +631,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		direccionLayout = new HorizontalLayout();
 		//direccionLayout.setWidth("100%");
 		direccionLayout.setHeight("-1px");
-		//direccionLayout.setMargin(true);
+		direccionLayout.setMargin(true);
 		direccionLayout.setSpacing(true);
 		
 		cbxDepartamento = new ComboBox<Departamento>();
@@ -628,10 +646,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		txtDir.setCaption("Direccion");
 		direccionLayout.addComponent(txtDir);
 		
-		chkLaboral = new CheckBox();
-		chkLaboral.setCaption("Laboral?");
-		direccionLayout.addComponent(chkLaboral);
-		direccionLayout.setComponentAlignment(chkLaboral, Alignment.BOTTOM_CENTER);
+		
 		
 		return direccionLayout;
 	}
