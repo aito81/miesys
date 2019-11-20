@@ -64,6 +64,7 @@ public class PrincipalView extends CustomComponent implements View {
 	private List<Button> listBtn = new ArrayList<Button>();
 	
 	public PrincipalView() {
+		
 		buildMainLayout();
 		setCompositionRoot(mainLayout);
 		
@@ -99,137 +100,16 @@ public class PrincipalView extends CustomComponent implements View {
 		btn15.setCaption("Asignar Evaluador a cargo");
 		btn16.setCaption("Asignar Pregunta a Cargo");
 		
-
-		btn2.addStyleName(ValoTheme.BUTTON_DANGER);
-		btn2.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("funcionario"));
-		listBtn.add(btn2);
+		datosLayout.addComponent(botonLayout);
+		datosLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
+			
 		
-		btn3.addStyleName(ValoTheme.BUTTON_DANGER);
-		btn3.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("altaUsuario"));
-		listBtn.add(btn3);
 		
-		btn4.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("usuario"));
-		btn4.addStyleName(ValoTheme.BUTTON_DANGER);
 		
-		//botonLayout.addComponent(btn4);
 		
-		btn5.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("altaCargo"));
-		btn5.setStyleName(ValoTheme.BUTTON_DANGER);
 		
-		//botonLayout.addComponent(btn5);
+		
 	
-			
-		
-		btn6.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("cargo"));
-		btn6.setStyleName(ValoTheme.BUTTON_DANGER);
-		listBtn.add(btn6);
-		
-		
-		btn7.addClickListener(e -> MiesysUI.getCurrent().getNavigator().navigateTo("altaArea"));
-		btn7.setStyleName(ValoTheme.BUTTON_DANGER);
-		
-		//botonLayout.addComponent(btn7);
-		
-		
-		
-		/*btn8.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("area"));
-		btn8.addStyleName(ValoTheme.BUTTON_DANGER);
-		listBtn.add(btn8);
-		
-		
-		btn9.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("altaGrupo"));
-		btn9.setStyleName(ValoTheme.BUTTON_DANGER);
-		
-		//botonLayout.addComponent(btn9);
-		
-		btn10.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("grupo"));
-		btn10.setStyleName(ValoTheme.BUTTON_DANGER);
-		listBtn.add(btn10);
-		
-//		botonLayout.addComponent(btn10);
-		
-		btn11.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("cargoGrupo"));
-		btn11.setStyleName(ValoTheme.BUTTON_DANGER);
-		
-		//botonLayout.addComponent(btn11);
-		
-		btn12.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("altaPregunta"));
-		btn12.setStyleName(ValoTheme.BUTTON_DANGER);
-		listBtn.add(btn12);*/
-		
-//		botonLayout = new HorizontalLayout();
-		
-//		datosLayout.addComponent(botonLayout);
-		
-		
-		
-//		botonLayout.addComponent(btn12);
-		
-		/*btn13.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("grupoPregunta"));
-		btn13.setStyleName(ValoTheme.BUTTON_DANGER);
-		listBtn.add(btn13);
-		
-//		botonLayout.addComponent(btn13);
-		
-		btn14.addClickListener(e-> EvaUI.getCurrent().getNavigator().navigateTo("evaluacion"));
-		btn14.setStyleName(ValoTheme.BUTTON_DANGER);
-		listBtn.add(btn14);
-		
-//		botonLayout.addComponent(btn14);
-		
-		
-		btn15.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("evaluadorCargo"));
-		btn15.setStyleName(ValoTheme.BUTTON_DANGER);
-//		botonLayout.addComponent(btn15);
-		listBtn.add(btn15);
-		
-		btn16.addClickListener(e -> EvaUI.getCurrent().getNavigator().navigateTo("cargoPregunta"));
-		btn16.setStyleName(ValoTheme.BUTTON_DANGER);
-//		botonLayout.addComponent(btn16);
-		listBtn.add(btn16);
-		
-		botonLayout = new HorizontalLayout();
-		botonLayout.setMargin(false);
-		botonLayout.setSpacing(false);
-//		botonLayout.setWidth("60%");*/
-		if (UserUtil.getUsuario().getPerfil().getPerfil() == 1) {
-			
-			int cont = 0;
-			
-			for (Button btn : listBtn) {
-				
-				cont = cont + 1;
-				
-				botonLayout.addComponent(btn);
-				
-				if (cont % 4 == 0 ) {
-					
-					datosLayout.addComponent(botonLayout);
-					datosLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
-					botonLayout = new HorizontalLayout();
-					botonLayout.setMargin(false);
-					botonLayout.setSpacing(false);
-//					botonLayout.setWidth("60%");
-				}
-				
-			}
-			
-			datosLayout.addComponent(botonLayout);
-			datosLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
-			
-		}else {
-			//botonLayout.addComponent(btn14);
-			datosLayout.removeAllComponents();
-			datosLayout.addComponent(btn14);
-		}
-		
-		
-		
-		
-		
-		//btn3.addClickListener(event -> addUsuario());
-		
-		//botonLayout.addComponents(btn4, btn5, btn6, btn7);
 		
 	}
 /*	private void addUsuario() {

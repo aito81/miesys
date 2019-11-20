@@ -41,6 +41,7 @@ public class Main extends HorizontalLayout {
 	
 	
 	public Main() {
+		
 		addStyleName(MyTheme.MAIN_LAYOUT);
 		
 		setSizeFull();
@@ -67,7 +68,7 @@ public class Main extends HorizontalLayout {
 	private void registerViews() {
 		
 		
-		addHiddenView(AltaPersonaView.class);
+		addHiddenView(PrincipalView.class);
 		navigationBar.addMenuTitle("Administracion");
 		//addView(AltaPersonaView.class);
 		

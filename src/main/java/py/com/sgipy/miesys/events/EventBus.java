@@ -1,6 +1,6 @@
 package py.com.sgipy.miesys.events;
 
-import py.com.sgipy.miesys.MiesysUI;;
+import py.com.sgipy.miesys.MiesysUI;
 
 public class EventBus {
 

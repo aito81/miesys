@@ -114,11 +114,11 @@ public class NavigationBar extends CssLayout implements ViewChangeListener, Broa
         	settingsItem = settings.addItem("", new ThemeResource(
                     "images/cabeceraImagen.png"), null);
      	*/
-        settingsItem.setText(usuario.getDescripcion());
+       //settingsItem.setText(usuario.getDescripcion());
         
         
         
-        settingsItem.addItem("Cambiar clave", new Command() {
+        /*settingsItem.addItem("Cambiar clave", new Command() {
             
 		private static final long serialVersionUID = 1L;
 
@@ -126,8 +126,7 @@ public class NavigationBar extends CssLayout implements ViewChangeListener, Broa
         public void menuSelected(final MenuItem selectedItem) {
         	//EventBus.post(new NavigationEvent("perfil"));
 			//EvaUI.getCurrent().getNavigator().navigateTo("perfil");
-        }
-        });
+        }});*/
 //        settingsItem.addItem("Preferencias", new Command() {
 //            /**
 //			 * 
@@ -139,18 +138,16 @@ public class NavigationBar extends CssLayout implements ViewChangeListener, Broa
 //            	Notification.show("No implementado", Notification.Type.WARNING_MESSAGE);
 //            }
 //        });
-        settingsItem.addSeparator();
-        settingsItem.addItem("Cerrar Sesion", new Command() {
-            /**
-			 * 
-			 */
+       // settingsItem.addSeparator();
+       /* settingsItem.addItem("Cerrar Sesion", new Command() {
+          
 			private static final long serialVersionUID = 1L;
 
 			@Override
             public void menuSelected(final MenuItem selectedItem) {
             	EventBus.post(new LogoutEvent());
             }
-        });
+        });*/
         return settings;
     }
 	
