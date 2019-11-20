@@ -93,7 +93,7 @@ public class NavigationBar extends CssLayout implements ViewChangeListener, Broa
 	}
 	
 	private Component buildTitle() {
-        Label logo = new Label(" <strong>EVA</strong>",
+        Label logo = new Label(" <strong>SokaPy</strong>",
                 ContentMode.HTML);
         logo.setSizeUndefined();
         HorizontalLayout logoWrapper = new HorizontalLayout(logo);
