@@ -86,7 +86,7 @@ public class PrincipalView extends CustomComponent implements View {
 		
 		btn1.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("personaConsulta"));
 		btn2.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("personaAlta"));
-		
+		btn3.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("ReunionAlta"));
 		
 		datosLayout.addComponent(botonLayout);
 		datosLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
@@ -181,7 +181,7 @@ public class PrincipalView extends CustomComponent implements View {
 		
 		// btn3
 		btn3 = new Button();
-		btn3.setCaption("Button");
+		btn3.setCaption("Alta Reunion");
 		//btn3.setImmediate(true);
 		btn3.setWidth("-1px");
 		btn3.setHeight("-1px");
