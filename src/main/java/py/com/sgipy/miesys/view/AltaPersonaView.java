@@ -5,6 +5,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.DateTimeField;
@@ -19,6 +20,7 @@ import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Cabildo;
 import py.com.sgipy.miesys.entities.Ciudad;
 import py.com.sgipy.miesys.entities.Departamento;
+import py.com.sgipy.miesys.entities.Direccion;
 import py.com.sgipy.miesys.entities.Distrito;
 import py.com.sgipy.miesys.entities.Division;
 import py.com.sgipy.miesys.entities.Empresa;
@@ -28,10 +30,12 @@ import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
 import py.com.sgipy.miesys.entities.Persona;
+import py.com.sgipy.miesys.entities.Telefono;
 import py.com.sgipy.miesys.entities.TipoDocumento;
 import py.com.sgipy.miesys.jpa.JpaCabildo;
 import py.com.sgipy.miesys.jpa.JpaCiudad;
 import py.com.sgipy.miesys.jpa.JpaDepartamento;
+import py.com.sgipy.miesys.jpa.JpaDireccion;
 import py.com.sgipy.miesys.jpa.JpaDistrito;
 import py.com.sgipy.miesys.jpa.JpaDivision;
 import py.com.sgipy.miesys.jpa.JpaEmpresa;
@@ -41,6 +45,7 @@ import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaNacionalidad;
 import py.com.sgipy.miesys.jpa.JpaOcupacion;
 import py.com.sgipy.miesys.jpa.JpaPersona;
+import py.com.sgipy.miesys.jpa.JpaTelefono;
 import py.com.sgipy.miesys.jpa.JpaTipoDocumento;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.StringUtils;
@@ -55,12 +60,13 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private VerticalLayout datosPersonalesLayout;
 	private VerticalLayout ubicacionLayout;
 	private HorizontalLayout direccionLayout;
+	private HorizontalLayout direccionLaboralLayout;
 	private VerticalLayout profesionLayout;
 	private VerticalLayout cabildoLayout;
 	private HorizontalLayout addOcupacionLayout;
 	private HorizontalLayout addEmpresaLayout;
 	private HorizontalLayout botonLayout;
-	private HorizontalLayout telefonoLayout;
+	private VerticalLayout telefonoLayout;
 	
 	
 	private TextField txtNombre;
@@ -68,6 +74,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private TextField txtNroDoc;
 	private TextField txtDir;
 	private TextField txtNroHijo;
+	private TextField txtTelefonoParticular;
+	private TextField txtTelefonoLaboral;
+	private TextField txtDirLaboral;
 	
 	
 	
@@ -83,6 +92,8 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private ComboBox<Cabildo> cbxCabildo;
 	private ComboBox<Distrito> cbxDistrito;
 	private ComboBox<Division> cbxDivision;
+	private ComboBox<Departamento> cbxDptoLaboral;
+	private ComboBox<Ciudad> cbxCiudadLaboral;
 	
 	private DateField dfNacimiento;
 	private DateField dfInicio;
@@ -106,6 +117,8 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private JpaDistrito jpaDis = new JpaDistrito(JpaUtil.getEntityManagerFactory());
 	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
 	private JpaDivision jpaDiv = new JpaDivision(JpaUtil.getEntityManagerFactory());
+	private JpaTelefono jpaTel = new JpaTelefono(JpaUtil.getEntityManagerFactory());
+	private JpaDireccion jpaDir = new JpaDireccion(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -145,6 +158,20 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxCiudad.setItems(jpaCiudad.findCiudadesbyDepto(value));
 		cbxCiudad.setEmptySelectionAllowed(false);
 		cbxCiudad.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
+		
+	}
+	
+private void cargarCiudadesLaboral(Departamento value) {
+		
+		if (value == null) {
+			
+			return;
+			
+		}
+		
+		cbxCiudadLaboral.setItems(jpaCiudad.findCiudadesbyDepto(value));
+		cbxCiudadLaboral.setEmptySelectionAllowed(false);
+		cbxCiudadLaboral.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
 		
 	}
 
@@ -288,6 +315,11 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxDepartamento.setItemCaptionGenerator(gen -> gen.getDescripcion());
 		cbxDepartamento.addValueChangeListener(e -> cargarCiudades(e.getValue()));
 		
+		cbxDptoLaboral.setItems(jpaDep.findDepartamentoEntities());
+		cbxDptoLaboral.setEmptySelectionAllowed(false);
+		cbxDptoLaboral.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		cbxDptoLaboral.addValueChangeListener(e -> cargarCiudadesLaboral(e.getValue()));
+		
 		cbxCabildo.setItems(jpaCab.findCabildoEntities());
 		cbxCabildo.setEmptySelectionAllowed(false);
 		cbxCabildo.setItemCaptionGenerator(gen -> gen.getDescripcion());
@@ -380,11 +412,111 @@ public class AltaPersonaView extends CustomComponent implements View {
 		//addPer.setDivision();
 		try {
 			jpaPer.create(addPer);
+			crearDireccion(addPer);
+			crearTelefono(addPer);
 			Notification.show("Persona agregada correctamente.");
 			limpiarDatos();
 		} catch (Exception e) {
 			Notification.show("Error al dar de alta una persona.", Notification.TYPE_ERROR_MESSAGE);
 		}
+		
+		
+		
+	}
+
+
+
+
+	private void crearTelefono(Persona addPer) {
+		
+		Telefono tel = new Telefono();
+		tel.setIdTelefono(1);
+		tel.setPersona(addPer);
+		tel.setLaboral(false);
+		
+		Telefono telLab = new Telefono();
+		telLab.setPersona(addPer);
+		telLab.setIdTelefono(1);
+		telLab.setLaboral(true);
+		
+		if (!txtTelefonoParticular.getValue().isEmpty()) {
+			
+			tel.setDescripcion(txtTelefonoParticular.getValue());
+			
+			try {
+				jpaTel.create(tel);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+		}
+		
+		if (!txtTelefonoLaboral.getValue().isEmpty()) {
+			
+			telLab.setDescripcion(txtTelefonoLaboral.getValue());
+			
+			try {
+				jpaTel.create(telLab);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+		}
+		
+	}
+
+
+
+
+	private void crearDireccion(Persona addPer) {
+		
+		Direccion dir = new Direccion();
+		dir.setPersona(addPer);
+		dir.setDireccion(1);
+		dir.setLaboral(false);
+		
+		Direccion dirLab = new Direccion();
+		dirLab.setLaboral(true);
+		dirLab.setDireccion(1);
+		dirLab.setPersona(addPer);
+		
+		if (cbxCiudad.getValue() != null) {
+			
+			dir.setCiudad(cbxCiudad.getValue());
+			
+		}
+		
+		if (cbxCiudadLaboral.getValue() != null) {
+			
+			dirLab.setCiudad(cbxCiudadLaboral.getValue());
+			
+		}
+		
+		if (!txtDir.getValue().isEmpty()) {
+			
+			dir.setDescripcion(txtDir.getValue());
+			
+			try {
+				jpaDir.create(dir);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+		}
+		
+		if (!txtDirLaboral.getValue().isEmpty()) {
+			
+			dirLab.setDescripcion(txtDirLaboral.getValue());
+			
+			try {
+				jpaDir.create(dirLab);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+		}
+	
+		
 		
 		
 		
@@ -410,6 +542,13 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxDistrito.clear();
 		cbxHan.clear();
 		cbxDivision.clear();
+		cbxDepartamento.clear();
+		cbxDptoLaboral.clear();
+		txtDir.clear();
+		txtDirLaboral.clear();
+		cbxCiudadLaboral.clear();
+		txtTelefonoLaboral.clear();
+		txtTelefonoParticular.clear();
 		
 		
 	}
@@ -610,17 +749,67 @@ public class AltaPersonaView extends CustomComponent implements View {
 		ubicacionLayout.setCaption("Ubicacion y telefono");
 		
 		direccionLayout = buildDireccionLayout();
-		direccionLayout.setCaption("Laboral");
-		ubicacionLayout.addComponent(direccionLayout);
-		
-		direccionLayout = buildDireccionLayout();
 		direccionLayout.setCaption("Particular");
 		ubicacionLayout.addComponent(direccionLayout);
+		
+		direccionLaboralLayout = buildDireccionLaboralLayout();
+		direccionLaboralLayout.setCaption("Laboral");
+		ubicacionLayout.addComponent(direccionLaboralLayout);
+		
+		telefonoLayout = buildTelefonoLayout();
+		ubicacionLayout.addComponent(telefonoLayout);
+		
+		
 		
 		
 		
 		
 		return ubicacionLayout;
+	}
+
+
+
+
+	private HorizontalLayout buildDireccionLaboralLayout() {
+		
+		direccionLaboralLayout = new HorizontalLayout();
+		direccionLaboralLayout.setHeight("-1px");
+		direccionLaboralLayout.setMargin(true);
+		direccionLaboralLayout.setSpacing(true);
+		
+		cbxDptoLaboral = new ComboBox<Departamento>();
+		cbxDptoLaboral.setCaption("Departamento");
+		direccionLaboralLayout.addComponent(cbxDptoLaboral);
+		
+		cbxCiudadLaboral = new ComboBox<Ciudad>();
+		cbxCiudadLaboral.setCaption("Ciudad");
+		direccionLaboralLayout.addComponent(cbxCiudadLaboral);
+		
+		txtDirLaboral = new TextField();
+		txtDirLaboral.setCaption("Direccion");
+		direccionLaboralLayout.addComponent(txtDirLaboral);
+		
+		return direccionLaboralLayout; 
+	}
+
+
+
+
+	private VerticalLayout buildTelefonoLayout() {
+		
+		telefonoLayout = new VerticalLayout();
+		telefonoLayout.setCaption("Telefonos");
+		
+		txtTelefonoLaboral = new TextField();
+		txtTelefonoLaboral.setCaption("Laboral");
+		telefonoLayout.addComponent(txtTelefonoLaboral);
+		
+		txtTelefonoParticular = new TextField();
+		txtTelefonoParticular.setCaption("Particular");
+		telefonoLayout.addComponent(txtTelefonoParticular);
+		
+		return telefonoLayout;
+		
 	}
 
 
