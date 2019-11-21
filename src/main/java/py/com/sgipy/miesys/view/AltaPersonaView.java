@@ -375,6 +375,47 @@ private void cargarCiudadesLaboral(Departamento value) {
 
 	private void guardar() {
 		
+		
+		if (txtNombre.getValue().isEmpty()) {
+			
+			Notification.show("Debe cargar el nombre del miembro", Notification.TYPE_ERROR_MESSAGE);
+			
+			txtNombre.focus();
+			
+			return;
+			
+		}
+		
+		if (txtApellido.getValue().isEmpty()) {
+			
+			Notification.show("Debe cargar el apellido del miembro", Notification.TYPE_ERROR_MESSAGE);
+			
+			txtApellido.focus();
+			
+			return;
+			
+		}
+		
+		if (cbxNacionalidad.getValue() == null) {
+			
+			Notification.show("Debe cargarse la nacionalidad.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxNacionalidad.focus();
+			
+			return;
+			
+		}
+		
+		if (cbxGenero.getValue() == null) {
+			
+			Notification.show("Debe cargarse el genero.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxGenero.focus();
+			
+			return;
+			
+		}
+		
 		Persona addPer = new Persona();
 		addPer.setPersona(1);
 		addPer.setNombre(txtNombre.getValue().toUpperCase());

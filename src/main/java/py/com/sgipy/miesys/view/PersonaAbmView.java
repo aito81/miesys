@@ -1,10 +1,13 @@
 package py.com.sgipy.miesys.view;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import com.vaadin.navigator.View;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
@@ -14,7 +17,15 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import py.com.sgipy.miesys.MiesysUI;
+import py.com.sgipy.miesys.entities.Division;
+import py.com.sgipy.miesys.entities.Genero;
+import py.com.sgipy.miesys.entities.Han;
+import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Persona;
+import py.com.sgipy.miesys.jpa.JpaDivision;
+import py.com.sgipy.miesys.jpa.JpaGenero;
+import py.com.sgipy.miesys.jpa.JpaHan;
+import py.com.sgipy.miesys.jpa.JpaNacionalidad;
 import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.ViewConfig;
@@ -33,13 +44,24 @@ public class PersonaAbmView extends CustomComponent implements View {
 	private VerticalLayout datosLayout;
 	private HorizontalLayout botonLayout;
 	
+	
 	private TextField txtBusqueda;
 	
 	private Grid<Persona> gridPersona;
 	
+	private ComboBox<Han> cbxHan;
+	private ComboBox<Genero> cbxGenero;
+	private ComboBox<Nacionalidad> cbxNacionalidad;
+	private ComboBox<Division> cbxDivision;
+	
 	private Button btnSalir;
+	private Button btnBuscar;
 	
 	private JpaPersona jpaPer = new JpaPersona(JpaUtil.getEntityManagerFactory());
+	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
+	private JpaNacionalidad jpaNac = new JpaNacionalidad(JpaUtil.getEntityManagerFactory());
+	private JpaGenero jpaGen = new JpaGenero(JpaUtil.getEntityManagerFactory());
+	private JpaDivision jpaDiv = new JpaDivision(JpaUtil.getEntityManagerFactory());
 	
 	
 	public PersonaAbmView () {
@@ -48,7 +70,35 @@ public class PersonaAbmView extends CustomComponent implements View {
 		setCompositionRoot(mainLayout);
 		cargarGrilla();
 		btnSalir.addClickListener(e -> volver());
+		//txtBusqueda.addValueChangeListener(e -> buscar(e.getValue()));
+		btnBuscar.addClickListener(e -> gridPersona.setItems(
+				jpaPer.findPersonaByParam(txtBusqueda.getValue(), cbxDivision.getValue(), cbxNacionalidad.getValue(), cbxHan.getValue(), cbxGenero.getValue())));
+		cargarCombos();
+		
 	}
+
+
+	
+
+
+	private void cargarCombos() {
+		
+		cbxGenero.setItems(jpaGen.findGeneroEntities());
+		cbxGenero.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		
+		cbxHan.setItems(jpaHan.findHanEntities());
+		cbxHan.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		
+		cbxNacionalidad.setItems(jpaNac.findNacionalidadEntities());
+		cbxNacionalidad.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		
+		cbxDivision.setItems(jpaDiv.findDivisionEntities());
+		cbxDivision.setItemCaptionGenerator(gen -> gen.getDescripcion());
+	
+		
+	}
+
+
 
 
 	private void volver() {
@@ -112,6 +162,7 @@ public class PersonaAbmView extends CustomComponent implements View {
 		
 		busquedaLayout = buildBusquedaLayout();
 		formLayout.addComponent(busquedaLayout);
+		formLayout.setComponentAlignment(busquedaLayout, Alignment.MIDDLE_CENTER);
 		
 		datosLayout = buildDatosLayout();
 		formLayout.addComponent(datosLayout);
@@ -123,6 +174,9 @@ public class PersonaAbmView extends CustomComponent implements View {
 		
 		return formLayout;
 	}
+
+
+	
 
 
 	private HorizontalLayout buildBotonLayout() {
@@ -157,10 +211,32 @@ public class PersonaAbmView extends CustomComponent implements View {
 	private HorizontalLayout buildBusquedaLayout() {
 
 		busquedaLayout = new HorizontalLayout();
+		busquedaLayout.setCaption("Busqueda");
+		
+		cbxGenero = new ComboBox<Genero>();
+		cbxGenero.setCaption("Genero");
+		busquedaLayout.addComponent(cbxGenero);
+		
+		cbxNacionalidad = new ComboBox<Nacionalidad>();
+		cbxNacionalidad.setCaption("Nacionalidad");
+		busquedaLayout.addComponent(cbxNacionalidad);
+		
+		cbxHan = new ComboBox<Han>();
+		cbxHan.setCaption("Han");
+		busquedaLayout.addComponent(cbxHan);
+		
+		cbxDivision = new ComboBox<Division>();
+		cbxDivision.setCaption("Division");
+		busquedaLayout.addComponent(cbxDivision);
 		
 		txtBusqueda = new TextField();
-		txtBusqueda.setCaption("Busqueda");
+		txtBusqueda.setCaption("Nombre y/o apellido");
 		busquedaLayout.addComponent(txtBusqueda);
+		
+		btnBuscar = new Button();
+		btnBuscar.setCaption("Buscar");
+		busquedaLayout.addComponent(btnBuscar);
+		busquedaLayout.setComponentAlignment(btnBuscar, Alignment.BOTTOM_CENTER);
 		
 		return busquedaLayout;
 	}
