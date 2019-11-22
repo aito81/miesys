@@ -1,5 +1,10 @@
 package py.com.sgipy.miesys.view;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -134,9 +139,61 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		
 	}
+	
+	public AltaPersonaView(Persona verPer) {
+		
+		buildMainLayout();
+		setCompositionRoot(mainLayout);
+		cargarcombos();
+		cargarDatos(verPer);
+		
+	}
 
 
 
+
+	private void cargarDatos(Persona verPer) {
+		
+		txtNombre.setValue(verPer.getNombre());
+		txtApellido.setValue(verPer.getApellido());
+		cbxGenero.setValue(verPer.getGenero());
+		cbxTipoDoc.setValue(verPer.getTipoDocumento());
+		txtNroDoc.setValue(verPer.getNumeroDocumento());
+		cbxNacionalidad.setValue(verPer.getNacionalidad());
+		cbxEstadoCivil.setValue(verPer.getEstadoCivil());
+		
+		if (verPer.getFechaNacimiento() != null) {
+			
+			Instant instant = Instant.ofEpochMilli(verPer.getFechaNacimiento().getTime());
+			LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+			LocalDate localDate = localDateTime.toLocalDate();
+			
+			dfNacimiento.setValue(localDate);
+			
+		}
+		
+		txtNroHijo.setValue(verPer.getCantidadHijos().toString());
+		cbxOcupacion.setValue(verPer.getOcupacion());
+		cbxEmpresa.setValue(verPer.getEmpresa());
+		cbxCabildo.setValue(verPer.getHan().getDistrito().getCabildo());
+		cbxDistrito.setValue(verPer.getHan().getDistrito());
+		cbxHan.setValue(verPer.getHan());
+		cbxDivision.setValue(verPer.getDivision());
+		
+		if (verPer.getFechaInicio() != null) {
+			
+			Instant instant = Instant.ofEpochMilli(verPer.getFechaInicio().getTime());
+			LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+			LocalDate localDate = localDateTime.toLocalDate();
+			
+			dfNacimiento.setValue(localDate);
+			
+		}
+		
+		
+		
+		
+	}
 
 	private void salir() {
 		// TODO Auto-generated method stub
@@ -929,17 +986,18 @@ private void cargarCiudadesLaboral(Departamento value) {
 		txtNroHijo.setCaption("Cantidad de hijos");
 		datosPersonalesLayout.addComponent(txtNroHijo);
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		return datosPersonalesLayout;
 	}
+
+	public HorizontalLayout getFormLayout() {
+		return formLayout;
+	}
+
+	public void setFormLayout(HorizontalLayout formLayout) {
+		this.formLayout = formLayout;
+	}
+	
+	
 	
 
 }

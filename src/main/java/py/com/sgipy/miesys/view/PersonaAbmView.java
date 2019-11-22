@@ -10,10 +10,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.ItemClick;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.components.grid.ItemClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import py.com.sgipy.miesys.MiesysUI;
@@ -29,6 +33,7 @@ import py.com.sgipy.miesys.jpa.JpaNacionalidad;
 import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.ViewConfig;
+
 
 
 
@@ -62,6 +67,8 @@ public class PersonaAbmView extends CustomComponent implements View {
 	private JpaNacionalidad jpaNac = new JpaNacionalidad(JpaUtil.getEntityManagerFactory());
 	private JpaGenero jpaGen = new JpaGenero(JpaUtil.getEntityManagerFactory());
 	private JpaDivision jpaDiv = new JpaDivision(JpaUtil.getEntityManagerFactory());
+	
+	private Window ventana;
 	
 	
 	public PersonaAbmView () {
@@ -131,6 +138,31 @@ public class PersonaAbmView extends CustomComponent implements View {
 		"align-center").setWidth(70).setCaption("Editar");
 		
 		gridPersona.getDefaultHeaderRow().join("ver","editar").setText("Opciones");
+		
+		gridPersona.addItemClickListener(new ItemClickListener<Persona>() {
+
+			@Override
+			public void itemClick(ItemClick<Persona> event) {
+
+				if (event.getColumn().getId().equals("ver")) {
+					verPersona(event.getItem());
+				}
+				
+			}
+		});
+		
+	}
+	
+	private void verPersona(Persona per) {
+		AltaPersonaView editPersona = new AltaPersonaView(per);
+		ventana = new Window("Consulta de Datos", editPersona);
+		ventana.center();
+		ventana.setSizeFull();
+		//editPersona.getAltaLayout().setEnabled(false);
+		//editPersona.getMainLayout().setEnabled(false);
+		//editPersona.getBotonLayout().setVisible(false);
+		UI.getCurrent().addWindow(ventana);
+		//ventana.addCloseListener(e -> gridPersona.setItems(jpaPer.findPersonasActiva()));
 		
 	}
 	
