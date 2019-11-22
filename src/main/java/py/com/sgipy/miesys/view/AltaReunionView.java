@@ -48,6 +48,7 @@ public class AltaReunionView extends CustomComponent implements View{
 		cargarCombos();
 		btnAddEstudio.addClickListener(e -> addEstudio());
 		
+		
 	}
 
 
@@ -155,6 +156,7 @@ public class AltaReunionView extends CustomComponent implements View{
 		return altaEstudioLayout;
 		
 	}
+	
 	
 
 }

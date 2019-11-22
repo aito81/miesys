@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Alignment;
@@ -146,11 +147,218 @@ public class AltaPersonaView extends CustomComponent implements View {
 		setCompositionRoot(mainLayout);
 		cargarcombos();
 		cargarDatos(verPer);
+		btnAceptar.setCaption("Guardar");
+		btnAceptar.addClickListener(e -> editarPersona(verPer));
 		
 	}
 
 
 
+
+	private void editarPersona(Persona verPer) {
+
+		
+		
+		
+		if (txtNombre.getValue().isEmpty()) {
+			
+			Notification.show("Debe cargar el nombre del miembro", Notification.TYPE_ERROR_MESSAGE);
+			
+			txtNombre.focus();
+			
+			return;
+			
+		}
+		
+		if (txtApellido.getValue().isEmpty()) {
+			
+			Notification.show("Debe cargar el apellido del miembro", Notification.TYPE_ERROR_MESSAGE);
+			
+			txtApellido.focus();
+			
+			return;
+			
+		}
+		
+		if (cbxNacionalidad.getValue() == null) {
+			
+			Notification.show("Debe cargarse la nacionalidad.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxNacionalidad.focus();
+			
+			return;
+			
+		}
+		
+		if (cbxGenero.getValue() == null) {
+			
+			Notification.show("Debe cargarse el genero.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxGenero.focus();
+			
+			return;
+			
+		}
+		
+		Persona editPersona = verPer;
+		editPersona.setNombre(txtNombre.getValue().toUpperCase());
+		editPersona.setApellido(txtApellido.getValue().toUpperCase());
+		editPersona.setNumeroDocumento(txtNroDoc.getValue());
+		editPersona.setTipoDocumento(cbxTipoDoc.getValue());
+		editPersona.setEstadoCivil(cbxEstadoCivil.getValue());
+		editPersona.setOcupacion(cbxOcupacion.getValue());
+		if (dfInicio.getValue() != null) {
+			
+			editPersona.setFechaInicio(StringUtils.convertirLocalDateToDate(dfInicio.getValue()));
+			
+		}
+		
+		if (dfNacimiento.getValue() != null) {
+		
+			editPersona.setFechaNacimiento(StringUtils.convertirLocalDateToDate(dfNacimiento.getValue()));
+			
+		}
+		
+		
+		editPersona.setEmpresa(cbxEmpresa.getValue());
+		editPersona.setGenero(cbxGenero.getValue());
+		editPersona.setNacionalidad(cbxNacionalidad.getValue());
+		editPersona.setHan(cbxHan.getValue());
+		editPersona.setDivision(cbxDivision.getValue());
+		
+		if (txtNroHijo.getValue() != null) {
+			if (StringUtils.isNumeric(txtNroHijo.getValue())) {
+				editPersona.setCantidadHijos(Integer.valueOf(txtNroHijo.getValue()));
+			}else {
+				txtNroHijo.clear();
+			}
+		}
+		
+		//addPer.setDivision();
+		try {
+			
+			jpaPer.edit(editPersona);
+			
+			if (jpaDir.findDireccionByPersona(editPersona, false).isEmpty()) {
+				
+				crearDireccion(editPersona, false);
+				
+			}else {
+				
+				if (!txtDir.getValue().isEmpty()) {
+					
+					jpaDir.findDireccionByPersona(editPersona, false).get(0).setDescripcion(txtDir.getValue());
+					
+					if ((cbxCiudad.getValue() != null)) {
+						
+						jpaDir.findDireccionByPersona(editPersona, false).get(0).setCiudad(cbxCiudad.getValue());
+						
+					}
+					
+					try {
+						
+						jpaDir.edit( jpaDir.findDireccionByPersona(editPersona, false).get(0) );
+						
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					
+				}
+				
+			}
+			
+			if (jpaDir.findDireccionByPersona(editPersona, true).isEmpty()) {
+				
+				crearDireccion(editPersona, true);
+				
+			}else {
+				
+				if (!txtDirLaboral.getValue().isEmpty()) {
+					
+					jpaDir.findDireccionByPersona(editPersona, true).get(0).setDescripcion(txtDirLaboral.getValue());
+					
+					if ((cbxCiudadLaboral.getValue() != null)) {
+						
+						jpaDir.findDireccionByPersona(editPersona, true).get(0).setCiudad(cbxCiudadLaboral.getValue());
+						
+					}
+					
+					try {
+						
+						jpaDir.edit(jpaDir.findDireccionByPersona(editPersona, true).get(0));
+						
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					
+				}
+				
+			}
+			
+			if ( jpaTel.findTelefonoByPersona(editPersona, false).get(0) == null ) {
+				
+				crearTelefono(editPersona, false);
+				
+			}else {
+				
+				if (! txtTelefonoParticular.getValue().isEmpty()) {
+					
+					jpaTel.findTelefonoByPersona(editPersona, false).get(0).setDescripcion(txtTelefonoParticular.getValue());
+					
+					try {
+						
+						jpaTel.edit(jpaTel.findTelefonoByPersona(editPersona, false).get(0));
+						
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					
+				}
+				
+			}
+			
+			
+			if ( jpaTel.findTelefonoByPersona(editPersona, true).get(0) == null ) {
+				
+				crearTelefono(editPersona, true);
+				
+			}else {
+				
+				if (! txtTelefonoLaboral.getValue().isEmpty()) {
+					
+					jpaTel.findTelefonoByPersona(editPersona, true).get(0).setDescripcion(txtTelefonoLaboral.getValue());
+					
+					try {
+						
+						jpaTel.edit(jpaTel.findTelefonoByPersona(editPersona, true).get(0));
+						
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					
+				}
+				
+			}
+			
+			
+			
+			
+			
+			
+			
+			Notification.show("Persona editada correctamente.");
+			limpiarDatos();
+		} catch (Exception e) {
+			Notification.show("Error editar una persona.", Notification.TYPE_ERROR_MESSAGE);
+		}
+		
+		
+		
+	}
+
+	
+
+	
 
 	private void cargarDatos(Persona verPer) {
 		
@@ -171,8 +379,12 @@ public class AltaPersonaView extends CustomComponent implements View {
 			dfNacimiento.setValue(localDate);
 			
 		}
+		if ( verPer.getCantidadHijos() != null ) {
 		
-		txtNroHijo.setValue(verPer.getCantidadHijos().toString());
+			txtNroHijo.setValue(verPer.getCantidadHijos().toString());
+			
+		}
+		
 		
 		if (verPer.getOcupacion() != null) {
 		
@@ -213,18 +425,23 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 		}
 		
-		Direccion dirLab = jpaDir.findDireccionByPersona(verPer, true);
-		Direccion dir = jpaDir.findDireccionByPersona(verPer, false);
+		/*Direccion dirLab = jpaDir.findDireccionByPersona(verPer, true);
+		Direccion dir = jpaDir.findDireccionByPersona(verPer, false);*/
+		List<Direccion> listDir = jpaDir.findDireccionByPersona(verPer, false);
+		List<Direccion> listDirLab = jpaDir.findDireccionByPersona(verPer, true);
 		
-		if (dirLab != null) {
+		if (!listDirLab.isEmpty()) {
 			
+			Direccion dirLab = listDir.get(0);
 			cbxDptoLaboral.setValue(dirLab.getCiudad().getDepartamento());
 			cbxCiudadLaboral.setValue(dirLab.getCiudad());
 			txtDirLaboral.setValue(dirLab.getDescripcion());
 			
 		}
 		
-		if (dir != null) {
+		if (!listDir.isEmpty()) {
+			
+			Direccion dir = listDir.get(0);
 			
 			cbxDepartamento.setValue(dir.getCiudad().getDepartamento());
 			cbxCiudad.setValue(dir.getCiudad());
@@ -232,17 +449,22 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 		}
 		
-		Telefono tel = jpaTel.findTelefonoByPersona(verPer, false);
-		Telefono telLab = jpaTel.findTelefonoByPersona(verPer, true);
+		/*Telefono tel = jpaTel.findTelefonoByPersona(verPer, false);
+		Telefono telLab = jpaTel.findTelefonoByPersona(verPer, true);*/
 		
-		if (tel != null) {
+		List<Telefono> listTel = jpaTel.findTelefonoByPersona(verPer, false);
+		List<Telefono> listTelLab = jpaTel.findTelefonoByPersona(verPer, true);
+		
+		if (!listTel.isEmpty()) {
 			
+			Telefono tel = listTel.get(0);
 			txtTelefonoParticular.setValue(tel.getDescripcion());
 			
 		}
 		
-		if (telLab != null) {
+		if (!listTelLab.isEmpty()) {
 			
+			Telefono telLab = listTelLab.get(0);
 			txtTelefonoLaboral.setValue(telLab.getDescripcion());
 			
 		}
@@ -272,7 +494,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 	}
 	
-private void cargarCiudadesLaboral(Departamento value) {
+	private void cargarCiudadesLaboral(Departamento value) {
 		
 		if (value == null) {
 			
@@ -564,8 +786,10 @@ private void cargarCiudadesLaboral(Departamento value) {
 		//addPer.setDivision();
 		try {
 			jpaPer.create(addPer);
-			crearDireccion(addPer);
-			crearTelefono(addPer);
+			crearDireccion(addPer, false);
+			crearDireccion(addPer, true);
+			crearTelefono(addPer, false);
+			crearTelefono(addPer, true);
 			Notification.show("Persona agregada correctamente.");
 			limpiarDatos();
 		} catch (Exception e) {
@@ -579,40 +803,44 @@ private void cargarCiudadesLaboral(Departamento value) {
 
 
 
-	private void crearTelefono(Persona addPer) {
+	private void crearTelefono(Persona addPer, Boolean Laboral) {
 		
-		Telefono tel = new Telefono();
-		tel.setTelefono(1);
-		tel.setPersona(addPer);
-		tel.setLaboral(false);
-		
-		Telefono telLab = new Telefono();
-		telLab.setPersona(addPer);
-		telLab.setTelefono(1);
-		telLab.setLaboral(true);
-		
-		if (!txtTelefonoParticular.getValue().isEmpty()) {
+		if (Laboral) {
 			
-			tel.setDescripcion(txtTelefonoParticular.getValue());
+			Telefono telLab = new Telefono();
+			telLab.setPersona(addPer);
+			telLab.setTelefono(1);
+			telLab.setLaboral(true);
 			
-			try {
-				jpaTel.create(tel);
-			} catch (Exception e) {
-				// TODO: handle exception
+			if (!txtTelefonoLaboral.getValue().isEmpty()) {
+				
+				telLab.setDescripcion(txtTelefonoLaboral.getValue());
+				
+				try {
+					jpaTel.create(telLab);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				
 			}
+		}else {
 			
-		}
-		
-		if (!txtTelefonoLaboral.getValue().isEmpty()) {
+			Telefono tel = new Telefono();
+			tel.setTelefono(1);
+			tel.setPersona(addPer);
+			tel.setLaboral(false);
 			
-			telLab.setDescripcion(txtTelefonoLaboral.getValue());
-			
-			try {
-				jpaTel.create(telLab);
-			} catch (Exception e) {
-				// TODO: handle exception
+			if (!txtTelefonoParticular.getValue().isEmpty()) {
+				
+				tel.setDescripcion(txtTelefonoParticular.getValue());
+				
+				try {
+					jpaTel.create(tel);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				
 			}
-			
 		}
 		
 	}
@@ -620,53 +848,66 @@ private void cargarCiudadesLaboral(Departamento value) {
 
 
 
-	private void crearDireccion(Persona addPer) {
+	private void crearDireccion(Persona addPer, Boolean laboral) {
 		
-		Direccion dir = new Direccion();
-		dir.setPersona(addPer);
-		dir.setDireccion(1);
-		dir.setLaboral(false);
-		
-		Direccion dirLab = new Direccion();
-		dirLab.setLaboral(true);
-		dirLab.setDireccion(1);
-		dirLab.setPersona(addPer);
-		
-		if (cbxCiudad.getValue() != null) {
+		if (laboral) {
 			
-			dir.setCiudad(cbxCiudad.getValue());
+			Direccion dirLab = new Direccion();
+			dirLab.setLaboral(laboral);
+			dirLab.setDireccion(1);
+			dirLab.setPersona(addPer);
 			
-		}
-		
-		if (cbxCiudadLaboral.getValue() != null) {
+			if (cbxCiudadLaboral.getValue() != null) {
+				
+				dirLab.setCiudad(cbxCiudadLaboral.getValue());
+				
+			}
 			
-			dirLab.setCiudad(cbxCiudadLaboral.getValue());
+			if (!txtDirLaboral.getValue().isEmpty()) {
+				
+				dirLab.setDescripcion(txtDirLaboral.getValue());
+				
+				try {
+					jpaDir.create(dirLab);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				
+			}
 			
-		}
-		
-		if (!txtDir.getValue().isEmpty()) {
+		}else {
 			
-			dir.setDescripcion(txtDir.getValue());
+			Direccion dir = new Direccion();
+			dir.setPersona(addPer);
+			dir.setDireccion(1);
+			dir.setLaboral(laboral);
 			
-			try {
-				jpaDir.create(dir);
-			} catch (Exception e) {
-				// TODO: handle exception
+			if (cbxCiudad.getValue() != null) {
+				
+				dir.setCiudad(cbxCiudad.getValue());
+				
+			}
+			
+			if (!txtDir.getValue().isEmpty()) {
+				
+				dir.setDescripcion(txtDir.getValue());
+				
+				try {
+					jpaDir.create(dir);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				
 			}
 			
 		}
 		
-		if (!txtDirLaboral.getValue().isEmpty()) {
-			
-			dirLab.setDescripcion(txtDirLaboral.getValue());
-			
-			try {
-				jpaDir.create(dirLab);
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			
-		}
+		
+		
+		
+		
+		
+		
 	
 		
 		
@@ -1049,6 +1290,14 @@ private void cargarCiudadesLaboral(Departamento value) {
 
 	public void setFormLayout(HorizontalLayout formLayout) {
 		this.formLayout = formLayout;
+	}
+
+	public HorizontalLayout getBotonLayout() {
+		return botonLayout;
+	}
+
+	public void setBotonLayout(HorizontalLayout botonLayout) {
+		this.botonLayout = botonLayout;
 	}
 	
 	

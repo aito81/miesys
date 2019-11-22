@@ -148,6 +148,10 @@ public class PersonaAbmView extends CustomComponent implements View {
 					verPersona(event.getItem());
 				}
 				
+				if (event.getColumn().getId().equals("editar")) {
+					editarPersona(event.getItem());
+				}
+				
 			}
 		});
 		
@@ -160,7 +164,20 @@ public class PersonaAbmView extends CustomComponent implements View {
 		ventana.setSizeFull();
 		//editPersona.getAltaLayout().setEnabled(false);
 		//editPersona.getMainLayout().setEnabled(false);
-		//editPersona.getBotonLayout().setVisible(false);
+		editPersona.getBotonLayout().setVisible(false);
+		editPersona.getFormLayout().setEnabled(false);
+		
+		UI.getCurrent().addWindow(ventana);
+		//ventana.addCloseListener(e -> gridPersona.setItems(jpaPer.findPersonasActiva()));
+		
+	}
+	
+	private void editarPersona(Persona per) {
+		AltaPersonaView editPersona = new AltaPersonaView(per);
+		ventana = new Window("Consulta de Datos", editPersona);
+		ventana.center();
+		ventana.setSizeFull();
+		
 		UI.getCurrent().addWindow(ventana);
 		//ventana.addCloseListener(e -> gridPersona.setItems(jpaPer.findPersonasActiva()));
 		
