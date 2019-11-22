@@ -10,6 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.sgipy.miesys.entities.Departamento;
 import py.com.sgipy.miesys.entities.Direccion;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,11 @@ public class CiudadJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Departamento departamento = ciudad.getDepartamento();
+            if (departamento != null) {
+                departamento = em.getReference(departamento.getClass(), departamento.getDepartamento());
+                ciudad.setDepartamento(departamento);
+            }
             List<Direccion> attachedDireccionList = new ArrayList<Direccion>();
             for (Direccion direccionListDireccionToAttach : ciudad.getDireccionList()) {
                 direccionListDireccionToAttach = em.getReference(direccionListDireccionToAttach.getClass(), direccionListDireccionToAttach.getDireccion());
@@ -48,6 +54,10 @@ public class CiudadJpaController implements Serializable {
             }
             ciudad.setDireccionList(attachedDireccionList);
             em.persist(ciudad);
+            if (departamento != null) {
+                departamento.getCiudadList().add(ciudad);
+                departamento = em.merge(departamento);
+            }
             for (Direccion direccionListDireccion : ciudad.getDireccionList()) {
                 Ciudad oldCiudadOfDireccionListDireccion = direccionListDireccion.getCiudad();
                 direccionListDireccion.setCiudad(ciudad);
@@ -71,8 +81,14 @@ public class CiudadJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Ciudad persistentCiudad = em.find(Ciudad.class, ciudad.getCiudad());
+            Departamento departamentoOld = persistentCiudad.getDepartamento();
+            Departamento departamentoNew = ciudad.getDepartamento();
             List<Direccion> direccionListOld = persistentCiudad.getDireccionList();
             List<Direccion> direccionListNew = ciudad.getDireccionList();
+            if (departamentoNew != null) {
+                departamentoNew = em.getReference(departamentoNew.getClass(), departamentoNew.getDepartamento());
+                ciudad.setDepartamento(departamentoNew);
+            }
             List<Direccion> attachedDireccionListNew = new ArrayList<Direccion>();
             for (Direccion direccionListNewDireccionToAttach : direccionListNew) {
                 direccionListNewDireccionToAttach = em.getReference(direccionListNewDireccionToAttach.getClass(), direccionListNewDireccionToAttach.getDireccion());
@@ -81,6 +97,14 @@ public class CiudadJpaController implements Serializable {
             direccionListNew = attachedDireccionListNew;
             ciudad.setDireccionList(direccionListNew);
             ciudad = em.merge(ciudad);
+            if (departamentoOld != null && !departamentoOld.equals(departamentoNew)) {
+                departamentoOld.getCiudadList().remove(ciudad);
+                departamentoOld = em.merge(departamentoOld);
+            }
+            if (departamentoNew != null && !departamentoNew.equals(departamentoOld)) {
+                departamentoNew.getCiudadList().add(ciudad);
+                departamentoNew = em.merge(departamentoNew);
+            }
             for (Direccion direccionListOldDireccion : direccionListOld) {
                 if (!direccionListNew.contains(direccionListOldDireccion)) {
                     direccionListOldDireccion.setCiudad(null);
@@ -126,6 +150,11 @@ public class CiudadJpaController implements Serializable {
                 ciudad.getCiudad();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The ciudad with id " + id + " no longer exists.", enfe);
+            }
+            Departamento departamento = ciudad.getDepartamento();
+            if (departamento != null) {
+                departamento.getCiudadList().remove(ciudad);
+                departamento = em.merge(departamento);
             }
             List<Direccion> direccionList = ciudad.getDireccionList();
             for (Direccion direccionListDireccion : direccionList) {

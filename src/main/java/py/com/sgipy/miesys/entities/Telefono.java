@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Telefono.findAll", query = "SELECT t FROM Telefono t")
-    , @NamedQuery(name = "Telefono.findByIdTelefono", query = "SELECT t FROM Telefono t WHERE t.idTelefono = :idTelefono")
+    , @NamedQuery(name = "Telefono.findByTelefono", query = "SELECT t FROM Telefono t WHERE t.telefono = :telefono")
     , @NamedQuery(name = "Telefono.findByDescripcion", query = "SELECT t FROM Telefono t WHERE t.descripcion = :descripcion")
     , @NamedQuery(name = "Telefono.findByLaboral", query = "SELECT t FROM Telefono t WHERE t.laboral = :laboral")})
 public class Telefono implements Serializable {
@@ -37,8 +37,8 @@ public class Telefono implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id_telefono")
-    private Integer idTelefono;
+    @Column(name = "telefono")
+    private Integer telefono;
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
@@ -52,22 +52,22 @@ public class Telefono implements Serializable {
     public Telefono() {
     }
 
-    public Telefono(Integer idTelefono) {
-        this.idTelefono = idTelefono;
+    public Telefono(Integer telefono) {
+        this.telefono = telefono;
     }
 
-    public Telefono(Integer idTelefono, String descripcion, boolean laboral) {
-        this.idTelefono = idTelefono;
+    public Telefono(Integer telefono, String descripcion, boolean laboral) {
+        this.telefono = telefono;
         this.descripcion = descripcion;
         this.laboral = laboral;
     }
 
-    public Integer getIdTelefono() {
-        return idTelefono;
+    public Integer getTelefono() {
+        return telefono;
     }
 
-    public void setIdTelefono(Integer idTelefono) {
-        this.idTelefono = idTelefono;
+    public void setTelefono(Integer telefono) {
+        this.telefono = telefono;
     }
 
     public String getDescripcion() {
@@ -97,7 +97,7 @@ public class Telefono implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (idTelefono != null ? idTelefono.hashCode() : 0);
+        hash += (telefono != null ? telefono.hashCode() : 0);
         return hash;
     }
 
@@ -108,7 +108,7 @@ public class Telefono implements Serializable {
             return false;
         }
         Telefono other = (Telefono) object;
-        if ((this.idTelefono == null && other.idTelefono != null) || (this.idTelefono != null && !this.idTelefono.equals(other.idTelefono))) {
+        if ((this.telefono == null && other.telefono != null) || (this.telefono != null && !this.telefono.equals(other.telefono))) {
             return false;
         }
         return true;
@@ -116,7 +116,7 @@ public class Telefono implements Serializable {
 
     @Override
     public String toString() {
-        return "py.com.sgipy.miesys.entities.Telefono[ idTelefono=" + idTelefono + " ]";
+        return "py.com.sgipy.miesys.entities.Telefono[ telefono=" + telefono + " ]";
     }
     
 }

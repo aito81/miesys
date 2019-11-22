@@ -173,12 +173,35 @@ public class AltaPersonaView extends CustomComponent implements View {
 		}
 		
 		txtNroHijo.setValue(verPer.getCantidadHijos().toString());
-		cbxOcupacion.setValue(verPer.getOcupacion());
-		cbxEmpresa.setValue(verPer.getEmpresa());
-		cbxCabildo.setValue(verPer.getHan().getDistrito().getCabildo());
-		cbxDistrito.setValue(verPer.getHan().getDistrito());
-		cbxHan.setValue(verPer.getHan());
-		cbxDivision.setValue(verPer.getDivision());
+		
+		if (verPer.getOcupacion() != null) {
+		
+			cbxOcupacion.setValue(verPer.getOcupacion());
+			
+		}
+		
+		if (verPer.getEmpresa() != null) {
+			
+			cbxEmpresa.setValue(verPer.getEmpresa());
+			
+		}
+		
+		if (verPer.getHan() != null) {
+		
+			cbxCabildo.setValue(verPer.getHan().getDistrito().getCabildo());
+			cbxDistrito.setValue(verPer.getHan().getDistrito());
+			cbxHan.setValue(verPer.getHan());
+			
+		}
+		
+		if (verPer.getDivision() != null) {
+			
+			cbxDivision.setValue(verPer.getDivision());
+			
+		}
+		
+		
+		
 		
 		if (verPer.getFechaInicio() != null) {
 			
@@ -190,8 +213,39 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 		}
 		
+		Direccion dirLab = jpaDir.findDireccionByPersona(verPer, true);
+		Direccion dir = jpaDir.findDireccionByPersona(verPer, false);
 		
+		if (dirLab != null) {
+			
+			cbxDptoLaboral.setValue(dirLab.getCiudad().getDepartamento());
+			cbxCiudadLaboral.setValue(dirLab.getCiudad());
+			txtDirLaboral.setValue(dirLab.getDescripcion());
+			
+		}
 		
+		if (dir != null) {
+			
+			cbxDepartamento.setValue(dir.getCiudad().getDepartamento());
+			cbxCiudad.setValue(dir.getCiudad());
+			txtDir.setValue(dir.getDescripcion());
+			
+		}
+		
+		Telefono tel = jpaTel.findTelefonoByPersona(verPer, false);
+		Telefono telLab = jpaTel.findTelefonoByPersona(verPer, true);
+		
+		if (tel != null) {
+			
+			txtTelefonoParticular.setValue(tel.getDescripcion());
+			
+		}
+		
+		if (telLab != null) {
+			
+			txtTelefonoLaboral.setValue(telLab.getDescripcion());
+			
+		}
 		
 	}
 
@@ -528,13 +582,13 @@ private void cargarCiudadesLaboral(Departamento value) {
 	private void crearTelefono(Persona addPer) {
 		
 		Telefono tel = new Telefono();
-		tel.setIdTelefono(1);
+		tel.setTelefono(1);
 		tel.setPersona(addPer);
 		tel.setLaboral(false);
 		
 		Telefono telLab = new Telefono();
 		telLab.setPersona(addPer);
-		telLab.setIdTelefono(1);
+		telLab.setTelefono(1);
 		telLab.setLaboral(true);
 		
 		if (!txtTelefonoParticular.getValue().isEmpty()) {

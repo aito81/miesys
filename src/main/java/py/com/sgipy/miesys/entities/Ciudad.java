@@ -13,6 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -30,7 +32,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Ciudad.findAll", query = "SELECT c FROM Ciudad c")
     , @NamedQuery(name = "Ciudad.findByCiudad", query = "SELECT c FROM Ciudad c WHERE c.ciudad = :ciudad")
-    , @NamedQuery(name = "Ciudad.findByDepartamento", query = "SELECT c FROM Ciudad c WHERE c.departamento = :departamento")
     , @NamedQuery(name = "Ciudad.findByDescripcion", query = "SELECT c FROM Ciudad c WHERE c.descripcion = :descripcion")})
 public class Ciudad implements Serializable {
 
@@ -41,13 +42,13 @@ public class Ciudad implements Serializable {
     @Column(name = "ciudad")
     private Integer ciudad;
     @Basic(optional = false)
-    @Column(name = "departamento")
-    private int departamento;
-    @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
     @OneToMany(mappedBy = "ciudad")
     private List<Direccion> direccionList;
+    @JoinColumn(name = "departamento", referencedColumnName = "departamento")
+    @ManyToOne(optional = false)
+    private Departamento departamento;
 
     public Ciudad() {
     }
@@ -56,9 +57,8 @@ public class Ciudad implements Serializable {
         this.ciudad = ciudad;
     }
 
-    public Ciudad(Integer ciudad, int departamento, String descripcion) {
+    public Ciudad(Integer ciudad, String descripcion) {
         this.ciudad = ciudad;
-        this.departamento = departamento;
         this.descripcion = descripcion;
     }
 
@@ -68,14 +68,6 @@ public class Ciudad implements Serializable {
 
     public void setCiudad(Integer ciudad) {
         this.ciudad = ciudad;
-    }
-
-    public int getDepartamento() {
-        return departamento;
-    }
-
-    public void setDepartamento(int departamento) {
-        this.departamento = departamento;
     }
 
     public String getDescripcion() {
@@ -93,6 +85,14 @@ public class Ciudad implements Serializable {
 
     public void setDireccionList(List<Direccion> direccionList) {
         this.direccionList = direccionList;
+    }
+
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(Departamento departamento) {
+        this.departamento = departamento;
     }
 
     @Override

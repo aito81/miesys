@@ -14,6 +14,7 @@ import py.com.sgipy.miesys.entities.Departamento;
 import py.com.sgipy.miesys.entities.Direccion;
 import py.com.sgipy.miesys.entities.Persona;
 
+
 public class JpaDireccion extends DireccionJpaController{
 
 	/**
@@ -26,35 +27,42 @@ public class JpaDireccion extends DireccionJpaController{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public List<Direccion> findDireccionByPersona(Persona persona, boolean laboral){
+	public Direccion findDireccionByPersona(Persona persona, boolean laboral){
 		
 		EntityManager em = getEntityManager();
 		
-		List<Direccion> listCiudades = null;
+		Direccion cargoPre = null;
 		
 		try {
-			String sqlQry = " select * from direccion d where d.persona = ?1";
+			
+			String sqlQry =  "select * from direccion d where d.persona = ?1 ";
 			
 			if (laboral) {
 				
-				sqlQry = sqlQry + " and d.labural = true ";
+				sqlQry = sqlQry + " and d.laboral = true ";
 				
 			}else {
-			
-				sqlQry = sqlQry + " and d.labural = false ";
+				
+				sqlQry = sqlQry + " and d.laboral = false";
 				
 			}
 			Query q = em.createNativeQuery(sqlQry, Direccion.class);
+			
 			q.setParameter(1, persona.getPersona());
-			listCiudades = q.getResultList();
-		} catch (Exception e) {
-			Notification.show(e.getMessage() +" Error al consultar direcciones por persona ", Notification.TYPE_ERROR_MESSAGE );
+			
+			cargoPre = (Direccion)q.getSingleResult();
+			
+		} catch (NullPointerException e) {
+			
+			Notification.show(e.getMessage() +" Error al buscar direccion por persona.", Notification.TYPE_ERROR_MESSAGE );
+			
 		}finally {
+			
 			em.close();
 		}
 		
 		
-		return listCiudades;
+		return cargoPre;
 	}
 
 }

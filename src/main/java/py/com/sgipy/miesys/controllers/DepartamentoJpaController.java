@@ -6,13 +6,16 @@
 package py.com.sgipy.miesys.controllers;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.sgipy.miesys.entities.Ciudad;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Departamento;
 
@@ -32,11 +35,29 @@ public class DepartamentoJpaController implements Serializable {
     }
 
     public void create(Departamento departamento) {
+        if (departamento.getCiudadList() == null) {
+            departamento.setCiudadList(new ArrayList<Ciudad>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Ciudad> attachedCiudadList = new ArrayList<Ciudad>();
+            for (Ciudad ciudadListCiudadToAttach : departamento.getCiudadList()) {
+                ciudadListCiudadToAttach = em.getReference(ciudadListCiudadToAttach.getClass(), ciudadListCiudadToAttach.getCiudad());
+                attachedCiudadList.add(ciudadListCiudadToAttach);
+            }
+            departamento.setCiudadList(attachedCiudadList);
             em.persist(departamento);
+            for (Ciudad ciudadListCiudad : departamento.getCiudadList()) {
+                Departamento oldDepartamentoOfCiudadListCiudad = ciudadListCiudad.getDepartamento();
+                ciudadListCiudad.setDepartamento(departamento);
+                ciudadListCiudad = em.merge(ciudadListCiudad);
+                if (oldDepartamentoOfCiudadListCiudad != null) {
+                    oldDepartamentoOfCiudadListCiudad.getCiudadList().remove(ciudadListCiudad);
+                    oldDepartamentoOfCiudadListCiudad = em.merge(oldDepartamentoOfCiudadListCiudad);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -45,12 +66,45 @@ public class DepartamentoJpaController implements Serializable {
         }
     }
 
-    public void edit(Departamento departamento) throws NonexistentEntityException, Exception {
+    public void edit(Departamento departamento) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Departamento persistentDepartamento = em.find(Departamento.class, departamento.getDepartamento());
+            List<Ciudad> ciudadListOld = persistentDepartamento.getCiudadList();
+            List<Ciudad> ciudadListNew = departamento.getCiudadList();
+            List<String> illegalOrphanMessages = null;
+            for (Ciudad ciudadListOldCiudad : ciudadListOld) {
+                if (!ciudadListNew.contains(ciudadListOldCiudad)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Ciudad " + ciudadListOldCiudad + " since its departamento field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            List<Ciudad> attachedCiudadListNew = new ArrayList<Ciudad>();
+            for (Ciudad ciudadListNewCiudadToAttach : ciudadListNew) {
+                ciudadListNewCiudadToAttach = em.getReference(ciudadListNewCiudadToAttach.getClass(), ciudadListNewCiudadToAttach.getCiudad());
+                attachedCiudadListNew.add(ciudadListNewCiudadToAttach);
+            }
+            ciudadListNew = attachedCiudadListNew;
+            departamento.setCiudadList(ciudadListNew);
             departamento = em.merge(departamento);
+            for (Ciudad ciudadListNewCiudad : ciudadListNew) {
+                if (!ciudadListOld.contains(ciudadListNewCiudad)) {
+                    Departamento oldDepartamentoOfCiudadListNewCiudad = ciudadListNewCiudad.getDepartamento();
+                    ciudadListNewCiudad.setDepartamento(departamento);
+                    ciudadListNewCiudad = em.merge(ciudadListNewCiudad);
+                    if (oldDepartamentoOfCiudadListNewCiudad != null && !oldDepartamentoOfCiudadListNewCiudad.equals(departamento)) {
+                        oldDepartamentoOfCiudadListNewCiudad.getCiudadList().remove(ciudadListNewCiudad);
+                        oldDepartamentoOfCiudadListNewCiudad = em.merge(oldDepartamentoOfCiudadListNewCiudad);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -68,7 +122,7 @@ public class DepartamentoJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -79,6 +133,17 @@ public class DepartamentoJpaController implements Serializable {
                 departamento.getDepartamento();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The departamento with id " + id + " no longer exists.", enfe);
+            }
+            List<String> illegalOrphanMessages = null;
+            List<Ciudad> ciudadListOrphanCheck = departamento.getCiudadList();
+            for (Ciudad ciudadListOrphanCheckCiudad : ciudadListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Departamento (" + departamento + ") cannot be destroyed since the Ciudad " + ciudadListOrphanCheckCiudad + " in its ciudadList field has a non-nullable departamento field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             em.remove(departamento);
             em.getTransaction().commit();

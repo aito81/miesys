@@ -140,7 +140,7 @@ public class PersonaJpaController implements Serializable {
             persona.setUsuarioList(attachedUsuarioList);
             List<Telefono> attachedTelefonoList = new ArrayList<Telefono>();
             for (Telefono telefonoListTelefonoToAttach : persona.getTelefonoList()) {
-                telefonoListTelefonoToAttach = em.getReference(telefonoListTelefonoToAttach.getClass(), telefonoListTelefonoToAttach.getIdTelefono());
+                telefonoListTelefonoToAttach = em.getReference(telefonoListTelefonoToAttach.getClass(), telefonoListTelefonoToAttach.getTelefono());
                 attachedTelefonoList.add(telefonoListTelefonoToAttach);
             }
             persona.setTelefonoList(attachedTelefonoList);
@@ -378,7 +378,7 @@ public class PersonaJpaController implements Serializable {
             persona.setUsuarioList(usuarioListNew);
             List<Telefono> attachedTelefonoListNew = new ArrayList<Telefono>();
             for (Telefono telefonoListNewTelefonoToAttach : telefonoListNew) {
-                telefonoListNewTelefonoToAttach = em.getReference(telefonoListNewTelefonoToAttach.getClass(), telefonoListNewTelefonoToAttach.getIdTelefono());
+                telefonoListNewTelefonoToAttach = em.getReference(telefonoListNewTelefonoToAttach.getClass(), telefonoListNewTelefonoToAttach.getTelefono());
                 attachedTelefonoListNew.add(telefonoListNewTelefonoToAttach);
             }
             telefonoListNew = attachedTelefonoListNew;
