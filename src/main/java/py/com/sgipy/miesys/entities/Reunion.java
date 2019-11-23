@@ -13,6 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -30,8 +32,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Reunion.findAll", query = "SELECT r FROM Reunion r")
     , @NamedQuery(name = "Reunion.findByReunion", query = "SELECT r FROM Reunion r WHERE r.reunion = :reunion")
-    , @NamedQuery(name = "Reunion.findByHan", query = "SELECT r FROM Reunion r WHERE r.han = :han")
-    , @NamedQuery(name = "Reunion.findByEstudio", query = "SELECT r FROM Reunion r WHERE r.estudio = :estudio")
     , @NamedQuery(name = "Reunion.findByFecha", query = "SELECT r FROM Reunion r WHERE r.fecha = :fecha")})
 public class Reunion implements Serializable {
 
@@ -42,14 +42,15 @@ public class Reunion implements Serializable {
     @Column(name = "reunion")
     private Integer reunion;
     @Basic(optional = false)
-    @Column(name = "han")
-    private int han;
-    @Column(name = "estudio")
-    private Integer estudio;
-    @Basic(optional = false)
     @Column(name = "fecha")
     @Temporal(TemporalType.DATE)
     private Date fecha;
+    @JoinColumn(name = "estudio", referencedColumnName = "estudio")
+    @ManyToOne
+    private Estudio estudio;
+    @JoinColumn(name = "han", referencedColumnName = "han")
+    @ManyToOne(optional = false)
+    private Han han;
 
     public Reunion() {
     }
@@ -58,9 +59,8 @@ public class Reunion implements Serializable {
         this.reunion = reunion;
     }
 
-    public Reunion(Integer reunion, int han, Date fecha) {
+    public Reunion(Integer reunion, Date fecha) {
         this.reunion = reunion;
-        this.han = han;
         this.fecha = fecha;
     }
 
@@ -72,28 +72,28 @@ public class Reunion implements Serializable {
         this.reunion = reunion;
     }
 
-    public int getHan() {
-        return han;
-    }
-
-    public void setHan(int han) {
-        this.han = han;
-    }
-
-    public Integer getEstudio() {
-        return estudio;
-    }
-
-    public void setEstudio(Integer estudio) {
-        this.estudio = estudio;
-    }
-
     public Date getFecha() {
         return fecha;
     }
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
+    }
+
+    public Estudio getEstudio() {
+        return estudio;
+    }
+
+    public void setEstudio(Estudio estudio) {
+        this.estudio = estudio;
+    }
+
+    public Han getHan() {
+        return han;
+    }
+
+    public void setHan(Han han) {
+        this.han = han;
     }
 
     @Override

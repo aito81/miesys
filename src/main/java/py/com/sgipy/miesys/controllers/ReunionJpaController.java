@@ -14,6 +14,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
+import py.com.sgipy.miesys.entities.Estudio;
+import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Reunion;
 
 /**
@@ -36,7 +38,25 @@ public class ReunionJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Estudio estudio = reunion.getEstudio();
+            if (estudio != null) {
+                estudio = em.getReference(estudio.getClass(), estudio.getEstudio());
+                reunion.setEstudio(estudio);
+            }
+            Han han = reunion.getHan();
+            if (han != null) {
+                han = em.getReference(han.getClass(), han.getHan());
+                reunion.setHan(han);
+            }
             em.persist(reunion);
+            if (estudio != null) {
+                estudio.getReunionList().add(reunion);
+                estudio = em.merge(estudio);
+            }
+            if (han != null) {
+                han.getReunionList().add(reunion);
+                han = em.merge(han);
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -50,7 +70,36 @@ public class ReunionJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Reunion persistentReunion = em.find(Reunion.class, reunion.getReunion());
+            Estudio estudioOld = persistentReunion.getEstudio();
+            Estudio estudioNew = reunion.getEstudio();
+            Han hanOld = persistentReunion.getHan();
+            Han hanNew = reunion.getHan();
+            if (estudioNew != null) {
+                estudioNew = em.getReference(estudioNew.getClass(), estudioNew.getEstudio());
+                reunion.setEstudio(estudioNew);
+            }
+            if (hanNew != null) {
+                hanNew = em.getReference(hanNew.getClass(), hanNew.getHan());
+                reunion.setHan(hanNew);
+            }
             reunion = em.merge(reunion);
+            if (estudioOld != null && !estudioOld.equals(estudioNew)) {
+                estudioOld.getReunionList().remove(reunion);
+                estudioOld = em.merge(estudioOld);
+            }
+            if (estudioNew != null && !estudioNew.equals(estudioOld)) {
+                estudioNew.getReunionList().add(reunion);
+                estudioNew = em.merge(estudioNew);
+            }
+            if (hanOld != null && !hanOld.equals(hanNew)) {
+                hanOld.getReunionList().remove(reunion);
+                hanOld = em.merge(hanOld);
+            }
+            if (hanNew != null && !hanNew.equals(hanOld)) {
+                hanNew.getReunionList().add(reunion);
+                hanNew = em.merge(hanNew);
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -79,6 +128,16 @@ public class ReunionJpaController implements Serializable {
                 reunion.getReunion();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The reunion with id " + id + " no longer exists.", enfe);
+            }
+            Estudio estudio = reunion.getEstudio();
+            if (estudio != null) {
+                estudio.getReunionList().remove(reunion);
+                estudio = em.merge(estudio);
+            }
+            Han han = reunion.getHan();
+            if (han != null) {
+                han.getReunionList().remove(reunion);
+                han = em.merge(han);
             }
             em.remove(reunion);
             em.getTransaction().commit();

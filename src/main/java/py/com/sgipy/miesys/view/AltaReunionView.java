@@ -9,13 +9,19 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 import py.com.sgipy.miesys.entities.Estudio;
 import py.com.sgipy.miesys.entities.Han;
+import py.com.sgipy.miesys.entities.Ocupacion;
+import py.com.sgipy.miesys.entities.Reunion;
 import py.com.sgipy.miesys.jpa.JpaEstudio;
 import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.util.JpaUtil;
+import py.com.sgipy.miesys.util.StringUtils;
 import py.com.sgipy.miesys.util.ViewConfig;
 
 
@@ -47,6 +53,59 @@ public class AltaReunionView extends CustomComponent implements View{
 		setCompositionRoot(mainLayout);
 		cargarCombos();
 		btnAddEstudio.addClickListener(e -> addEstudio());
+		btnAltaReunion.addClickListener(e -> addReunion());
+		
+		
+	}
+
+
+
+
+	private void addReunion() {
+		
+		if (cbxHan.getValue() == null) {
+			
+			Notification.show("Se debe cargar el han correspondiente.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxHan.focus();
+			
+			return;
+			
+		}
+		
+		if (cbxEstudio.getValue() == null) {
+			
+			Notification.show("Se debe cargar el estudio correspondiente.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxEstudio.focus();
+			
+			return;
+			
+		}
+		
+		if (dfFechaReunion.isEmpty()) {
+			
+			Notification.show("Se debe cargar la fecha correspondiente.", Notification.TYPE_ERROR_MESSAGE);
+			
+			dfFechaReunion.focus();
+			
+			return;
+			
+		}
+		
+		Reunion addReu = new Reunion();
+		addReu.setReunion(1);
+		addReu.setHan(cbxHan.getValue());
+		addReu.setEstudio(cbxEstudio.getValue());
+		addReu.setFecha(StringUtils.convertirLocalDateToDate(dfFechaReunion.getValue()));
+		
+		try {
+			
+			jpa
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		
 		
 	}
@@ -56,9 +115,46 @@ public class AltaReunionView extends CustomComponent implements View{
 
 	private void addEstudio() {
 
+		MiniView alta = new MiniView();
+		Window ventana = new Window("", alta);
+		alta.getTxtAlgo().setCaption("Alta Estudio");
+		ventana.center();
+		ventana.setResizable(true);
+		ventana.setModal(true);
 		
+		ventana.setCaption("Cargar Estudio");
+		
+		
+		UI.getCurrent().addWindow(ventana);
+		
+		ventana.addCloseListener(e -> {
+			
+			if (alta.isGuardado()) {
+				if ( ((Estudio)jpaEstudio.findEstudioByDesc(alta.getValor()) == null)) {
+					
+					guardarEstudio(alta.getValor());
+				
+				}else {
+					Notification.show("El estudio ya se encuentra cargado.", Notification.TYPE_ERROR_MESSAGE);
+				}
+			}
+		});
 		
 	}
+	
+	private void guardarEstudio(String valor) {
+		
+		Estudio estu = new Estudio();
+		estu.setEstudio(1);
+		estu.setDescripcion(valor.toUpperCase());
+		
+		jpaEstudio.create(estu);
+		
+		cbxEstudio.setItems(jpaEstudio.findEstudioEntities());
+		
+	}
+	
+	
 
 
 

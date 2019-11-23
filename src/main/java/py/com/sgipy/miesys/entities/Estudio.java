@@ -6,6 +6,7 @@
 package py.com.sgipy.miesys.entities;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,8 +15,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -39,6 +42,8 @@ public class Estudio implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
+    @OneToMany(mappedBy = "estudio")
+    private List<Reunion> reunionList;
 
     public Estudio() {
     }
@@ -66,6 +71,15 @@ public class Estudio implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    @XmlTransient
+    public List<Reunion> getReunionList() {
+        return reunionList;
+    }
+
+    public void setReunionList(List<Reunion> reunionList) {
+        this.reunionList = reunionList;
     }
 
     @Override

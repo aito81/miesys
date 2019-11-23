@@ -6,13 +6,15 @@
 package py.com.sgipy.miesys.controllers;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.sgipy.miesys.entities.Reunion;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Estudio;
 
@@ -32,11 +34,29 @@ public class EstudioJpaController implements Serializable {
     }
 
     public void create(Estudio estudio) {
+        if (estudio.getReunionList() == null) {
+            estudio.setReunionList(new ArrayList<Reunion>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Reunion> attachedReunionList = new ArrayList<Reunion>();
+            for (Reunion reunionListReunionToAttach : estudio.getReunionList()) {
+                reunionListReunionToAttach = em.getReference(reunionListReunionToAttach.getClass(), reunionListReunionToAttach.getReunion());
+                attachedReunionList.add(reunionListReunionToAttach);
+            }
+            estudio.setReunionList(attachedReunionList);
             em.persist(estudio);
+            for (Reunion reunionListReunion : estudio.getReunionList()) {
+                Estudio oldEstudioOfReunionListReunion = reunionListReunion.getEstudio();
+                reunionListReunion.setEstudio(estudio);
+                reunionListReunion = em.merge(reunionListReunion);
+                if (oldEstudioOfReunionListReunion != null) {
+                    oldEstudioOfReunionListReunion.getReunionList().remove(reunionListReunion);
+                    oldEstudioOfReunionListReunion = em.merge(oldEstudioOfReunionListReunion);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -50,7 +70,34 @@ public class EstudioJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Estudio persistentEstudio = em.find(Estudio.class, estudio.getEstudio());
+            List<Reunion> reunionListOld = persistentEstudio.getReunionList();
+            List<Reunion> reunionListNew = estudio.getReunionList();
+            List<Reunion> attachedReunionListNew = new ArrayList<Reunion>();
+            for (Reunion reunionListNewReunionToAttach : reunionListNew) {
+                reunionListNewReunionToAttach = em.getReference(reunionListNewReunionToAttach.getClass(), reunionListNewReunionToAttach.getReunion());
+                attachedReunionListNew.add(reunionListNewReunionToAttach);
+            }
+            reunionListNew = attachedReunionListNew;
+            estudio.setReunionList(reunionListNew);
             estudio = em.merge(estudio);
+            for (Reunion reunionListOldReunion : reunionListOld) {
+                if (!reunionListNew.contains(reunionListOldReunion)) {
+                    reunionListOldReunion.setEstudio(null);
+                    reunionListOldReunion = em.merge(reunionListOldReunion);
+                }
+            }
+            for (Reunion reunionListNewReunion : reunionListNew) {
+                if (!reunionListOld.contains(reunionListNewReunion)) {
+                    Estudio oldEstudioOfReunionListNewReunion = reunionListNewReunion.getEstudio();
+                    reunionListNewReunion.setEstudio(estudio);
+                    reunionListNewReunion = em.merge(reunionListNewReunion);
+                    if (oldEstudioOfReunionListNewReunion != null && !oldEstudioOfReunionListNewReunion.equals(estudio)) {
+                        oldEstudioOfReunionListNewReunion.getReunionList().remove(reunionListNewReunion);
+                        oldEstudioOfReunionListNewReunion = em.merge(oldEstudioOfReunionListNewReunion);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -79,6 +126,11 @@ public class EstudioJpaController implements Serializable {
                 estudio.getEstudio();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The estudio with id " + id + " no longer exists.", enfe);
+            }
+            List<Reunion> reunionList = estudio.getReunionList();
+            for (Reunion reunionListReunion : reunionList) {
+                reunionListReunion.setEstudio(null);
+                reunionListReunion = em.merge(reunionListReunion);
             }
             em.remove(estudio);
             em.getTransaction().commit();

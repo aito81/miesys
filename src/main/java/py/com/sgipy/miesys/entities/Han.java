@@ -8,6 +8,7 @@ package py.com.sgipy.miesys.entities;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,6 +50,8 @@ public class Han implements Serializable {
     @JoinColumn(name = "distrito", referencedColumnName = "distrito")
     @ManyToOne(optional = false)
     private Distrito distrito;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "han")
+    private List<Reunion> reunionList;
 
     public Han() {
     }
@@ -93,6 +96,15 @@ public class Han implements Serializable {
 
     public void setDistrito(Distrito distrito) {
         this.distrito = distrito;
+    }
+
+    @XmlTransient
+    public List<Reunion> getReunionList() {
+        return reunionList;
+    }
+
+    public void setReunionList(List<Reunion> reunionList) {
+        this.reunionList = reunionList;
     }
 
     @Override
