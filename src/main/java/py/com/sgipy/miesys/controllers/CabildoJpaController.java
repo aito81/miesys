@@ -21,7 +21,7 @@ import py.com.sgipy.miesys.entities.Cabildo;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class CabildoJpaController implements Serializable {
 

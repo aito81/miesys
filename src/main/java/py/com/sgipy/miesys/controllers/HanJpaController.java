@@ -23,7 +23,7 @@ import py.com.sgipy.miesys.entities.Reunion;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class HanJpaController implements Serializable {
 

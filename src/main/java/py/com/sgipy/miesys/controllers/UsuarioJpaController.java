@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.Usuario;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class UsuarioJpaController implements Serializable {
 

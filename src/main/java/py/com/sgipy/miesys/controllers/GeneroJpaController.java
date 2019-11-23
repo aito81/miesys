@@ -21,7 +21,7 @@ import py.com.sgipy.miesys.entities.Genero;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class GeneroJpaController implements Serializable {
 

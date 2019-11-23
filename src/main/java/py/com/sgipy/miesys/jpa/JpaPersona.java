@@ -14,6 +14,7 @@ import py.com.sgipy.miesys.entities.Genero;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Persona;
+import py.com.sgipy.miesys.entities.Reunion;
 
 public class JpaPersona extends PersonaJpaController {
 
@@ -70,6 +71,46 @@ public class JpaPersona extends PersonaJpaController {
 			}
 			
 			Query q = em.createNativeQuery(sqlQry, Persona.class);
+			listPersona = q.getResultList();
+		} catch (Exception e) {
+			Notification.show(e.getMessage() +" Error al buscar persona", Notification.TYPE_ERROR_MESSAGE );
+		}finally {
+			em.close();
+		}
+	
+		return listPersona;
+	
+	}
+	
+	
+	public List<Persona> findAsistenteLikeNombreApellido(String busqueda, Reunion reu){
+		
+		EntityManager em = getEntityManager();
+		
+		List<Persona> listPersona = null;
+		
+		String sqlQry = "";
+		
+		try {
+			
+			
+			if (!busqueda.isEmpty()) {
+				
+				String buscar = "'%" + busqueda + "%'";
+				
+				sqlQry = " select * from persona p where upper(p.nombre || p.apellido) like upper("+ buscar+ ") and  " + 
+						"	p.persona not in (select reuasi.persona from reunion_asistencia reuasi where reuasi.reunion = ?1)";
+				
+			}else {
+				
+				sqlQry = " select * from persona p where p.persona > 0 ";
+				
+			}
+			
+			
+			
+			Query q = em.createNativeQuery(sqlQry, Persona.class);
+			q.setParameter(1, reu.getReunion());
 			listPersona = q.getResultList();
 		} catch (Exception e) {
 			Notification.show(e.getMessage() +" Error al buscar persona", Notification.TYPE_ERROR_MESSAGE );

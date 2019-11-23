@@ -21,7 +21,7 @@ import py.com.sgipy.miesys.entities.Ciudad;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class CiudadJpaController implements Serializable {
 

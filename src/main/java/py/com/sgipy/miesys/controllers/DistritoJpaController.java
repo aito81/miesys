@@ -22,7 +22,7 @@ import py.com.sgipy.miesys.entities.Distrito;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class DistritoJpaController implements Serializable {
 

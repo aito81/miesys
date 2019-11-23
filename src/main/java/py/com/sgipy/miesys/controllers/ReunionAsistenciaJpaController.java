@@ -14,11 +14,13 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
+import py.com.sgipy.miesys.entities.Persona;
+import py.com.sgipy.miesys.entities.Reunion;
 import py.com.sgipy.miesys.entities.ReunionAsistencia;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class ReunionAsistenciaJpaController implements Serializable {
 
@@ -36,7 +38,25 @@ public class ReunionAsistenciaJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Persona persona = reunionAsistencia.getPersona();
+            if (persona != null) {
+                persona = em.getReference(persona.getClass(), persona.getPersona());
+                reunionAsistencia.setPersona(persona);
+            }
+            Reunion reunion = reunionAsistencia.getReunion();
+            if (reunion != null) {
+                reunion = em.getReference(reunion.getClass(), reunion.getReunion());
+                reunionAsistencia.setReunion(reunion);
+            }
             em.persist(reunionAsistencia);
+            if (persona != null) {
+                persona.getReunionAsistenciaList().add(reunionAsistencia);
+                persona = em.merge(persona);
+            }
+            if (reunion != null) {
+                reunion.getReunionAsistenciaList().add(reunionAsistencia);
+                reunion = em.merge(reunion);
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -50,7 +70,36 @@ public class ReunionAsistenciaJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            ReunionAsistencia persistentReunionAsistencia = em.find(ReunionAsistencia.class, reunionAsistencia.getReunionAsistencia());
+            Persona personaOld = persistentReunionAsistencia.getPersona();
+            Persona personaNew = reunionAsistencia.getPersona();
+            Reunion reunionOld = persistentReunionAsistencia.getReunion();
+            Reunion reunionNew = reunionAsistencia.getReunion();
+            if (personaNew != null) {
+                personaNew = em.getReference(personaNew.getClass(), personaNew.getPersona());
+                reunionAsistencia.setPersona(personaNew);
+            }
+            if (reunionNew != null) {
+                reunionNew = em.getReference(reunionNew.getClass(), reunionNew.getReunion());
+                reunionAsistencia.setReunion(reunionNew);
+            }
             reunionAsistencia = em.merge(reunionAsistencia);
+            if (personaOld != null && !personaOld.equals(personaNew)) {
+                personaOld.getReunionAsistenciaList().remove(reunionAsistencia);
+                personaOld = em.merge(personaOld);
+            }
+            if (personaNew != null && !personaNew.equals(personaOld)) {
+                personaNew.getReunionAsistenciaList().add(reunionAsistencia);
+                personaNew = em.merge(personaNew);
+            }
+            if (reunionOld != null && !reunionOld.equals(reunionNew)) {
+                reunionOld.getReunionAsistenciaList().remove(reunionAsistencia);
+                reunionOld = em.merge(reunionOld);
+            }
+            if (reunionNew != null && !reunionNew.equals(reunionOld)) {
+                reunionNew.getReunionAsistenciaList().add(reunionAsistencia);
+                reunionNew = em.merge(reunionNew);
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -79,6 +128,16 @@ public class ReunionAsistenciaJpaController implements Serializable {
                 reunionAsistencia.getReunionAsistencia();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The reunionAsistencia with id " + id + " no longer exists.", enfe);
+            }
+            Persona persona = reunionAsistencia.getPersona();
+            if (persona != null) {
+                persona.getReunionAsistenciaList().remove(reunionAsistencia);
+                persona = em.merge(persona);
+            }
+            Reunion reunion = reunionAsistencia.getReunion();
+            if (reunion != null) {
+                reunion.getReunionAsistenciaList().remove(reunionAsistencia);
+                reunion = em.merge(reunion);
             }
             em.remove(reunionAsistencia);
             em.getTransaction().commit();

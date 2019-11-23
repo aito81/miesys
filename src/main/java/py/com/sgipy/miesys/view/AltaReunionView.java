@@ -8,8 +8,10 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -17,9 +19,13 @@ import com.vaadin.ui.Window;
 import py.com.sgipy.miesys.entities.Estudio;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Ocupacion;
+import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.Reunion;
+import py.com.sgipy.miesys.entities.ReunionAsistencia;
 import py.com.sgipy.miesys.jpa.JpaEstudio;
 import py.com.sgipy.miesys.jpa.JpaHan;
+import py.com.sgipy.miesys.jpa.JpaPersona;
+import py.com.sgipy.miesys.jpa.JpaReunion;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.StringUtils;
 import py.com.sgipy.miesys.util.ViewConfig;
@@ -32,6 +38,10 @@ public class AltaReunionView extends CustomComponent implements View{
 	private VerticalLayout formLayout;
 	private HorizontalLayout altaReunionLayout;
 	private HorizontalLayout altaEstudioLayout;
+	private HorizontalLayout detalleReunionLayout;
+	private VerticalLayout personasLayout;
+	private VerticalLayout asistentesLayout;
+	private HorizontalLayout botonLayout;
 	
 	private ComboBox<Han> cbxHan;
 	private ComboBox<Estudio> cbxEstudio;
@@ -41,8 +51,17 @@ public class AltaReunionView extends CustomComponent implements View{
 	private Button btnAddEstudio;
 	private Button btnAltaReunion;
 	
+	private TextField txtBuscar;
+	
 	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
 	private JpaEstudio jpaEstudio = new JpaEstudio(JpaUtil.getEntityManagerFactory());
+	private JpaReunion jpaReu = new JpaReunion(JpaUtil.getEntityManagerFactory());
+	private JpaPersona jpaPersona = new JpaPersona(JpaUtil.getEntityManagerFactory());
+	
+	private Grid<Persona> gridPersona;
+	private Grid<ReunionAsistencia> gridReuAsis;
+	
+	private Reunion addReu = new Reunion();
 	
 	
 	
@@ -51,10 +70,54 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		buildMainLayout();
 		setCompositionRoot(mainLayout);
+		
 		cargarCombos();
+		
 		btnAddEstudio.addClickListener(e -> addEstudio());
 		btnAltaReunion.addClickListener(e -> addReunion());
 		
+		crearGrillaPersonas();
+		
+		crearGrillaAsistente();
+		
+		txtBuscar.addValueChangeListener(e-> cargarGrillaPersona(e.getValue()));
+		
+		txtBuscar.setEnabled(false);
+		
+		detalleReunionLayout.setEnabled(false);
+		
+		
+	}
+
+
+
+
+	private void crearGrillaAsistente() {
+
+		gridReuAsis.addColumn(asis -> asis.get)
+		
+	}
+
+
+
+
+	private void cargarGrillaPersona(String value) {
+		// TODO Auto-generated method stub
+		
+		gridPersona.setItems(jpaPersona.findAsistenteLikeNombreApellido(value, addReu));
+		
+	}
+
+
+
+
+	private void crearGrillaPersonas() {
+
+		//gridPersona.seti
+		gridPersona.addColumn(per -> per.getNombre()).setCaption("Nombre").setId("nombre");
+		gridPersona.addColumn(Persona::getApellido).setCaption("Apellido").setId("apellido");
+		gridPersona.addColumn(per -> per.getNumeroDocumento()).setCaption("Numero Documento").setId("nroDoc");
+		gridPersona.addColumn(per -> per.getHan().getDescripcion()).setCaption("Han").setId("han");
 		
 	}
 
@@ -93,7 +156,7 @@ public class AltaReunionView extends CustomComponent implements View{
 			
 		}
 		
-		Reunion addReu = new Reunion();
+		
 		addReu.setReunion(1);
 		addReu.setHan(cbxHan.getValue());
 		addReu.setEstudio(cbxEstudio.getValue());
@@ -101,11 +164,26 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		try {
 			
-			jpa
-			
+			jpaReu.create(addReu);
+			Notification.show("Reunion guardada correctamente.");
+			abrirDetalle(addReu);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		
+		
+	}
+
+
+
+
+	private void abrirDetalle(Reunion addReu) {
+
+		altaReunionLayout.setEnabled(false);
+		
+		txtBuscar.setEnabled(true);
+		
+		detalleReunionLayout.setEnabled(true);
 		
 		
 	}
@@ -202,7 +280,75 @@ public class AltaReunionView extends CustomComponent implements View{
 		altaReunionLayout = buildAltaReunionLayout();
 		formLayout.addComponent(altaReunionLayout);
 		
+		txtBuscar = new TextField();
+		txtBuscar.setCaption("Buscar");
+		formLayout.addComponent(txtBuscar);
+		
+		detalleReunionLayout = buildDetalleReunionLayout();
+		formLayout.addComponent(detalleReunionLayout);
+		
 		return formLayout;
+	}
+
+
+
+
+	private HorizontalLayout buildDetalleReunionLayout() {
+
+		detalleReunionLayout = new HorizontalLayout();
+		detalleReunionLayout.setHeight("-1px");
+		detalleReunionLayout.setWidth("100%");
+		//detalleReunionLayout.setMargin(false);
+		//detalleReunionLayout.setSpacing(true);
+		
+		personasLayout = buildPersonasLayout();
+		detalleReunionLayout.addComponent(personasLayout);
+		
+		asistentesLayout = buildAsistentesLayout();
+		detalleReunionLayout.addComponent(asistentesLayout);
+		
+		
+		
+		return detalleReunionLayout;
+	}
+
+
+
+
+	private VerticalLayout buildAsistentesLayout() {
+	
+		asistentesLayout = new VerticalLayout();
+		asistentesLayout.setHeight("-1px");
+		asistentesLayout.setWidth("100%");
+		asistentesLayout.setMargin(false);
+		asistentesLayout.setSpacing(false);
+		
+		gridReuAsis = new Grid<ReunionAsistencia>();
+		gridReuAsis.setCaption("Asistentes");
+		asistentesLayout.addComponent(gridReuAsis);
+		
+		
+		return asistentesLayout;
+		
+	}
+
+
+
+
+	private VerticalLayout buildPersonasLayout() {
+
+		personasLayout = new VerticalLayout();
+		personasLayout.setMargin(false);
+		personasLayout.setSpacing(true);
+		
+		gridPersona = new Grid<Persona>();
+		gridPersona.setCaption("Personas");
+		personasLayout.addComponent(gridPersona);
+		
+		
+		
+		return personasLayout;
+		
 	}
 
 

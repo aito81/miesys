@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 @Entity
 @Table(name = "direccion")

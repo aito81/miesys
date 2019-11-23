@@ -19,7 +19,7 @@ import py.com.sgipy.miesys.entities.Recomendado;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class RecomendadoJpaController implements Serializable {
 

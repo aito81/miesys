@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.Estudio;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class EstudioJpaController implements Serializable {
 

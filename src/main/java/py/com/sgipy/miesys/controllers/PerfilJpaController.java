@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.Perfil;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class PerfilJpaController implements Serializable {
 

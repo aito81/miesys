@@ -12,6 +12,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -19,16 +21,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 @Entity
 @Table(name = "reunion_asistencia")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "ReunionAsistencia.findAll", query = "SELECT r FROM ReunionAsistencia r")
-    , @NamedQuery(name = "ReunionAsistencia.findByReunionAsistencia", query = "SELECT r FROM ReunionAsistencia r WHERE r.reunionAsistencia = :reunionAsistencia")
-    , @NamedQuery(name = "ReunionAsistencia.findByReunion", query = "SELECT r FROM ReunionAsistencia r WHERE r.reunion = :reunion")
-    , @NamedQuery(name = "ReunionAsistencia.findByPersona", query = "SELECT r FROM ReunionAsistencia r WHERE r.persona = :persona")})
+    , @NamedQuery(name = "ReunionAsistencia.findByReunionAsistencia", query = "SELECT r FROM ReunionAsistencia r WHERE r.reunionAsistencia = :reunionAsistencia")})
 public class ReunionAsistencia implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,24 +37,18 @@ public class ReunionAsistencia implements Serializable {
     @Basic(optional = false)
     @Column(name = "reunion_asistencia")
     private Integer reunionAsistencia;
-    @Basic(optional = false)
-    @Column(name = "reunion")
-    private int reunion;
-    @Basic(optional = false)
-    @Column(name = "persona")
-    private int persona;
+    @JoinColumn(name = "persona", referencedColumnName = "persona")
+    @ManyToOne(optional = false)
+    private Persona persona;
+    @JoinColumn(name = "reunion", referencedColumnName = "reunion")
+    @ManyToOne(optional = false)
+    private Reunion reunion;
 
     public ReunionAsistencia() {
     }
 
     public ReunionAsistencia(Integer reunionAsistencia) {
         this.reunionAsistencia = reunionAsistencia;
-    }
-
-    public ReunionAsistencia(Integer reunionAsistencia, int reunion, int persona) {
-        this.reunionAsistencia = reunionAsistencia;
-        this.reunion = reunion;
-        this.persona = persona;
     }
 
     public Integer getReunionAsistencia() {
@@ -65,20 +59,20 @@ public class ReunionAsistencia implements Serializable {
         this.reunionAsistencia = reunionAsistencia;
     }
 
-    public int getReunion() {
-        return reunion;
-    }
-
-    public void setReunion(int reunion) {
-        this.reunion = reunion;
-    }
-
-    public int getPersona() {
+    public Persona getPersona() {
         return persona;
     }
 
-    public void setPersona(int persona) {
+    public void setPersona(Persona persona) {
         this.persona = persona;
+    }
+
+    public Reunion getReunion() {
+        return reunion;
+    }
+
+    public void setReunion(Reunion reunion) {
+        this.reunion = reunion;
     }
 
     @Override

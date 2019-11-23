@@ -20,7 +20,7 @@ import py.com.sgipy.miesys.entities.Empresa;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class EmpresaJpaController implements Serializable {
 

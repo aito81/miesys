@@ -21,7 +21,7 @@ import py.com.sgipy.miesys.entities.Nacionalidad;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class NacionalidadJpaController implements Serializable {
 

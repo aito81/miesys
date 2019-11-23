@@ -26,13 +26,14 @@ import javax.persistence.EntityManagerFactory;
 import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Persona;
+import py.com.sgipy.miesys.entities.ReunionAsistencia;
 import py.com.sgipy.miesys.entities.Recomendado;
 import py.com.sgipy.miesys.entities.Usuario;
 import py.com.sgipy.miesys.entities.Telefono;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class PersonaJpaController implements Serializable {
 
@@ -48,6 +49,9 @@ public class PersonaJpaController implements Serializable {
     public void create(Persona persona) {
         if (persona.getDireccionList() == null) {
             persona.setDireccionList(new ArrayList<Direccion>());
+        }
+        if (persona.getReunionAsistenciaList() == null) {
+            persona.setReunionAsistenciaList(new ArrayList<ReunionAsistencia>());
         }
         if (persona.getRecomendadoList() == null) {
             persona.setRecomendadoList(new ArrayList<Recomendado>());
@@ -114,6 +118,12 @@ public class PersonaJpaController implements Serializable {
                 attachedDireccionList.add(direccionListDireccionToAttach);
             }
             persona.setDireccionList(attachedDireccionList);
+            List<ReunionAsistencia> attachedReunionAsistenciaList = new ArrayList<ReunionAsistencia>();
+            for (ReunionAsistencia reunionAsistenciaListReunionAsistenciaToAttach : persona.getReunionAsistenciaList()) {
+                reunionAsistenciaListReunionAsistenciaToAttach = em.getReference(reunionAsistenciaListReunionAsistenciaToAttach.getClass(), reunionAsistenciaListReunionAsistenciaToAttach.getReunionAsistencia());
+                attachedReunionAsistenciaList.add(reunionAsistenciaListReunionAsistenciaToAttach);
+            }
+            persona.setReunionAsistenciaList(attachedReunionAsistenciaList);
             List<Recomendado> attachedRecomendadoList = new ArrayList<Recomendado>();
             for (Recomendado recomendadoListRecomendadoToAttach : persona.getRecomendadoList()) {
                 recomendadoListRecomendadoToAttach = em.getReference(recomendadoListRecomendadoToAttach.getClass(), recomendadoListRecomendadoToAttach.getRecomendado());
@@ -184,6 +194,15 @@ public class PersonaJpaController implements Serializable {
                 if (oldPersonaOfDireccionListDireccion != null) {
                     oldPersonaOfDireccionListDireccion.getDireccionList().remove(direccionListDireccion);
                     oldPersonaOfDireccionListDireccion = em.merge(oldPersonaOfDireccionListDireccion);
+                }
+            }
+            for (ReunionAsistencia reunionAsistenciaListReunionAsistencia : persona.getReunionAsistenciaList()) {
+                Persona oldPersonaOfReunionAsistenciaListReunionAsistencia = reunionAsistenciaListReunionAsistencia.getPersona();
+                reunionAsistenciaListReunionAsistencia.setPersona(persona);
+                reunionAsistenciaListReunionAsistencia = em.merge(reunionAsistenciaListReunionAsistencia);
+                if (oldPersonaOfReunionAsistenciaListReunionAsistencia != null) {
+                    oldPersonaOfReunionAsistenciaListReunionAsistencia.getReunionAsistenciaList().remove(reunionAsistenciaListReunionAsistencia);
+                    oldPersonaOfReunionAsistenciaListReunionAsistencia = em.merge(oldPersonaOfReunionAsistenciaListReunionAsistencia);
                 }
             }
             for (Recomendado recomendadoListRecomendado : persona.getRecomendadoList()) {
@@ -263,6 +282,8 @@ public class PersonaJpaController implements Serializable {
             TipoDocumento tipoDocumentoNew = persona.getTipoDocumento();
             List<Direccion> direccionListOld = persistentPersona.getDireccionList();
             List<Direccion> direccionListNew = persona.getDireccionList();
+            List<ReunionAsistencia> reunionAsistenciaListOld = persistentPersona.getReunionAsistenciaList();
+            List<ReunionAsistencia> reunionAsistenciaListNew = persona.getReunionAsistenciaList();
             List<Recomendado> recomendadoListOld = persistentPersona.getRecomendadoList();
             List<Recomendado> recomendadoListNew = persona.getRecomendadoList();
             List<Recomendado> recomendadoList1Old = persistentPersona.getRecomendadoList1();
@@ -280,6 +301,14 @@ public class PersonaJpaController implements Serializable {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
                     illegalOrphanMessages.add("You must retain Direccion " + direccionListOldDireccion + " since its persona field is not nullable.");
+                }
+            }
+            for (ReunionAsistencia reunionAsistenciaListOldReunionAsistencia : reunionAsistenciaListOld) {
+                if (!reunionAsistenciaListNew.contains(reunionAsistenciaListOldReunionAsistencia)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain ReunionAsistencia " + reunionAsistenciaListOldReunionAsistencia + " since its persona field is not nullable.");
                 }
             }
             for (Recomendado recomendadoListOldRecomendado : recomendadoListOld) {
@@ -348,6 +377,13 @@ public class PersonaJpaController implements Serializable {
             }
             direccionListNew = attachedDireccionListNew;
             persona.setDireccionList(direccionListNew);
+            List<ReunionAsistencia> attachedReunionAsistenciaListNew = new ArrayList<ReunionAsistencia>();
+            for (ReunionAsistencia reunionAsistenciaListNewReunionAsistenciaToAttach : reunionAsistenciaListNew) {
+                reunionAsistenciaListNewReunionAsistenciaToAttach = em.getReference(reunionAsistenciaListNewReunionAsistenciaToAttach.getClass(), reunionAsistenciaListNewReunionAsistenciaToAttach.getReunionAsistencia());
+                attachedReunionAsistenciaListNew.add(reunionAsistenciaListNewReunionAsistenciaToAttach);
+            }
+            reunionAsistenciaListNew = attachedReunionAsistenciaListNew;
+            persona.setReunionAsistenciaList(reunionAsistenciaListNew);
             List<Recomendado> attachedRecomendadoListNew = new ArrayList<Recomendado>();
             for (Recomendado recomendadoListNewRecomendadoToAttach : recomendadoListNew) {
                 recomendadoListNewRecomendadoToAttach = em.getReference(recomendadoListNewRecomendadoToAttach.getClass(), recomendadoListNewRecomendadoToAttach.getRecomendado());
@@ -459,6 +495,17 @@ public class PersonaJpaController implements Serializable {
                     }
                 }
             }
+            for (ReunionAsistencia reunionAsistenciaListNewReunionAsistencia : reunionAsistenciaListNew) {
+                if (!reunionAsistenciaListOld.contains(reunionAsistenciaListNewReunionAsistencia)) {
+                    Persona oldPersonaOfReunionAsistenciaListNewReunionAsistencia = reunionAsistenciaListNewReunionAsistencia.getPersona();
+                    reunionAsistenciaListNewReunionAsistencia.setPersona(persona);
+                    reunionAsistenciaListNewReunionAsistencia = em.merge(reunionAsistenciaListNewReunionAsistencia);
+                    if (oldPersonaOfReunionAsistenciaListNewReunionAsistencia != null && !oldPersonaOfReunionAsistenciaListNewReunionAsistencia.equals(persona)) {
+                        oldPersonaOfReunionAsistenciaListNewReunionAsistencia.getReunionAsistenciaList().remove(reunionAsistenciaListNewReunionAsistencia);
+                        oldPersonaOfReunionAsistenciaListNewReunionAsistencia = em.merge(oldPersonaOfReunionAsistenciaListNewReunionAsistencia);
+                    }
+                }
+            }
             for (Recomendado recomendadoListNewRecomendado : recomendadoListNew) {
                 if (!recomendadoListOld.contains(recomendadoListNewRecomendado)) {
                     Persona oldPersonaOfRecomendadoListNewRecomendado = recomendadoListNewRecomendado.getPersona();
@@ -562,6 +609,13 @@ public class PersonaJpaController implements Serializable {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
                 illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the Direccion " + direccionListOrphanCheckDireccion + " in its direccionList field has a non-nullable persona field.");
+            }
+            List<ReunionAsistencia> reunionAsistenciaListOrphanCheck = persona.getReunionAsistenciaList();
+            for (ReunionAsistencia reunionAsistenciaListOrphanCheckReunionAsistencia : reunionAsistenciaListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the ReunionAsistencia " + reunionAsistenciaListOrphanCheckReunionAsistencia + " in its reunionAsistenciaList field has a non-nullable persona field.");
             }
             List<Recomendado> recomendadoListOrphanCheck = persona.getRecomendadoList();
             for (Recomendado recomendadoListOrphanCheckRecomendado : recomendadoListOrphanCheck) {

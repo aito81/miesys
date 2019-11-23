@@ -6,21 +6,24 @@
 package py.com.sgipy.miesys.controllers;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Estudio;
 import py.com.sgipy.miesys.entities.Han;
+import py.com.sgipy.miesys.entities.ReunionAsistencia;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
+import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Reunion;
 
 /**
  *
- * @author Santiago
+ * @author aito8
  */
 public class ReunionJpaController implements Serializable {
 
@@ -34,6 +37,9 @@ public class ReunionJpaController implements Serializable {
     }
 
     public void create(Reunion reunion) {
+        if (reunion.getReunionAsistenciaList() == null) {
+            reunion.setReunionAsistenciaList(new ArrayList<ReunionAsistencia>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -48,6 +54,12 @@ public class ReunionJpaController implements Serializable {
                 han = em.getReference(han.getClass(), han.getHan());
                 reunion.setHan(han);
             }
+            List<ReunionAsistencia> attachedReunionAsistenciaList = new ArrayList<ReunionAsistencia>();
+            for (ReunionAsistencia reunionAsistenciaListReunionAsistenciaToAttach : reunion.getReunionAsistenciaList()) {
+                reunionAsistenciaListReunionAsistenciaToAttach = em.getReference(reunionAsistenciaListReunionAsistenciaToAttach.getClass(), reunionAsistenciaListReunionAsistenciaToAttach.getReunionAsistencia());
+                attachedReunionAsistenciaList.add(reunionAsistenciaListReunionAsistenciaToAttach);
+            }
+            reunion.setReunionAsistenciaList(attachedReunionAsistenciaList);
             em.persist(reunion);
             if (estudio != null) {
                 estudio.getReunionList().add(reunion);
@@ -57,6 +69,15 @@ public class ReunionJpaController implements Serializable {
                 han.getReunionList().add(reunion);
                 han = em.merge(han);
             }
+            for (ReunionAsistencia reunionAsistenciaListReunionAsistencia : reunion.getReunionAsistenciaList()) {
+                Reunion oldReunionOfReunionAsistenciaListReunionAsistencia = reunionAsistenciaListReunionAsistencia.getReunion();
+                reunionAsistenciaListReunionAsistencia.setReunion(reunion);
+                reunionAsistenciaListReunionAsistencia = em.merge(reunionAsistenciaListReunionAsistencia);
+                if (oldReunionOfReunionAsistenciaListReunionAsistencia != null) {
+                    oldReunionOfReunionAsistenciaListReunionAsistencia.getReunionAsistenciaList().remove(reunionAsistenciaListReunionAsistencia);
+                    oldReunionOfReunionAsistenciaListReunionAsistencia = em.merge(oldReunionOfReunionAsistenciaListReunionAsistencia);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -65,7 +86,7 @@ public class ReunionJpaController implements Serializable {
         }
     }
 
-    public void edit(Reunion reunion) throws NonexistentEntityException, Exception {
+    public void edit(Reunion reunion) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -75,6 +96,20 @@ public class ReunionJpaController implements Serializable {
             Estudio estudioNew = reunion.getEstudio();
             Han hanOld = persistentReunion.getHan();
             Han hanNew = reunion.getHan();
+            List<ReunionAsistencia> reunionAsistenciaListOld = persistentReunion.getReunionAsistenciaList();
+            List<ReunionAsistencia> reunionAsistenciaListNew = reunion.getReunionAsistenciaList();
+            List<String> illegalOrphanMessages = null;
+            for (ReunionAsistencia reunionAsistenciaListOldReunionAsistencia : reunionAsistenciaListOld) {
+                if (!reunionAsistenciaListNew.contains(reunionAsistenciaListOldReunionAsistencia)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain ReunionAsistencia " + reunionAsistenciaListOldReunionAsistencia + " since its reunion field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
             if (estudioNew != null) {
                 estudioNew = em.getReference(estudioNew.getClass(), estudioNew.getEstudio());
                 reunion.setEstudio(estudioNew);
@@ -83,6 +118,13 @@ public class ReunionJpaController implements Serializable {
                 hanNew = em.getReference(hanNew.getClass(), hanNew.getHan());
                 reunion.setHan(hanNew);
             }
+            List<ReunionAsistencia> attachedReunionAsistenciaListNew = new ArrayList<ReunionAsistencia>();
+            for (ReunionAsistencia reunionAsistenciaListNewReunionAsistenciaToAttach : reunionAsistenciaListNew) {
+                reunionAsistenciaListNewReunionAsistenciaToAttach = em.getReference(reunionAsistenciaListNewReunionAsistenciaToAttach.getClass(), reunionAsistenciaListNewReunionAsistenciaToAttach.getReunionAsistencia());
+                attachedReunionAsistenciaListNew.add(reunionAsistenciaListNewReunionAsistenciaToAttach);
+            }
+            reunionAsistenciaListNew = attachedReunionAsistenciaListNew;
+            reunion.setReunionAsistenciaList(reunionAsistenciaListNew);
             reunion = em.merge(reunion);
             if (estudioOld != null && !estudioOld.equals(estudioNew)) {
                 estudioOld.getReunionList().remove(reunion);
@@ -99,6 +141,17 @@ public class ReunionJpaController implements Serializable {
             if (hanNew != null && !hanNew.equals(hanOld)) {
                 hanNew.getReunionList().add(reunion);
                 hanNew = em.merge(hanNew);
+            }
+            for (ReunionAsistencia reunionAsistenciaListNewReunionAsistencia : reunionAsistenciaListNew) {
+                if (!reunionAsistenciaListOld.contains(reunionAsistenciaListNewReunionAsistencia)) {
+                    Reunion oldReunionOfReunionAsistenciaListNewReunionAsistencia = reunionAsistenciaListNewReunionAsistencia.getReunion();
+                    reunionAsistenciaListNewReunionAsistencia.setReunion(reunion);
+                    reunionAsistenciaListNewReunionAsistencia = em.merge(reunionAsistenciaListNewReunionAsistencia);
+                    if (oldReunionOfReunionAsistenciaListNewReunionAsistencia != null && !oldReunionOfReunionAsistenciaListNewReunionAsistencia.equals(reunion)) {
+                        oldReunionOfReunionAsistenciaListNewReunionAsistencia.getReunionAsistenciaList().remove(reunionAsistenciaListNewReunionAsistencia);
+                        oldReunionOfReunionAsistenciaListNewReunionAsistencia = em.merge(oldReunionOfReunionAsistenciaListNewReunionAsistencia);
+                    }
+                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -117,7 +170,7 @@ public class ReunionJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -128,6 +181,17 @@ public class ReunionJpaController implements Serializable {
                 reunion.getReunion();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The reunion with id " + id + " no longer exists.", enfe);
+            }
+            List<String> illegalOrphanMessages = null;
+            List<ReunionAsistencia> reunionAsistenciaListOrphanCheck = reunion.getReunionAsistenciaList();
+            for (ReunionAsistencia reunionAsistenciaListOrphanCheckReunionAsistencia : reunionAsistenciaListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Reunion (" + reunion + ") cannot be destroyed since the ReunionAsistencia " + reunionAsistenciaListOrphanCheckReunionAsistencia + " in its reunionAsistenciaList field has a non-nullable reunion field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             Estudio estudio = reunion.getEstudio();
             if (estudio != null) {
