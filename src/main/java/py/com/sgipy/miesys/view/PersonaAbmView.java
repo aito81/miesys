@@ -179,7 +179,7 @@ public class PersonaAbmView extends CustomComponent implements View {
 		ventana.setSizeFull();
 		
 		UI.getCurrent().addWindow(ventana);
-		//ventana.addCloseListener(e -> gridPersona.setItems(jpaPer.findPersonasActiva()));
+		ventana.addCloseListener(e -> gridPersona.setItems(jpaPer.findPersonaEntities()));
 		
 	}
 	

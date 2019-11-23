@@ -295,7 +295,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 				
 			}
 			
-			if ( jpaTel.findTelefonoByPersona(editPersona, false).get(0) == null ) {
+			if ( jpaTel.findTelefonoByPersona(editPersona, false).isEmpty() ) {
 				
 				crearTelefono(editPersona, false);
 				
@@ -318,7 +318,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 			}
 			
 			
-			if ( jpaTel.findTelefonoByPersona(editPersona, true).get(0) == null ) {
+			if ( jpaTel.findTelefonoByPersona(editPersona, true).isEmpty()) {
 				
 				crearTelefono(editPersona, true);
 				
@@ -344,12 +344,13 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 			
 			
-			
+			Window w = this.findAncestor(Window.class);
+			w.close();
 			
 			Notification.show("Persona editada correctamente.");
 			limpiarDatos();
 		} catch (Exception e) {
-			Notification.show("Error editar una persona.", Notification.TYPE_ERROR_MESSAGE);
+			Notification.show("Error editar una persona." + e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
 		}
 		
 		
@@ -432,7 +433,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		if (!listDirLab.isEmpty()) {
 			
-			Direccion dirLab = listDir.get(0);
+			Direccion dirLab = listDirLab.get(0);
 			cbxDptoLaboral.setValue(dirLab.getCiudad().getDepartamento());
 			cbxCiudadLaboral.setValue(dirLab.getCiudad());
 			txtDirLaboral.setValue(dirLab.getDescripcion());
