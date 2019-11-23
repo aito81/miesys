@@ -1,6 +1,9 @@
 package py.com.sgipy.miesys.view;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -26,6 +29,7 @@ import py.com.sgipy.miesys.jpa.JpaEstudio;
 import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.jpa.JpaReunion;
+import py.com.sgipy.miesys.jpa.JpaReunionAsistencia;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.StringUtils;
 import py.com.sgipy.miesys.util.ViewConfig;
@@ -50,6 +54,8 @@ public class AltaReunionView extends CustomComponent implements View{
 	
 	private Button btnAddEstudio;
 	private Button btnAltaReunion;
+	private Button btnGuardar;
+	private Button btnSalir;
 	
 	private TextField txtBuscar;
 	
@@ -57,12 +63,15 @@ public class AltaReunionView extends CustomComponent implements View{
 	private JpaEstudio jpaEstudio = new JpaEstudio(JpaUtil.getEntityManagerFactory());
 	private JpaReunion jpaReu = new JpaReunion(JpaUtil.getEntityManagerFactory());
 	private JpaPersona jpaPersona = new JpaPersona(JpaUtil.getEntityManagerFactory());
+	private JpaReunionAsistencia jpaReuAsis = new JpaReunionAsistencia(JpaUtil.getEntityManagerFactory());
 	
 	private Grid<Persona> gridPersona;
 	private Grid<ReunionAsistencia> gridReuAsis;
 	
 	private Reunion addReu = new Reunion();
 	
+	private List<ReunionAsistencia> listReuAsi = new ArrayList<ReunionAsistencia>();
+	private List<Persona> listPersona = new ArrayList<Persona>();
 	
 	
 	
@@ -86,6 +95,92 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		detalleReunionLayout.setEnabled(false);
 		
+		btnGuardar.setEnabled(false);
+		
+		gridPersona.addItemClickListener(e -> {
+		
+			if (e.getItem() != null) {
+				
+				pasarAsistente(e.getItem(), addReu);
+			}
+		});
+		
+		btnGuardar.addClickListener(e -> {
+		
+			if (!listReuAsi.isEmpty()) {
+				
+				guardar(listReuAsi);
+				
+			}
+			
+		});
+		
+		
+		
+	}
+
+
+
+
+	private void guardar(List<ReunionAsistencia> listReuAsi2) {
+		
+		for (ReunionAsistencia reuAsi : listReuAsi2) {
+			
+			try {
+				
+				jpaReuAsis.create(reuAsi);
+				
+			} catch (Exception e) {
+				
+				Notification.show("Error al guardar los asistentes" + e.getMessage());
+			}
+			
+		}
+		
+		listPersona.clear();
+		gridPersona.setItems(listPersona);
+		
+		listReuAsi.clear();
+		gridReuAsis.setItems(listReuAsi2);
+		
+		cbxEstudio.clear();
+		cbxHan.clear();
+		
+		dfFechaReunion.clear();
+		
+		detalleReunionLayout.setEnabled(false);
+		altaReunionLayout.setEnabled(true);
+		
+		txtBuscar.setEnabled(false);
+		
+		btnGuardar.setEnabled(false);
+		
+		
+		
+		
+	
+		
+	}
+
+
+
+
+	private void pasarAsistente(Persona item, Reunion addReu) {
+
+		txtBuscar.clear();
+		
+		ReunionAsistencia reuAsi = new ReunionAsistencia();
+		reuAsi.setReunionAsistencia(1);
+		reuAsi.setReunion(addReu);
+		reuAsi.setPersona(item);
+		
+		listReuAsi.add(reuAsi);
+		gridReuAsis.setItems(listReuAsi);
+
+		cargarGrillaPersona("");
+		
+		
+		
 		
 	}
 
@@ -94,7 +189,8 @@ public class AltaReunionView extends CustomComponent implements View{
 
 	private void crearGrillaAsistente() {
 
-		gridReuAsis.addColumn(asis -> asis.get)
+		gridReuAsis.addColumn(asis -> asis.getPersona().getNombre()).setCaption("Nombre").setId("nombre");
+		gridReuAsis.addColumn(asis -> asis.getPersona().getApellido()).setCaption("Apellido").setId("apellido");
 		
 	}
 
@@ -102,9 +198,22 @@ public class AltaReunionView extends CustomComponent implements View{
 
 
 	private void cargarGrillaPersona(String value) {
-		// TODO Auto-generated method stub
 		
-		gridPersona.setItems(jpaPersona.findAsistenteLikeNombreApellido(value, addReu));
+		listPersona = jpaPersona.findAsistenteLikeNombreApellido(value, addReu);
+		gridPersona.setItems(listPersona);
+		
+		if (!listReuAsi.isEmpty()) {
+			
+			for (ReunionAsistencia reuAsi : listReuAsi) {
+				
+				listPersona.remove(reuAsi.getPersona());
+				
+			}
+			
+			gridPersona.setItems(listPersona);
+			
+		}
+		
 		
 	}
 
@@ -185,6 +294,8 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		detalleReunionLayout.setEnabled(true);
 		
+		btnGuardar.setEnabled(true);
+		
 		
 	}
 
@@ -256,7 +367,7 @@ public class AltaReunionView extends CustomComponent implements View{
 	private void buildMainLayout() {
 		
 		mainLayout = new VerticalLayout();
-		mainLayout.setWidth("70%");
+		mainLayout.setWidth("100%");
 		mainLayout.setHeight("-1px");
 		mainLayout.setMargin(false);
 		
@@ -287,7 +398,30 @@ public class AltaReunionView extends CustomComponent implements View{
 		detalleReunionLayout = buildDetalleReunionLayout();
 		formLayout.addComponent(detalleReunionLayout);
 		
+		botonLayout = buildBotonLayout();
+		formLayout.addComponent(botonLayout);
+		formLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
+		
 		return formLayout;
+	}
+
+
+
+
+	private HorizontalLayout buildBotonLayout() {
+		
+		botonLayout = new HorizontalLayout();
+		botonLayout.setSpacing(true);
+		
+		btnGuardar = new Button();
+		btnGuardar.setCaption("Guardar");
+		botonLayout.addComponent(btnGuardar);
+		
+		btnSalir = new Button();
+		btnSalir.setCaption("Volver");
+		botonLayout.addComponent(btnSalir);
+		
+		return botonLayout;
 	}
 
 
@@ -298,8 +432,8 @@ public class AltaReunionView extends CustomComponent implements View{
 		detalleReunionLayout = new HorizontalLayout();
 		detalleReunionLayout.setHeight("-1px");
 		detalleReunionLayout.setWidth("100%");
-		//detalleReunionLayout.setMargin(false);
-		//detalleReunionLayout.setSpacing(true);
+		//detalleReunionLayout.setMargin(true);
+		detalleReunionLayout.setSpacing(true);
 		
 		personasLayout = buildPersonasLayout();
 		detalleReunionLayout.addComponent(personasLayout);
@@ -340,6 +474,8 @@ public class AltaReunionView extends CustomComponent implements View{
 		personasLayout = new VerticalLayout();
 		personasLayout.setMargin(false);
 		personasLayout.setSpacing(true);
+		personasLayout.setWidth("100%");
+		personasLayout.setHeight("-1px");
 		
 		gridPersona = new Grid<Persona>();
 		gridPersona.setCaption("Personas");

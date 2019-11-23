@@ -103,7 +103,7 @@ public class JpaPersona extends PersonaJpaController {
 				
 			}else {
 				
-				sqlQry = " select * from persona p where p.persona > 0 ";
+				sqlQry = " select * from persona p where p.persona < 0 ";
 				
 			}
 			
