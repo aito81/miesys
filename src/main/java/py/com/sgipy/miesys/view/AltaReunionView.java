@@ -1,6 +1,10 @@
 package py.com.sgipy.miesys.view;
 
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +23,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Estudio;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Ocupacion;
@@ -105,6 +110,20 @@ public class AltaReunionView extends CustomComponent implements View{
 			}
 		});
 		
+		gridReuAsis.addItemClickListener(e -> {
+			
+			if (e.getItem() != null) {
+				
+				listReuAsi.remove(e.getItem());
+				
+				gridReuAsis.setItems(listReuAsi);
+				
+				txtBuscar.clear();
+				
+			}
+			
+		});
+		
 		btnGuardar.addClickListener(e -> {
 		
 			if (!listReuAsi.isEmpty()) {
@@ -115,7 +134,222 @@ public class AltaReunionView extends CustomComponent implements View{
 			
 		});
 		
+		btnSalir.addClickListener(e -> salir());
 		
+		
+		
+	}
+	
+	public AltaReunionView(Reunion reu) {
+		
+		buildMainLayout();
+		setCompositionRoot(mainLayout);
+		
+		cargarCombos();
+		
+		cbxHan.setValue(reu.getHan());
+		
+		cbxEstudio.setValue(reu.getEstudio());
+		
+		Instant instant = Instant.ofEpochMilli(reu.getFecha().getTime());
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+		LocalDate localDate = localDateTime.toLocalDate();
+	
+		dfFechaReunion.setValue(localDate);
+		
+		crearGrillaAsistente();
+		
+		crearGrillaPersonas();
+		
+		for (ReunionAsistencia reuAs : reu.getReunionAsistenciaList()) {
+			
+			listReuAsi.add(reuAs);
+			
+		}
+		
+		gridReuAsis.setItems(listReuAsi);
+		
+		formLayout.setEnabled(false);
+		
+		botonLayout.setVisible(false);
+		
+	}
+	
+	public AltaReunionView(Reunion reu, String edit) {
+		
+		buildMainLayout();
+		setCompositionRoot(mainLayout);
+		
+		cargarCombos();
+		
+		cbxHan.setValue(reu.getHan());
+		
+		cbxEstudio.setValue(reu.getEstudio());
+		
+		Instant instant = Instant.ofEpochMilli(reu.getFecha().getTime());
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+		LocalDate localDate = localDateTime.toLocalDate();
+	
+		dfFechaReunion.setValue(localDate);
+		
+		//altaReunionLayout.setEnabled(false);
+		
+		crearGrillaAsistente();
+		
+		crearGrillaPersonas();
+		
+		for (ReunionAsistencia reuAs : reu.getReunionAsistenciaList()) {
+			
+			listReuAsi.add(reuAs);
+			
+		}
+		
+		gridReuAsis.setItems(listReuAsi);
+		
+		addReu = reu;
+		
+		txtBuscar.addValueChangeListener(e-> cargarGrillaPersona(e.getValue()));
+		
+		btnGuardar.addClickListener(e -> {
+			
+			if (!listReuAsi.isEmpty()) {
+				
+				guardar(listReuAsi);
+				
+			}
+			
+		});
+		
+		gridPersona.addItemClickListener(e -> {
+			
+			if (e.getItem() != null) {
+				
+				pasarAsistente(e.getItem(), addReu);
+			}
+		});
+		
+		gridReuAsis.addItemClickListener(e -> {
+			
+			if (e.getItem() != null) {
+				
+				listReuAsi.remove(e.getItem());
+				
+				gridReuAsis.setItems(listReuAsi);
+				
+				txtBuscar.clear();
+				
+			}
+			
+		});
+		
+		btnSalir.addClickListener(e -> {
+			
+			Window w = this.findAncestor(Window.class);
+			w.close();
+			
+			
+		});
+		
+		btnGuardar.addClickListener(e -> {
+			
+			if (!listReuAsi.isEmpty()) {
+				
+				borrarAsistentes(reu);
+				
+				guardar(listReuAsi);
+				
+				Window w = this.findAncestor(Window.class);
+				w.close();
+				
+			}
+			
+		});
+		
+		btnAltaReunion.addClickListener(e -> editar(addReu));
+		
+		detalleReunionLayout.setEnabled(false);
+		
+		btnAltaReunion.setCaption("Editar estudio");
+		
+		txtBuscar.setEnabled(false);
+		
+		btnAddEstudio.addClickListener(e -> addEstudio());
+		
+		
+	}
+
+
+
+
+	private void borrarAsistentes(Reunion reu) {
+		
+		for (ReunionAsistencia reuAsi : reu.getReunionAsistenciaList()) {
+			
+			try {
+				
+				jpaReuAsis.destroy(reuAsi.getReunionAsistencia());
+				
+			} catch (Exception e) {
+
+				Notification.show(e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+				
+			}
+			
+		}
+		
+	}
+
+	private void editar(Reunion addReu2) {
+		
+		if (cbxHan.getValue() == null) {
+			
+			Notification.show("Se debe cargar el han correspondiente.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxHan.focus();
+			
+			return;
+			
+		}
+		
+		if (cbxEstudio.getValue() == null) {
+			
+			Notification.show("Se debe cargar el estudio correspondiente.", Notification.TYPE_ERROR_MESSAGE);
+			
+			cbxEstudio.focus();
+			
+			return;
+			
+		}
+		
+		if (dfFechaReunion.isEmpty()) {
+			
+			Notification.show("Se debe cargar la fecha correspondiente.", Notification.TYPE_ERROR_MESSAGE);
+			
+			dfFechaReunion.focus();
+			
+			return;
+			
+		}
+		addReu2.setFecha(StringUtils.convertirLocalDateToDate(dfFechaReunion.getValue()));
+		addReu2.setEstudio(cbxEstudio.getValue());
+		addReu2.setHan(cbxHan.getValue());
+		
+		
+		try {
+			jpaReu.edit(addReu2);
+			Notification.show("Reunion Editada correctamente.");
+			altaReunionLayout.setEnabled(false);
+			detalleReunionLayout.setEnabled(true);
+			txtBuscar.setEnabled(true);
+		} catch (Exception e) {
+			Notification.show(e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+		}
+		
+	}
+
+	private void salir() {
+
+		MiesysUI.getCurrent().getNavigator().navigateTo("");
 		
 	}
 
@@ -154,11 +388,6 @@ public class AltaReunionView extends CustomComponent implements View{
 		txtBuscar.setEnabled(false);
 		
 		btnGuardar.setEnabled(false);
-		
-		
-		
-		
-	
 		
 	}
 

@@ -422,7 +422,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 			LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 			LocalDate localDate = localDateTime.toLocalDate();
 			
-			dfNacimiento.setValue(localDate);
+			dfInicio.setValue(localDate);
 			
 		}
 		

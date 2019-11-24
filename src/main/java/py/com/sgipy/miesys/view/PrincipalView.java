@@ -69,24 +69,13 @@ public class PrincipalView extends CustomComponent implements View {
 		buildMainLayout();
 		setCompositionRoot(mainLayout);
 		
-		btn4 = new Button();
-		btn5 = new Button();
-		btn6 = new Button();
-		btn7 = new Button();
-		btn8 = new Button();
-		btn9 = new Button();
-		btn10 = new Button();
-		btn11 = new Button();
-		btn12 = new Button();
-		btn13 = new Button();
-		btn14 = new Button();
-		btn15 = new Button();
-		btn16 = new Button();
+		
 		
 		
 		btn1.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("personaConsulta"));
 		btn2.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("personaAlta"));
 		btn3.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("ReunionAlta"));
+		btn4.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("ReunionAbm"));
 		
 		datosLayout.addComponent(botonLayout);
 		datosLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
@@ -186,6 +175,13 @@ public class PrincipalView extends CustomComponent implements View {
 		btn3.setWidth("-1px");
 		btn3.setHeight("-1px");
 		botonLayout.addComponent(btn3);
+		
+		btn4 = new Button();
+		btn4.setCaption("Mantenimiento de Reuniones");
+		//btn3.setImmediate(true);
+		btn4.setWidth("-1px");
+		btn4.setHeight("-1px");
+		botonLayout.addComponent(btn4);
 		
 		return botonLayout;
 	}
