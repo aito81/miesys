@@ -8,6 +8,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -77,6 +79,8 @@ public class AltaReunionView extends CustomComponent implements View{
 	
 	private List<ReunionAsistencia> listReuAsi = new ArrayList<ReunionAsistencia>();
 	private List<Persona> listPersona = new ArrayList<Persona>();
+	
+	private EntityManager entMan;
 	
 	
 	
@@ -234,6 +238,13 @@ public class AltaReunionView extends CustomComponent implements View{
 				
 				listReuAsi.remove(e.getItem());
 				
+				//jpaReuAsis.DeleteReunionAsistenciaById(e.getItem());
+				//ReunionAsistencia reuAsiSacar = e.getItem();
+				
+				//entMan.remove(reuAsiSacar);
+				
+				jpaReuAsis.delete(e.getItem());
+				
 				gridReuAsis.setItems(listReuAsi);
 				
 				txtBuscar.clear();
@@ -257,9 +268,6 @@ public class AltaReunionView extends CustomComponent implements View{
 				borrarAsistentes(reu);
 				
 				guardar(listReuAsi);
-				
-				Window w = this.findAncestor(Window.class);
-				w.close();
 				
 			}
 			
@@ -287,7 +295,8 @@ public class AltaReunionView extends CustomComponent implements View{
 			
 			try {
 				
-				jpaReuAsis.destroy(reuAsi.getReunionAsistencia());
+				//jpaReuAsis.DeleteReunionAsistenciaById(reuAsi);
+				entMan.remove(reuAsi);
 				
 			} catch (Exception e) {
 

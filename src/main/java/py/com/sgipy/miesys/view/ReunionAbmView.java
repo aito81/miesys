@@ -20,6 +20,7 @@ import com.vaadin.ui.Grid.ItemClick;
 import com.vaadin.ui.components.grid.ItemClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
+import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.Reunion;
@@ -46,6 +47,7 @@ public class ReunionAbmView extends CustomComponent implements View {
 	private DateField dfHasta;
 	
 	private Button btnBuscar;
+	private Button btnSalir;
 	
 	private JpaReunionAsistencia jpaReuAsi = new JpaReunionAsistencia(JpaUtil.getEntityManagerFactory());
 	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
@@ -62,6 +64,7 @@ public class ReunionAbmView extends CustomComponent implements View {
 		cargarCombos();
 		crearGrilla();
 		btnBuscar.addClickListener(e -> buscarReunion());
+		btnSalir.addClickListener(e -> MiesysUI.getCurrent().getNavigator().navigateTo(""));
 		
 		
 	}
@@ -220,7 +223,26 @@ public class ReunionAbmView extends CustomComponent implements View {
 		datosLayout = buildDatosLayout();
 		formLayout.addComponent(datosLayout);
 		
+		botonLayout = buildBotonLayout();
+		formLayout.addComponent(botonLayout);
+		formLayout.setComponentAlignment(botonLayout, Alignment.BOTTOM_LEFT);
+		
 		return formLayout;
+		
+	}
+
+
+
+
+	private HorizontalLayout buildBotonLayout() {
+
+		botonLayout = new HorizontalLayout();
+		
+		btnSalir = new Button();
+		btnSalir.setCaption("Volver");
+		botonLayout.addComponent(btnSalir);
+		
+		return botonLayout;
 		
 	}
 
