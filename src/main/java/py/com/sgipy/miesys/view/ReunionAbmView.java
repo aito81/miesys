@@ -2,6 +2,8 @@ package py.com.sgipy.miesys.view;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import com.vaadin.navigator.View;
 import com.vaadin.server.FontAwesome;
@@ -19,6 +21,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Grid.ItemClick;
 import com.vaadin.ui.components.grid.ItemClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
+import com.vaadin.ui.renderers.LocalDateRenderer;
 
 import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Han;
@@ -28,6 +31,7 @@ import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaReunion;
 import py.com.sgipy.miesys.jpa.JpaReunionAsistencia;
 import py.com.sgipy.miesys.util.JpaUtil;
+import py.com.sgipy.miesys.util.StringUtils;
 import py.com.sgipy.miesys.util.ViewConfig;
 
 @ViewConfig(uri = "ReunionAbm", displayName = "Mantenimiento de Reuniones")
@@ -87,6 +91,13 @@ public class ReunionAbmView extends CustomComponent implements View {
 			Notification.show("Se debe cargar fecha desde.", Notification.TYPE_ERROR_MESSAGE);
 			dfDesde.focus();
 			return;
+			
+		}
+		
+		if (dfHasta.isEmpty()) {
+			
+			 LocalDate ahora = LocalDate.now();
+			dfHasta.setValue(ahora);
 			
 		}
 		

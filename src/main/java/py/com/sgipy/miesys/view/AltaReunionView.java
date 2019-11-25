@@ -198,6 +198,8 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		//altaReunionLayout.setEnabled(false);
 		
+		botonLayout.setEnabled(false);
+		
 		crearGrillaAsistente();
 		
 		crearGrillaPersonas();
@@ -214,16 +216,6 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		txtBuscar.addValueChangeListener(e-> cargarGrillaPersona(e.getValue()));
 		
-		btnGuardar.addClickListener(e -> {
-			
-			if (!listReuAsi.isEmpty()) {
-				
-				guardar(listReuAsi);
-				
-			}
-			
-		});
-		
 		gridPersona.addItemClickListener(e -> {
 			
 			if (e.getItem() != null) {
@@ -236,14 +228,21 @@ public class AltaReunionView extends CustomComponent implements View{
 			
 			if (e.getItem() != null) {
 				
-				listReuAsi.remove(e.getItem());
+				
 				
 				//jpaReuAsis.DeleteReunionAsistenciaById(e.getItem());
 				//ReunionAsistencia reuAsiSacar = e.getItem();
 				
 				//entMan.remove(reuAsiSacar);
 				
-				jpaReuAsis.delete(e.getItem());
+				//jpaReuAsis.delete(e.getItem());
+				
+				try {
+					jpaReuAsis.destroy(e.getItem().getReunionAsistencia());
+					listReuAsi.remove(e.getItem());
+				} catch (Exception e2) {
+					// TODO: handle exception
+				}
 				
 				gridReuAsis.setItems(listReuAsi);
 				
@@ -268,6 +267,9 @@ public class AltaReunionView extends CustomComponent implements View{
 				borrarAsistentes(reu);
 				
 				guardar(listReuAsi);
+				
+				Window w = this.findAncestor(Window.class);
+				w.close();
 				
 			}
 			
@@ -296,11 +298,12 @@ public class AltaReunionView extends CustomComponent implements View{
 			try {
 				
 				//jpaReuAsis.DeleteReunionAsistenciaById(reuAsi);
-				entMan.remove(reuAsi);
+				jpaReuAsis.destroy(reuAsi.getReunionAsistencia());
+				
 				
 			} catch (Exception e) {
 
-				Notification.show(e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+				//Notification.show(e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
 				
 			}
 			
@@ -350,6 +353,7 @@ public class AltaReunionView extends CustomComponent implements View{
 			altaReunionLayout.setEnabled(false);
 			detalleReunionLayout.setEnabled(true);
 			txtBuscar.setEnabled(true);
+			botonLayout.setEnabled(true);
 		} catch (Exception e) {
 			Notification.show(e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
 		}
