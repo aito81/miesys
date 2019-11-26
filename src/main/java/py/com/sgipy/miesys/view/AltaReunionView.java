@@ -56,6 +56,7 @@ public class AltaReunionView extends CustomComponent implements View{
 	
 	private ComboBox<Han> cbxHan;
 	private ComboBox<Estudio> cbxEstudio;
+	private ComboBox<Persona> cbxPersona;
 	
 	private DateField dfFechaReunion;
 	
@@ -155,6 +156,8 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		cbxEstudio.setValue(reu.getEstudio());
 		
+		cbxPersona.setValue(reu.getPersona());
+		
 		Instant instant = Instant.ofEpochMilli(reu.getFecha().getTime());
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 		LocalDate localDate = localDateTime.toLocalDate();
@@ -189,6 +192,8 @@ public class AltaReunionView extends CustomComponent implements View{
 		cbxHan.setValue(reu.getHan());
 		
 		cbxEstudio.setValue(reu.getEstudio());
+		
+		cbxPersona.setValue(reu.getPersona());
 		
 		Instant instant = Instant.ofEpochMilli(reu.getFecha().getTime());
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
@@ -342,6 +347,13 @@ public class AltaReunionView extends CustomComponent implements View{
 			return;
 			
 		}
+		
+		if (cbxPersona.getValue() != null) {
+			
+			addReu2.setPersona(cbxPersona.getValue());
+			
+		}
+		
 		addReu2.setFecha(StringUtils.convertirLocalDateToDate(dfFechaReunion.getValue()));
 		addReu2.setEstudio(cbxEstudio.getValue());
 		addReu2.setHan(cbxHan.getValue());
@@ -513,6 +525,12 @@ public class AltaReunionView extends CustomComponent implements View{
 		addReu.setEstudio(cbxEstudio.getValue());
 		addReu.setFecha(StringUtils.convertirLocalDateToDate(dfFechaReunion.getValue()));
 		
+		if (cbxPersona.getValue() != null) {
+		
+			addReu.setPersona(cbxPersona.getValue());
+			
+		}
+		
 		try {
 			
 			jpaReu.create(addReu);
@@ -599,6 +617,9 @@ public class AltaReunionView extends CustomComponent implements View{
 		cbxEstudio.setItems(jpaEstudio.findEstudioEntities());
 		cbxEstudio.setEmptySelectionAllowed(false);
 		cbxEstudio.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		
+		cbxPersona.setItems(jpaPersona.findPersonaEntities());
+		cbxPersona.setItemCaptionGenerator(gen -> gen.getNombre() + " "+ gen.getApellido());
 		
 		
 	}
@@ -742,6 +763,11 @@ public class AltaReunionView extends CustomComponent implements View{
 		
 		altaEstudioLayout = buildAltaEstudioLayout();
 		altaReunionLayout.addComponent(altaEstudioLayout);
+		
+		cbxPersona = new ComboBox<Persona>();
+		cbxPersona.setCaption("Estudio a cargo de:");
+		cbxPersona.setWidth("370px");
+		altaReunionLayout.addComponent(cbxPersona);
 		
 		dfFechaReunion = new DateField();
 		dfFechaReunion.setCaption("Fecha de Reunion");

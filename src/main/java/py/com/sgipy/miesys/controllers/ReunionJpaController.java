@@ -12,6 +12,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import py.com.sgipy.miesys.entities.Estudio;
 import py.com.sgipy.miesys.entities.Han;
+import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.ReunionAsistencia;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,11 @@ public class ReunionJpaController implements Serializable {
                 han = em.getReference(han.getClass(), han.getHan());
                 reunion.setHan(han);
             }
+            Persona persona = reunion.getPersona();
+            if (persona != null) {
+                persona = em.getReference(persona.getClass(), persona.getPersona());
+                reunion.setPersona(persona);
+            }
             List<ReunionAsistencia> attachedReunionAsistenciaList = new ArrayList<ReunionAsistencia>();
             for (ReunionAsistencia reunionAsistenciaListReunionAsistenciaToAttach : reunion.getReunionAsistenciaList()) {
                 reunionAsistenciaListReunionAsistenciaToAttach = em.getReference(reunionAsistenciaListReunionAsistenciaToAttach.getClass(), reunionAsistenciaListReunionAsistenciaToAttach.getReunionAsistencia());
@@ -68,6 +74,10 @@ public class ReunionJpaController implements Serializable {
             if (han != null) {
                 han.getReunionList().add(reunion);
                 han = em.merge(han);
+            }
+            if (persona != null) {
+                persona.getReunionList().add(reunion);
+                persona = em.merge(persona);
             }
             for (ReunionAsistencia reunionAsistenciaListReunionAsistencia : reunion.getReunionAsistenciaList()) {
                 Reunion oldReunionOfReunionAsistenciaListReunionAsistencia = reunionAsistenciaListReunionAsistencia.getReunion();
@@ -96,6 +106,8 @@ public class ReunionJpaController implements Serializable {
             Estudio estudioNew = reunion.getEstudio();
             Han hanOld = persistentReunion.getHan();
             Han hanNew = reunion.getHan();
+            Persona personaOld = persistentReunion.getPersona();
+            Persona personaNew = reunion.getPersona();
             List<ReunionAsistencia> reunionAsistenciaListOld = persistentReunion.getReunionAsistenciaList();
             List<ReunionAsistencia> reunionAsistenciaListNew = reunion.getReunionAsistenciaList();
             List<String> illegalOrphanMessages = null;
@@ -117,6 +129,10 @@ public class ReunionJpaController implements Serializable {
             if (hanNew != null) {
                 hanNew = em.getReference(hanNew.getClass(), hanNew.getHan());
                 reunion.setHan(hanNew);
+            }
+            if (personaNew != null) {
+                personaNew = em.getReference(personaNew.getClass(), personaNew.getPersona());
+                reunion.setPersona(personaNew);
             }
             List<ReunionAsistencia> attachedReunionAsistenciaListNew = new ArrayList<ReunionAsistencia>();
             for (ReunionAsistencia reunionAsistenciaListNewReunionAsistenciaToAttach : reunionAsistenciaListNew) {
@@ -141,6 +157,14 @@ public class ReunionJpaController implements Serializable {
             if (hanNew != null && !hanNew.equals(hanOld)) {
                 hanNew.getReunionList().add(reunion);
                 hanNew = em.merge(hanNew);
+            }
+            if (personaOld != null && !personaOld.equals(personaNew)) {
+                personaOld.getReunionList().remove(reunion);
+                personaOld = em.merge(personaOld);
+            }
+            if (personaNew != null && !personaNew.equals(personaOld)) {
+                personaNew.getReunionList().add(reunion);
+                personaNew = em.merge(personaNew);
             }
             for (ReunionAsistencia reunionAsistenciaListNewReunionAsistencia : reunionAsistenciaListNew) {
                 if (!reunionAsistenciaListOld.contains(reunionAsistenciaListNewReunionAsistencia)) {
@@ -202,6 +226,11 @@ public class ReunionJpaController implements Serializable {
             if (han != null) {
                 han.getReunionList().remove(reunion);
                 han = em.merge(han);
+            }
+            Persona persona = reunion.getPersona();
+            if (persona != null) {
+                persona.getReunionList().remove(reunion);
+                persona = em.merge(persona);
             }
             em.remove(reunion);
             em.getTransaction().commit();

@@ -57,6 +57,9 @@ public class Reunion implements Serializable {
     @JoinColumn(name = "han", referencedColumnName = "han")
     @ManyToOne(optional = false)
     private Han han;
+    @JoinColumn(name = "persona", referencedColumnName = "persona")
+    @ManyToOne
+    private Persona persona;
 
     public Reunion() {
     }
@@ -109,6 +112,14 @@ public class Reunion implements Serializable {
 
     public void setHan(Han han) {
         this.han = han;
+    }
+
+    public Persona getPersona() {
+        return persona;
+    }
+
+    public void setPersona(Persona persona) {
+        this.persona = persona;
     }
 
     @Override

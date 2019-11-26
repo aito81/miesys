@@ -28,6 +28,7 @@ import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Persona;
 import py.com.sgipy.miesys.entities.ReunionAsistencia;
 import py.com.sgipy.miesys.entities.Recomendado;
+import py.com.sgipy.miesys.entities.Reunion;
 import py.com.sgipy.miesys.entities.Usuario;
 import py.com.sgipy.miesys.entities.Telefono;
 
@@ -61,6 +62,9 @@ public class PersonaJpaController implements Serializable {
         }
         if (persona.getRecomendadoList2() == null) {
             persona.setRecomendadoList2(new ArrayList<Recomendado>());
+        }
+        if (persona.getReunionList() == null) {
+            persona.setReunionList(new ArrayList<Reunion>());
         }
         if (persona.getUsuarioList() == null) {
             persona.setUsuarioList(new ArrayList<Usuario>());
@@ -142,6 +146,12 @@ public class PersonaJpaController implements Serializable {
                 attachedRecomendadoList2.add(recomendadoList2RecomendadoToAttach);
             }
             persona.setRecomendadoList2(attachedRecomendadoList2);
+            List<Reunion> attachedReunionList = new ArrayList<Reunion>();
+            for (Reunion reunionListReunionToAttach : persona.getReunionList()) {
+                reunionListReunionToAttach = em.getReference(reunionListReunionToAttach.getClass(), reunionListReunionToAttach.getReunion());
+                attachedReunionList.add(reunionListReunionToAttach);
+            }
+            persona.setReunionList(attachedReunionList);
             List<Usuario> attachedUsuarioList = new ArrayList<Usuario>();
             for (Usuario usuarioListUsuarioToAttach : persona.getUsuarioList()) {
                 usuarioListUsuarioToAttach = em.getReference(usuarioListUsuarioToAttach.getClass(), usuarioListUsuarioToAttach.getUsuario());
@@ -232,6 +242,15 @@ public class PersonaJpaController implements Serializable {
                     oldRecomendador2OfRecomendadoList2Recomendado = em.merge(oldRecomendador2OfRecomendadoList2Recomendado);
                 }
             }
+            for (Reunion reunionListReunion : persona.getReunionList()) {
+                Persona oldPersonaOfReunionListReunion = reunionListReunion.getPersona();
+                reunionListReunion.setPersona(persona);
+                reunionListReunion = em.merge(reunionListReunion);
+                if (oldPersonaOfReunionListReunion != null) {
+                    oldPersonaOfReunionListReunion.getReunionList().remove(reunionListReunion);
+                    oldPersonaOfReunionListReunion = em.merge(oldPersonaOfReunionListReunion);
+                }
+            }
             for (Usuario usuarioListUsuario : persona.getUsuarioList()) {
                 Persona oldPersonaOfUsuarioListUsuario = usuarioListUsuario.getPersona();
                 usuarioListUsuario.setPersona(persona);
@@ -290,6 +309,8 @@ public class PersonaJpaController implements Serializable {
             List<Recomendado> recomendadoList1New = persona.getRecomendadoList1();
             List<Recomendado> recomendadoList2Old = persistentPersona.getRecomendadoList2();
             List<Recomendado> recomendadoList2New = persona.getRecomendadoList2();
+            List<Reunion> reunionListOld = persistentPersona.getReunionList();
+            List<Reunion> reunionListNew = persona.getReunionList();
             List<Usuario> usuarioListOld = persistentPersona.getUsuarioList();
             List<Usuario> usuarioListNew = persona.getUsuarioList();
             List<Telefono> telefonoListOld = persistentPersona.getTelefonoList();
@@ -405,6 +426,13 @@ public class PersonaJpaController implements Serializable {
             }
             recomendadoList2New = attachedRecomendadoList2New;
             persona.setRecomendadoList2(recomendadoList2New);
+            List<Reunion> attachedReunionListNew = new ArrayList<Reunion>();
+            for (Reunion reunionListNewReunionToAttach : reunionListNew) {
+                reunionListNewReunionToAttach = em.getReference(reunionListNewReunionToAttach.getClass(), reunionListNewReunionToAttach.getReunion());
+                attachedReunionListNew.add(reunionListNewReunionToAttach);
+            }
+            reunionListNew = attachedReunionListNew;
+            persona.setReunionList(reunionListNew);
             List<Usuario> attachedUsuarioListNew = new ArrayList<Usuario>();
             for (Usuario usuarioListNewUsuarioToAttach : usuarioListNew) {
                 usuarioListNewUsuarioToAttach = em.getReference(usuarioListNewUsuarioToAttach.getClass(), usuarioListNewUsuarioToAttach.getUsuario());
@@ -551,6 +579,23 @@ public class PersonaJpaController implements Serializable {
                     }
                 }
             }
+            for (Reunion reunionListOldReunion : reunionListOld) {
+                if (!reunionListNew.contains(reunionListOldReunion)) {
+                    reunionListOldReunion.setPersona(null);
+                    reunionListOldReunion = em.merge(reunionListOldReunion);
+                }
+            }
+            for (Reunion reunionListNewReunion : reunionListNew) {
+                if (!reunionListOld.contains(reunionListNewReunion)) {
+                    Persona oldPersonaOfReunionListNewReunion = reunionListNewReunion.getPersona();
+                    reunionListNewReunion.setPersona(persona);
+                    reunionListNewReunion = em.merge(reunionListNewReunion);
+                    if (oldPersonaOfReunionListNewReunion != null && !oldPersonaOfReunionListNewReunion.equals(persona)) {
+                        oldPersonaOfReunionListNewReunion.getReunionList().remove(reunionListNewReunion);
+                        oldPersonaOfReunionListNewReunion = em.merge(oldPersonaOfReunionListNewReunion);
+                    }
+                }
+            }
             for (Usuario usuarioListNewUsuario : usuarioListNew) {
                 if (!usuarioListOld.contains(usuarioListNewUsuario)) {
                     Persona oldPersonaOfUsuarioListNewUsuario = usuarioListNewUsuario.getPersona();
@@ -690,6 +735,11 @@ public class PersonaJpaController implements Serializable {
             for (Recomendado recomendadoList2Recomendado : recomendadoList2) {
                 recomendadoList2Recomendado.setRecomendador2(null);
                 recomendadoList2Recomendado = em.merge(recomendadoList2Recomendado);
+            }
+            List<Reunion> reunionList = persona.getReunionList();
+            for (Reunion reunionListReunion : reunionList) {
+                reunionListReunion.setPersona(null);
+                reunionListReunion = em.merge(reunionListReunion);
             }
             em.remove(persona);
             em.getTransaction().commit();

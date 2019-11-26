@@ -100,6 +100,8 @@ public class Persona implements Serializable {
     private List<Recomendado> recomendadoList1;
     @OneToMany(mappedBy = "recomendador2")
     private List<Recomendado> recomendadoList2;
+    @OneToMany(mappedBy = "persona")
+    private List<Reunion> reunionList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
     private List<Usuario> usuarioList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
@@ -281,6 +283,15 @@ public class Persona implements Serializable {
 
     public void setRecomendadoList2(List<Recomendado> recomendadoList2) {
         this.recomendadoList2 = recomendadoList2;
+    }
+
+    @XmlTransient
+    public List<Reunion> getReunionList() {
+        return reunionList;
+    }
+
+    public void setReunionList(List<Reunion> reunionList) {
+        this.reunionList = reunionList;
     }
 
     @XmlTransient
