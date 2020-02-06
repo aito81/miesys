@@ -404,7 +404,7 @@ public class AltaReunionView extends CustomComponent implements View{
 			
 		Reunion reu = jpaReu.findReunion(nroReu);
 		
-		reu.setCantidadParticipantes(nroReu);
+		reu.setCantidadParticipantes(total);
 		
 		try {
 			jpaReu.edit(reu);
