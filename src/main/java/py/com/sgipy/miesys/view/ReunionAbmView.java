@@ -120,7 +120,8 @@ public class ReunionAbmView extends CustomComponent implements View {
 		
 		}).setId("fecha").setCaption("Fecha de la Reunion");;
 		
-		gridReunion.addColumn(e -> e.getCantidadParticipantes().toString()).setId("cantidad").setCaption("Asistentes");
+		gridReunion.addColumn(e -> 
+		e.getCantidadParticipantes()).setId("cantidad").setCaption("Asistentes");
 		
 		gridReunion.addColumn(Persona -> FontAwesome.EYE.getHtml(), 
 				new HtmlRenderer()).setId("ver").setStyleGenerator(matriz ->
