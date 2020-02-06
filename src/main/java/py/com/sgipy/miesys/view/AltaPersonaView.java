@@ -21,6 +21,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.ValoTheme;
 
 import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Cabildo;
@@ -1009,6 +1010,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		btnAceptar = new Button();
 		btnAceptar.setCaption("Guardar");
+		btnAceptar.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		botonLayout.addComponent(btnAceptar);
 		
 		btnCancelar = new Button();

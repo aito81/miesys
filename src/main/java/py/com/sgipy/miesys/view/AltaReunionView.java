@@ -26,6 +26,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import py.com.sgipy.miesys.MiesysUI;
+import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
+import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Estudio;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Ocupacion;
@@ -394,6 +396,27 @@ public class AltaReunionView extends CustomComponent implements View{
 				Notification.show("Error al guardar los asistentes" + e.getMessage());
 			}
 			
+		}
+		
+		int total = listReuAsi2.size();
+		
+		int nroReu = listReuAsi2.get(0).getReunion().getReunion();
+			
+		Reunion reu = jpaReu.findReunion(nroReu);
+		
+		reu.setCantidadParticipantes(nroReu);
+		
+		try {
+			jpaReu.edit(reu);
+		} catch (IllegalOrphanException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NonexistentEntityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		listPersona.clear();

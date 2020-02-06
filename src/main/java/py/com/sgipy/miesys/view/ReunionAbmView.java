@@ -22,6 +22,7 @@ import com.vaadin.ui.Grid.ItemClick;
 import com.vaadin.ui.components.grid.ItemClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.renderers.LocalDateRenderer;
+import com.vaadin.ui.themes.ValoTheme;
 
 import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Han;
@@ -118,6 +119,8 @@ public class ReunionAbmView extends CustomComponent implements View {
 			return sdf.format(e.getFecha());
 		
 		}).setId("fecha").setCaption("Fecha de la Reunion");;
+		
+		gridReunion.addColumn(e -> e.getCantidadParticipantes().toString()).setId("cantidad").setCaption("Asistentes");
 		
 		gridReunion.addColumn(Persona -> FontAwesome.EYE.getHtml(), 
 				new HtmlRenderer()).setId("ver").setStyleGenerator(matriz ->
@@ -251,6 +254,7 @@ public class ReunionAbmView extends CustomComponent implements View {
 		
 		btnSalir = new Button();
 		btnSalir.setCaption("Volver");
+		btnSalir.setStyleName(ValoTheme.BUTTON_DANGER);
 		botonLayout.addComponent(btnSalir);
 		
 		return botonLayout;
@@ -299,6 +303,7 @@ public class ReunionAbmView extends CustomComponent implements View {
 		
 		btnBuscar = new Button();
 		btnBuscar.setCaption("Buscar");
+		btnBuscar.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		busquedaLayout.addComponent(btnBuscar);
 		busquedaLayout.setComponentAlignment(btnBuscar, Alignment.BOTTOM_CENTER);
 		

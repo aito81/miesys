@@ -19,6 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.components.grid.ItemClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
+import com.vaadin.ui.themes.ValoTheme;
 
 import py.com.sgipy.miesys.MiesysUI;
 import py.com.sgipy.miesys.entities.Division;
@@ -32,6 +33,7 @@ import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaNacionalidad;
 import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.util.JpaUtil;
+import py.com.sgipy.miesys.util.StringUtils;
 import py.com.sgipy.miesys.util.ViewConfig;
 
 
@@ -119,7 +121,7 @@ public class PersonaAbmView extends CustomComponent implements View {
 		gridPersona.setItems(jpaPer.findPersonaEntities());
 		gridPersona.addColumn(persona -> persona.getNombre()).setId("nombre").setCaption("Nombre");
 		gridPersona.addColumn(Persona::getApellido).setId("apellido").setCaption("Apellido");
-		gridPersona.addColumn(persona -> persona.getNumeroDocumento()).setId("nroDoc").setCaption("Numero Documento");
+		gridPersona.addColumn(persona -> StringUtils.colocarFormatoCI(persona.getNumeroDocumento())).setId("nroDoc").setCaption("Numero Documento");
 		gridPersona.addColumn(persona -> persona.getHan().getDescripcion()).setId("han").setCaption("Han");
 		
 		
@@ -234,6 +236,7 @@ public class PersonaAbmView extends CustomComponent implements View {
 		
 		btnSalir = new Button();
 		btnSalir.setCaption("Salir");
+		btnSalir.setStyleName(ValoTheme.BUTTON_DANGER);
 		botonLayout.addComponent(btnSalir);
 		
 		
@@ -284,6 +287,7 @@ public class PersonaAbmView extends CustomComponent implements View {
 		
 		btnBuscar = new Button();
 		btnBuscar.setCaption("Buscar");
+		btnBuscar.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		busquedaLayout.addComponent(btnBuscar);
 		busquedaLayout.setComponentAlignment(btnBuscar, Alignment.BOTTOM_CENTER);
 		

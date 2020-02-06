@@ -36,7 +36,8 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Reunion.findAll", query = "SELECT r FROM Reunion r")
     , @NamedQuery(name = "Reunion.findByReunion", query = "SELECT r FROM Reunion r WHERE r.reunion = :reunion")
-    , @NamedQuery(name = "Reunion.findByFecha", query = "SELECT r FROM Reunion r WHERE r.fecha = :fecha")})
+    , @NamedQuery(name = "Reunion.findByFecha", query = "SELECT r FROM Reunion r WHERE r.fecha = :fecha")
+    , @NamedQuery(name = "Reunion.findByCantidadParticipantes", query = "SELECT r FROM Reunion r WHERE r.cantidadParticipantes = :cantidadParticipantes")})
 public class Reunion implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,6 +50,8 @@ public class Reunion implements Serializable {
     @Column(name = "fecha")
     @Temporal(TemporalType.DATE)
     private Date fecha;
+    @Column(name = "cantidad_participantes")
+    private Integer cantidadParticipantes;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "reunion")
     private List<ReunionAsistencia> reunionAsistenciaList;
     @JoinColumn(name = "estudio", referencedColumnName = "estudio")
@@ -87,6 +90,14 @@ public class Reunion implements Serializable {
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
+    }
+
+    public Integer getCantidadParticipantes() {
+        return cantidadParticipantes;
+    }
+
+    public void setCantidadParticipantes(Integer cantidadParticipantes) {
+        this.cantidadParticipantes = cantidadParticipantes;
     }
 
     @XmlTransient
