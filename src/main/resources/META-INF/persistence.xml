@@ -23,6 +23,8 @@
     <class>py.com.sgipy.miesys.entities.ReunionAsistencia</class>
     <class>py.com.sgipy.miesys.entities.Usuario</class>
     <class>py.com.sgipy.miesys.entities.Perfil</class>
+    <class>py.com.sgipy.miesys.entities.Tenencia</class>
+    <class>py.com.sgipy.miesys.entities.Region</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/miesysDB"/>
       <property name="javax.persistence.jdbc.user" value="postgres"/>

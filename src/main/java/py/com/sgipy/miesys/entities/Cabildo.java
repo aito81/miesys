@@ -31,7 +31,8 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Cabildo.findAll", query = "SELECT c FROM Cabildo c")
     , @NamedQuery(name = "Cabildo.findByCabildo", query = "SELECT c FROM Cabildo c WHERE c.cabildo = :cabildo")
-    , @NamedQuery(name = "Cabildo.findByDescripcion", query = "SELECT c FROM Cabildo c WHERE c.descripcion = :descripcion")})
+    , @NamedQuery(name = "Cabildo.findByDescripcion", query = "SELECT c FROM Cabildo c WHERE c.descripcion = :descripcion")
+    , @NamedQuery(name = "Cabildo.findByRegion", query = "SELECT c FROM Cabildo c WHERE c.region = :region")})
 public class Cabildo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,6 +44,9 @@ public class Cabildo implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
+    @Basic(optional = false)
+    @Column(name = "region")
+    private int region;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cabildo")
     private List<Distrito> distritoList;
 
@@ -53,9 +57,10 @@ public class Cabildo implements Serializable {
         this.cabildo = cabildo;
     }
 
-    public Cabildo(Integer cabildo, String descripcion) {
+    public Cabildo(Integer cabildo, String descripcion, int region) {
         this.cabildo = cabildo;
         this.descripcion = descripcion;
+        this.region = region;
     }
 
     public Integer getCabildo() {
@@ -72,6 +77,14 @@ public class Cabildo implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public int getRegion() {
+        return region;
+    }
+
+    public void setRegion(int region) {
+        this.region = region;
     }
 
     @XmlTransient

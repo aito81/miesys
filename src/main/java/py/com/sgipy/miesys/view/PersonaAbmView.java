@@ -122,7 +122,20 @@ public class PersonaAbmView extends CustomComponent implements View {
 		gridPersona.addColumn(persona -> persona.getNombre()).setId("nombre").setCaption("Nombre");
 		gridPersona.addColumn(Persona::getApellido).setId("apellido").setCaption("Apellido");
 		gridPersona.addColumn(persona -> StringUtils.colocarFormatoCI(persona.getNumeroDocumento())).setId("nroDoc").setCaption("Numero Documento");
-		gridPersona.addColumn(persona -> persona.getHan().getDescripcion()).setId("han").setCaption("Han");
+		gridPersona.addColumn(persona -> { 
+			
+			if (persona.getHan() != null) {
+				
+				return persona.getHan().getDescripcion();
+				
+			}else {
+				
+				return "sin Han";
+				
+			}
+			
+			
+		}).setId("han").setCaption("Han");
 		
 		
 		gridPersona.addColumn(persona ->{

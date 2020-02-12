@@ -37,7 +37,9 @@ import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
 import py.com.sgipy.miesys.entities.Persona;
+import py.com.sgipy.miesys.entities.Region;
 import py.com.sgipy.miesys.entities.Telefono;
+import py.com.sgipy.miesys.entities.Tenencia;
 import py.com.sgipy.miesys.entities.TipoDocumento;
 import py.com.sgipy.miesys.jpa.JpaCabildo;
 import py.com.sgipy.miesys.jpa.JpaCiudad;
@@ -52,7 +54,9 @@ import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaNacionalidad;
 import py.com.sgipy.miesys.jpa.JpaOcupacion;
 import py.com.sgipy.miesys.jpa.JpaPersona;
+import py.com.sgipy.miesys.jpa.JpaRegion;
 import py.com.sgipy.miesys.jpa.JpaTelefono;
+import py.com.sgipy.miesys.jpa.JpaTenencia;
 import py.com.sgipy.miesys.jpa.JpaTipoDocumento;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.StringUtils;
@@ -101,6 +105,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private ComboBox<Division> cbxDivision;
 	private ComboBox<Departamento> cbxDptoLaboral;
 	private ComboBox<Ciudad> cbxCiudadLaboral;
+	private ComboBox<Tenencia> cbxTenencia;
+	private ComboBox<Region> cbxRegion;
+	
 	
 	private DateField dfNacimiento;
 	private DateField dfInicio;
@@ -126,6 +133,8 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private JpaDivision jpaDiv = new JpaDivision(JpaUtil.getEntityManagerFactory());
 	private JpaTelefono jpaTel = new JpaTelefono(JpaUtil.getEntityManagerFactory());
 	private JpaDireccion jpaDir = new JpaDireccion(JpaUtil.getEntityManagerFactory());
+	private JpaTenencia jpaTen = new JpaTenencia(JpaUtil.getEntityManagerFactory());
+	private JpaRegion jpaReg = new JpaRegion(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -666,6 +675,14 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxDivision.setEmptySelectionAllowed(false);
 		cbxDivision.setItemCaptionGenerator(gen -> gen.getDescripcion());
 		
+		cbxTenencia.setItems(jpaTen.findTenenciaEntities());
+		cbxTenencia.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		
+		cbxRegion.setItems(jpaReg.findRegionEntities());
+		cbxRegion.setEmptySelectionAllowed(false);
+		cbxRegion.setItemCaptionGenerator(gen -> gen.getDescripcion());
+		cbxRegion.addValueChangeListener(e -> cargarCabildo(e.getValue()));
+	
 		
 		
 		
@@ -674,6 +691,12 @@ public class AltaPersonaView extends CustomComponent implements View {
 
 
 
+
+	private void cargarCabildo(Region value) {
+		
+		
+		
+	}
 
 	private void cargarHan(Distrito value) {
 		
@@ -1015,6 +1038,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		btnCancelar = new Button();
 		btnCancelar.setCaption("Cancelar");
+		btnCancelar.setStyleName(ValoTheme.BUTTON_DANGER);
 		botonLayout.addComponent(btnCancelar);
 		
 		return botonLayout;
@@ -1060,6 +1084,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cabildoLayout.setSpacing(false);
 		cabildoLayout.setCaption("Cabildo");
 		
+		cbxRegion = new ComboBox<Region>();
+		cbxRegion.setCaption("Region");
+		cabildoLayout.addComponent(cbxRegion);
+		
 		cbxCabildo = new ComboBox<Cabildo>();
 		cbxCabildo.setCaption("Cabildo");
 		cabildoLayout.addComponent(cbxCabildo);
@@ -1080,6 +1108,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		dfInicio.setCaption("Fecha de Inicio");
 		cabildoLayout.addComponent(dfInicio);
 		
+		cbxTenencia = new ComboBox<>();
+		cbxTenencia.setCaption("Tiene Gohonzon o Membresía?");
+		cabildoLayout.addComponent(cbxTenencia);
+		
 		return cabildoLayout;
 	}
 
@@ -1098,6 +1130,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 		btnMas = new Button();
 		btnMas.setCaption("+");
 		btnMas.setId("2");
+		btnMas.setStyleName(ValoTheme.BUTTON_TINY);
+		btnMas.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		
 		//btnMas.addClickListener(e -> cargarNuevo(btnMas.getCaption()));
 		btnMas.addClickListener(e -> cargarNuevo(e.getButton().getId()));
 		addEmpresaLayout.addComponent(btnMas);
@@ -1123,6 +1158,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		btnMas = new Button();
 		btnMas.setCaption("+");
 		btnMas.setId("1");
+		btnMas.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		//btnMas.addClickListener(e -> cargarNuevo(e.getButton().getCaption()));
 		btnMas.addClickListener(e -> cargarNuevo(e.getButton().getId()));
 		addOcupacionLayout.addComponent(btnMas);

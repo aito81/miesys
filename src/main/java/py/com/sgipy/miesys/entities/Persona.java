@@ -87,6 +87,9 @@ public class Persona implements Serializable {
     @JoinColumn(name = "ocupacion", referencedColumnName = "ocupacion")
     @ManyToOne
     private Ocupacion ocupacion;
+    @JoinColumn(name = "miembro_con", referencedColumnName = "tenencia")
+    @ManyToOne
+    private Tenencia miembroCon;
     @JoinColumn(name = "tipo_documento", referencedColumnName = "tipo_documento")
     @ManyToOne
     private TipoDocumento tipoDocumento;
@@ -230,6 +233,14 @@ public class Persona implements Serializable {
 
     public void setOcupacion(Ocupacion ocupacion) {
         this.ocupacion = ocupacion;
+    }
+
+    public Tenencia getMiembroCon() {
+        return miembroCon;
+    }
+
+    public void setMiembroCon(Tenencia miembroCon) {
+        this.miembroCon = miembroCon;
     }
 
     public TipoDocumento getTipoDocumento() {

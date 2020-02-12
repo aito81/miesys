@@ -17,6 +17,7 @@ import py.com.sgipy.miesys.entities.Genero;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
+import py.com.sgipy.miesys.entities.Tenencia;
 import py.com.sgipy.miesys.entities.TipoDocumento;
 import py.com.sgipy.miesys.entities.Direccion;
 import java.util.ArrayList;
@@ -111,6 +112,11 @@ public class PersonaJpaController implements Serializable {
                 ocupacion = em.getReference(ocupacion.getClass(), ocupacion.getOcupacion());
                 persona.setOcupacion(ocupacion);
             }
+            Tenencia miembroCon = persona.getMiembroCon();
+            if (miembroCon != null) {
+                miembroCon = em.getReference(miembroCon.getClass(), miembroCon.getTenencia());
+                persona.setMiembroCon(miembroCon);
+            }
             TipoDocumento tipoDocumento = persona.getTipoDocumento();
             if (tipoDocumento != null) {
                 tipoDocumento = em.getReference(tipoDocumento.getClass(), tipoDocumento.getTipoDocumento());
@@ -192,6 +198,10 @@ public class PersonaJpaController implements Serializable {
             if (ocupacion != null) {
                 ocupacion.getPersonaList().add(persona);
                 ocupacion = em.merge(ocupacion);
+            }
+            if (miembroCon != null) {
+                miembroCon.getPersonaList().add(persona);
+                miembroCon = em.merge(miembroCon);
             }
             if (tipoDocumento != null) {
                 tipoDocumento.getPersonaList().add(persona);
@@ -297,6 +307,8 @@ public class PersonaJpaController implements Serializable {
             Nacionalidad nacionalidadNew = persona.getNacionalidad();
             Ocupacion ocupacionOld = persistentPersona.getOcupacion();
             Ocupacion ocupacionNew = persona.getOcupacion();
+            Tenencia miembroConOld = persistentPersona.getMiembroCon();
+            Tenencia miembroConNew = persona.getMiembroCon();
             TipoDocumento tipoDocumentoOld = persistentPersona.getTipoDocumento();
             TipoDocumento tipoDocumentoNew = persona.getTipoDocumento();
             List<Direccion> direccionListOld = persistentPersona.getDireccionList();
@@ -386,6 +398,10 @@ public class PersonaJpaController implements Serializable {
             if (ocupacionNew != null) {
                 ocupacionNew = em.getReference(ocupacionNew.getClass(), ocupacionNew.getOcupacion());
                 persona.setOcupacion(ocupacionNew);
+            }
+            if (miembroConNew != null) {
+                miembroConNew = em.getReference(miembroConNew.getClass(), miembroConNew.getTenencia());
+                persona.setMiembroCon(miembroConNew);
             }
             if (tipoDocumentoNew != null) {
                 tipoDocumentoNew = em.getReference(tipoDocumentoNew.getClass(), tipoDocumentoNew.getTipoDocumento());
@@ -503,6 +519,14 @@ public class PersonaJpaController implements Serializable {
             if (ocupacionNew != null && !ocupacionNew.equals(ocupacionOld)) {
                 ocupacionNew.getPersonaList().add(persona);
                 ocupacionNew = em.merge(ocupacionNew);
+            }
+            if (miembroConOld != null && !miembroConOld.equals(miembroConNew)) {
+                miembroConOld.getPersonaList().remove(persona);
+                miembroConOld = em.merge(miembroConOld);
+            }
+            if (miembroConNew != null && !miembroConNew.equals(miembroConOld)) {
+                miembroConNew.getPersonaList().add(persona);
+                miembroConNew = em.merge(miembroConNew);
             }
             if (tipoDocumentoOld != null && !tipoDocumentoOld.equals(tipoDocumentoNew)) {
                 tipoDocumentoOld.getPersonaList().remove(persona);
@@ -720,6 +744,11 @@ public class PersonaJpaController implements Serializable {
             if (ocupacion != null) {
                 ocupacion.getPersonaList().remove(persona);
                 ocupacion = em.merge(ocupacion);
+            }
+            Tenencia miembroCon = persona.getMiembroCon();
+            if (miembroCon != null) {
+                miembroCon.getPersonaList().remove(persona);
+                miembroCon = em.merge(miembroCon);
             }
             TipoDocumento tipoDocumento = persona.getTipoDocumento();
             if (tipoDocumento != null) {
