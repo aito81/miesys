@@ -6,13 +6,16 @@
 package py.com.sgipy.miesys.controllers;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.sgipy.miesys.entities.Cabildo;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Region;
 
@@ -32,11 +35,29 @@ public class RegionJpaController implements Serializable {
     }
 
     public void create(Region region) {
+        if (region.getCabildoList() == null) {
+            region.setCabildoList(new ArrayList<Cabildo>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Cabildo> attachedCabildoList = new ArrayList<Cabildo>();
+            for (Cabildo cabildoListCabildoToAttach : region.getCabildoList()) {
+                cabildoListCabildoToAttach = em.getReference(cabildoListCabildoToAttach.getClass(), cabildoListCabildoToAttach.getCabildo());
+                attachedCabildoList.add(cabildoListCabildoToAttach);
+            }
+            region.setCabildoList(attachedCabildoList);
             em.persist(region);
+            for (Cabildo cabildoListCabildo : region.getCabildoList()) {
+                Region oldRegionOfCabildoListCabildo = cabildoListCabildo.getRegion();
+                cabildoListCabildo.setRegion(region);
+                cabildoListCabildo = em.merge(cabildoListCabildo);
+                if (oldRegionOfCabildoListCabildo != null) {
+                    oldRegionOfCabildoListCabildo.getCabildoList().remove(cabildoListCabildo);
+                    oldRegionOfCabildoListCabildo = em.merge(oldRegionOfCabildoListCabildo);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -45,12 +66,45 @@ public class RegionJpaController implements Serializable {
         }
     }
 
-    public void edit(Region region) throws NonexistentEntityException, Exception {
+    public void edit(Region region) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Region persistentRegion = em.find(Region.class, region.getRegion());
+            List<Cabildo> cabildoListOld = persistentRegion.getCabildoList();
+            List<Cabildo> cabildoListNew = region.getCabildoList();
+            List<String> illegalOrphanMessages = null;
+            for (Cabildo cabildoListOldCabildo : cabildoListOld) {
+                if (!cabildoListNew.contains(cabildoListOldCabildo)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Cabildo " + cabildoListOldCabildo + " since its region field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            List<Cabildo> attachedCabildoListNew = new ArrayList<Cabildo>();
+            for (Cabildo cabildoListNewCabildoToAttach : cabildoListNew) {
+                cabildoListNewCabildoToAttach = em.getReference(cabildoListNewCabildoToAttach.getClass(), cabildoListNewCabildoToAttach.getCabildo());
+                attachedCabildoListNew.add(cabildoListNewCabildoToAttach);
+            }
+            cabildoListNew = attachedCabildoListNew;
+            region.setCabildoList(cabildoListNew);
             region = em.merge(region);
+            for (Cabildo cabildoListNewCabildo : cabildoListNew) {
+                if (!cabildoListOld.contains(cabildoListNewCabildo)) {
+                    Region oldRegionOfCabildoListNewCabildo = cabildoListNewCabildo.getRegion();
+                    cabildoListNewCabildo.setRegion(region);
+                    cabildoListNewCabildo = em.merge(cabildoListNewCabildo);
+                    if (oldRegionOfCabildoListNewCabildo != null && !oldRegionOfCabildoListNewCabildo.equals(region)) {
+                        oldRegionOfCabildoListNewCabildo.getCabildoList().remove(cabildoListNewCabildo);
+                        oldRegionOfCabildoListNewCabildo = em.merge(oldRegionOfCabildoListNewCabildo);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -68,7 +122,7 @@ public class RegionJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -79,6 +133,17 @@ public class RegionJpaController implements Serializable {
                 region.getRegion();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The region with id " + id + " no longer exists.", enfe);
+            }
+            List<String> illegalOrphanMessages = null;
+            List<Cabildo> cabildoListOrphanCheck = region.getCabildoList();
+            for (Cabildo cabildoListOrphanCheckCabildo : cabildoListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Region (" + region + ") cannot be destroyed since the Cabildo " + cabildoListOrphanCheckCabildo + " in its cabildoList field has a non-nullable region field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             em.remove(region);
             em.getTransaction().commit();

@@ -14,6 +14,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -31,8 +33,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Cabildo.findAll", query = "SELECT c FROM Cabildo c")
     , @NamedQuery(name = "Cabildo.findByCabildo", query = "SELECT c FROM Cabildo c WHERE c.cabildo = :cabildo")
-    , @NamedQuery(name = "Cabildo.findByDescripcion", query = "SELECT c FROM Cabildo c WHERE c.descripcion = :descripcion")
-    , @NamedQuery(name = "Cabildo.findByRegion", query = "SELECT c FROM Cabildo c WHERE c.region = :region")})
+    , @NamedQuery(name = "Cabildo.findByDescripcion", query = "SELECT c FROM Cabildo c WHERE c.descripcion = :descripcion")})
 public class Cabildo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -44,11 +45,11 @@ public class Cabildo implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
-    @Basic(optional = false)
-    @Column(name = "region")
-    private int region;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cabildo")
     private List<Distrito> distritoList;
+    @JoinColumn(name = "region", referencedColumnName = "region")
+    @ManyToOne(optional = false)
+    private Region region;
 
     public Cabildo() {
     }
@@ -57,10 +58,9 @@ public class Cabildo implements Serializable {
         this.cabildo = cabildo;
     }
 
-    public Cabildo(Integer cabildo, String descripcion, int region) {
+    public Cabildo(Integer cabildo, String descripcion) {
         this.cabildo = cabildo;
         this.descripcion = descripcion;
-        this.region = region;
     }
 
     public Integer getCabildo() {
@@ -79,14 +79,6 @@ public class Cabildo implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public int getRegion() {
-        return region;
-    }
-
-    public void setRegion(int region) {
-        this.region = region;
-    }
-
     @XmlTransient
     public List<Distrito> getDistritoList() {
         return distritoList;
@@ -94,6 +86,14 @@ public class Cabildo implements Serializable {
 
     public void setDistritoList(List<Distrito> distritoList) {
         this.distritoList = distritoList;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
     }
 
     @Override
