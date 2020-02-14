@@ -9,6 +9,9 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 
 import py.com.sgipy.miesys.entities.Cabildo;
 import py.com.sgipy.miesys.entities.Distrito;
@@ -20,6 +23,7 @@ import py.com.sgipy.miesys.jpa.JpaDistrito;
 import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaPersona;
 import py.com.sgipy.miesys.jpa.JpaRegion;
+import py.com.sgipy.miesys.util.Funciones;
 import py.com.sgipy.miesys.util.JpaUtil;
 import py.com.sgipy.miesys.util.ViewConfig;
 
@@ -66,6 +70,30 @@ public class PersonaHanView extends CustomComponent implements View {
 		crearGrillaMiembro();
 		
 		txtBusqueda.addValueChangeListener(e -> buscarPersona(e.getValue()));
+		
+		btnSalir.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+
+				Funciones.salir();
+				
+			}
+		});
+		
+		gridMiembro.addItemClickListener(e -> cambiarPersona(e.getItem()));
+		
+		
+		
+	}
+
+	private void cambiarPersona(Persona item) {
+		
+		if (item == null) {
+			
+			return;
+			
+		}
 		
 		
 		
@@ -183,6 +211,24 @@ public class PersonaHanView extends CustomComponent implements View {
 		
 		
 		return formLayout;
+		
+	}
+
+	private HorizontalLayout buildBotonLayout() {
+		
+		botonLayout = new HorizontalLayout();
+		
+		btnGuardar = new Button();
+		btnGuardar.setCaption("Guardar");
+		btnGuardar.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+		botonLayout.addComponent(btnGuardar);
+		
+		btnSalir = new Button();
+		btnSalir.setCaption("Salir");
+		btnSalir.setStyleName(ValoTheme.BUTTON_DANGER);
+		botonLayout.addComponent(btnSalir);
+		
+		return botonLayout;
 		
 	}
 
