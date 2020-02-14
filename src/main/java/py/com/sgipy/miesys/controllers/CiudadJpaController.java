@@ -18,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Ciudad;
+import py.com.sgipy.miesys.entities.Han;
 
 /**
  *
@@ -38,6 +39,9 @@ public class CiudadJpaController implements Serializable {
         if (ciudad.getDireccionList() == null) {
             ciudad.setDireccionList(new ArrayList<Direccion>());
         }
+        if (ciudad.getHanList() == null) {
+            ciudad.setHanList(new ArrayList<Han>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -53,6 +57,12 @@ public class CiudadJpaController implements Serializable {
                 attachedDireccionList.add(direccionListDireccionToAttach);
             }
             ciudad.setDireccionList(attachedDireccionList);
+            List<Han> attachedHanList = new ArrayList<Han>();
+            for (Han hanListHanToAttach : ciudad.getHanList()) {
+                hanListHanToAttach = em.getReference(hanListHanToAttach.getClass(), hanListHanToAttach.getHan());
+                attachedHanList.add(hanListHanToAttach);
+            }
+            ciudad.setHanList(attachedHanList);
             em.persist(ciudad);
             if (departamento != null) {
                 departamento.getCiudadList().add(ciudad);
@@ -65,6 +75,15 @@ public class CiudadJpaController implements Serializable {
                 if (oldCiudadOfDireccionListDireccion != null) {
                     oldCiudadOfDireccionListDireccion.getDireccionList().remove(direccionListDireccion);
                     oldCiudadOfDireccionListDireccion = em.merge(oldCiudadOfDireccionListDireccion);
+                }
+            }
+            for (Han hanListHan : ciudad.getHanList()) {
+                Ciudad oldCiudadOfHanListHan = hanListHan.getCiudad();
+                hanListHan.setCiudad(ciudad);
+                hanListHan = em.merge(hanListHan);
+                if (oldCiudadOfHanListHan != null) {
+                    oldCiudadOfHanListHan.getHanList().remove(hanListHan);
+                    oldCiudadOfHanListHan = em.merge(oldCiudadOfHanListHan);
                 }
             }
             em.getTransaction().commit();
@@ -85,6 +104,8 @@ public class CiudadJpaController implements Serializable {
             Departamento departamentoNew = ciudad.getDepartamento();
             List<Direccion> direccionListOld = persistentCiudad.getDireccionList();
             List<Direccion> direccionListNew = ciudad.getDireccionList();
+            List<Han> hanListOld = persistentCiudad.getHanList();
+            List<Han> hanListNew = ciudad.getHanList();
             if (departamentoNew != null) {
                 departamentoNew = em.getReference(departamentoNew.getClass(), departamentoNew.getDepartamento());
                 ciudad.setDepartamento(departamentoNew);
@@ -96,6 +117,13 @@ public class CiudadJpaController implements Serializable {
             }
             direccionListNew = attachedDireccionListNew;
             ciudad.setDireccionList(direccionListNew);
+            List<Han> attachedHanListNew = new ArrayList<Han>();
+            for (Han hanListNewHanToAttach : hanListNew) {
+                hanListNewHanToAttach = em.getReference(hanListNewHanToAttach.getClass(), hanListNewHanToAttach.getHan());
+                attachedHanListNew.add(hanListNewHanToAttach);
+            }
+            hanListNew = attachedHanListNew;
+            ciudad.setHanList(hanListNew);
             ciudad = em.merge(ciudad);
             if (departamentoOld != null && !departamentoOld.equals(departamentoNew)) {
                 departamentoOld.getCiudadList().remove(ciudad);
@@ -119,6 +147,23 @@ public class CiudadJpaController implements Serializable {
                     if (oldCiudadOfDireccionListNewDireccion != null && !oldCiudadOfDireccionListNewDireccion.equals(ciudad)) {
                         oldCiudadOfDireccionListNewDireccion.getDireccionList().remove(direccionListNewDireccion);
                         oldCiudadOfDireccionListNewDireccion = em.merge(oldCiudadOfDireccionListNewDireccion);
+                    }
+                }
+            }
+            for (Han hanListOldHan : hanListOld) {
+                if (!hanListNew.contains(hanListOldHan)) {
+                    hanListOldHan.setCiudad(null);
+                    hanListOldHan = em.merge(hanListOldHan);
+                }
+            }
+            for (Han hanListNewHan : hanListNew) {
+                if (!hanListOld.contains(hanListNewHan)) {
+                    Ciudad oldCiudadOfHanListNewHan = hanListNewHan.getCiudad();
+                    hanListNewHan.setCiudad(ciudad);
+                    hanListNewHan = em.merge(hanListNewHan);
+                    if (oldCiudadOfHanListNewHan != null && !oldCiudadOfHanListNewHan.equals(ciudad)) {
+                        oldCiudadOfHanListNewHan.getHanList().remove(hanListNewHan);
+                        oldCiudadOfHanListNewHan = em.merge(oldCiudadOfHanListNewHan);
                     }
                 }
             }
@@ -160,6 +205,11 @@ public class CiudadJpaController implements Serializable {
             for (Direccion direccionListDireccion : direccionList) {
                 direccionListDireccion.setCiudad(null);
                 direccionListDireccion = em.merge(direccionListDireccion);
+            }
+            List<Han> hanList = ciudad.getHanList();
+            for (Han hanListHan : hanList) {
+                hanListHan.setCiudad(null);
+                hanListHan = em.merge(hanListHan);
             }
             em.remove(ciudad);
             em.getTransaction().commit();

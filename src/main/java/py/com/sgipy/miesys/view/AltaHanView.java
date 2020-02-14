@@ -12,10 +12,14 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import py.com.sgipy.miesys.entities.Cabildo;
+import py.com.sgipy.miesys.entities.Ciudad;
+import py.com.sgipy.miesys.entities.Departamento;
 import py.com.sgipy.miesys.entities.Distrito;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Region;
 import py.com.sgipy.miesys.jpa.JpaCabildo;
+import py.com.sgipy.miesys.jpa.JpaCiudad;
+import py.com.sgipy.miesys.jpa.JpaDepartamento;
 import py.com.sgipy.miesys.jpa.JpaDistrito;
 import py.com.sgipy.miesys.jpa.JpaHan;
 import py.com.sgipy.miesys.jpa.JpaRegion;
@@ -31,21 +35,27 @@ public class AltaHanView extends CustomComponent implements View {
 	private VerticalLayout formLayout;
 	private HorizontalLayout regionLayout;
 	private VerticalLayout HanLayout;
+	private HorizontalLayout direccionLayout;
 	private HorizontalLayout botonLayout;
 	
 	private ComboBox<Region> cbxRegion;
 	private ComboBox<Cabildo> cbxCabildo;
 	private ComboBox<Distrito> cbxDistrito;
+	private ComboBox<Departamento> cbxDepartamento;
+	private ComboBox<Ciudad> cbxCiudad;
 	
 	private Button btnGuardar;
 	private Button btnSalir;
 	
 	private TextField txtHan;
+	private TextField txtDireccion;
 	
 	private JpaRegion jpaRegion = new JpaRegion(JpaUtil.getEntityManagerFactory());
 	private JpaCabildo jpaCabildo = new JpaCabildo(JpaUtil.getEntityManagerFactory());
 	private JpaDistrito jpaDistrito = new JpaDistrito(JpaUtil.getEntityManagerFactory());
 	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
+	private JpaDepartamento jpaDepto = new JpaDepartamento(JpaUtil.getEntityManagerFactory());
+	private JpaCiudad jpaCiudad = new JpaCiudad(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -157,6 +167,29 @@ public class AltaHanView extends CustomComponent implements View {
 	private void cargarCombos() {
 		
 		cargarRegion();
+		cargarDepartamento();
+		
+	}
+
+
+
+	private void cargarDepartamento() {
+		
+		cbxDepartamento.setItems(jpaDepto.findDepartamentoEntities());
+		cbxDepartamento.setItemCaptionGenerator(e-> e.getDescripcion());
+		cbxDepartamento.setEmptySelectionAllowed(false);
+		cbxDepartamento.addValueChangeListener(e-> cargarCiudad(e.getValue()));
+		
+	}
+
+
+
+	private void cargarCiudad(Departamento value) {
+		
+		cbxCiudad.setItems(jpaCiudad.findCiudadesbyDepto(value));
+		cbxCiudad.setItemCaptionGenerator(e-> e.getDescripcion());
+		cbxCiudad.setEmptySelectionAllowed(false);
+		
 		
 	}
 
@@ -252,16 +285,47 @@ public class AltaHanView extends CustomComponent implements View {
 	private VerticalLayout buildFormLayout() {
 		
 		formLayout = new VerticalLayout();
-		//formLayout.setWidth("100%");
+		formLayout.setWidth("50%");
 		formLayout.setHeight("-1px");
 		
 		regionLayout = buildRegionLayout();
 		formLayout.addComponent(regionLayout);
+		formLayout.setComponentAlignment(regionLayout, Alignment.MIDDLE_CENTER);
 		
 		HanLayout = buildHanLayout();
 		formLayout.addComponent(HanLayout);
+		formLayout.setComponentAlignment(HanLayout, Alignment.MIDDLE_CENTER);
+		
+		direccionLayout = buildDireccionLayout();
+		formLayout.addComponent(direccionLayout);
+		formLayout.setComponentAlignment(HanLayout, Alignment.MIDDLE_CENTER);
+		
 		
 		return formLayout;
+		
+	}
+
+
+
+	private HorizontalLayout buildDireccionLayout() {
+
+		direccionLayout = new HorizontalLayout();
+		
+		cbxDepartamento = new ComboBox<Departamento>();
+		cbxDepartamento.setCaption("Departamento");
+		direccionLayout.addComponent(cbxDepartamento);
+		
+		cbxCiudad = new ComboBox<Ciudad>();
+		cbxCiudad.setCaption("Ciudad");
+		direccionLayout.addComponent(cbxCiudad);
+		
+		txtDireccion = new TextField();
+		txtDireccion.setCaption("Direccion");
+		direccionLayout.addComponent(txtDireccion);
+		
+		
+		return direccionLayout;
+
 		
 	}
 
@@ -270,9 +334,13 @@ public class AltaHanView extends CustomComponent implements View {
 	private VerticalLayout buildHanLayout() {
 
 		HanLayout = new VerticalLayout();
+		HanLayout.setWidth("4%");
 		
 		txtHan = new TextField();
-		txtHan.setCaption("Han");
+		txtHan.setCaption("Nombre de Han");
+		txtHan.setWidth("300px");
+		
+		txtDireccion = new TextField();
 		HanLayout.addComponent(txtHan);
 		
 		return HanLayout;

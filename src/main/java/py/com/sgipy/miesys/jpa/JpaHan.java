@@ -110,13 +110,22 @@ public class JpaHan extends HanJpaController {
 				sqlQry = sqlQry + " inner join cabildo c on c.cabildo = d.cabildo ";
 			}
 			
-			sqlQry = sqlQry+" inner join region r on r.region = " + reg.getRegion();
+			if (reg != null) {
+			
+				sqlQry = sqlQry+" inner join region r on r.region = " + reg.getRegion();
+				
+			}else {
+				
+				sqlQry = sqlQry+ " inner join region r on r.region = c.region "; 
+			}
+			
+			
 			
 			if (!han.isEmpty()) {
 				
 				han = "'%"+ han +"%'";
 				
-				sqlQry = sqlQry + " where upper(h.han) like upper("+ han + ") ";
+				sqlQry = sqlQry + " where upper(h.descripcion) like upper("+ han + ") ";
 				
 			}
 			

@@ -46,6 +46,8 @@ public class Ciudad implements Serializable {
     private String descripcion;
     @OneToMany(mappedBy = "ciudad")
     private List<Direccion> direccionList;
+    @OneToMany(mappedBy = "ciudad")
+    private List<Han> hanList;
     @JoinColumn(name = "departamento", referencedColumnName = "departamento")
     @ManyToOne(optional = false)
     private Departamento departamento;
@@ -85,6 +87,15 @@ public class Ciudad implements Serializable {
 
     public void setDireccionList(List<Direccion> direccionList) {
         this.direccionList = direccionList;
+    }
+
+    @XmlTransient
+    public List<Han> getHanList() {
+        return hanList;
+    }
+
+    public void setHanList(List<Han> hanList) {
+        this.hanList = hanList;
     }
 
     public Departamento getDepartamento() {

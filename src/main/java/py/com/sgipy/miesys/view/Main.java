@@ -75,6 +75,7 @@ public class Main extends HorizontalLayout {
 		addHiddenView(ReunionAbmView.class);
 		addHiddenView(HanView.class);
 		addHiddenView(AltaHanView.class);
+		addHiddenView(PersonaHanView.class);
 		navigationBar.addMenuTitle("Administracion");
 		//addView(AltaPersonaView.class);
 		
