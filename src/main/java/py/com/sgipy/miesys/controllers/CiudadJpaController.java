@@ -11,14 +11,14 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import py.com.sgipy.miesys.entities.Departamento;
-import py.com.sgipy.miesys.entities.Direccion;
+import py.com.sgipy.miesys.entities.Barrio;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Ciudad;
-import py.com.sgipy.miesys.entities.Han;
 
 /**
  *
@@ -36,11 +36,8 @@ public class CiudadJpaController implements Serializable {
     }
 
     public void create(Ciudad ciudad) {
-        if (ciudad.getDireccionList() == null) {
-            ciudad.setDireccionList(new ArrayList<Direccion>());
-        }
-        if (ciudad.getHanList() == null) {
-            ciudad.setHanList(new ArrayList<Han>());
+        if (ciudad.getBarrioList() == null) {
+            ciudad.setBarrioList(new ArrayList<Barrio>());
         }
         EntityManager em = null;
         try {
@@ -51,39 +48,24 @@ public class CiudadJpaController implements Serializable {
                 departamento = em.getReference(departamento.getClass(), departamento.getDepartamento());
                 ciudad.setDepartamento(departamento);
             }
-            List<Direccion> attachedDireccionList = new ArrayList<Direccion>();
-            for (Direccion direccionListDireccionToAttach : ciudad.getDireccionList()) {
-                direccionListDireccionToAttach = em.getReference(direccionListDireccionToAttach.getClass(), direccionListDireccionToAttach.getDireccion());
-                attachedDireccionList.add(direccionListDireccionToAttach);
+            List<Barrio> attachedBarrioList = new ArrayList<Barrio>();
+            for (Barrio barrioListBarrioToAttach : ciudad.getBarrioList()) {
+                barrioListBarrioToAttach = em.getReference(barrioListBarrioToAttach.getClass(), barrioListBarrioToAttach.getBarrio());
+                attachedBarrioList.add(barrioListBarrioToAttach);
             }
-            ciudad.setDireccionList(attachedDireccionList);
-            List<Han> attachedHanList = new ArrayList<Han>();
-            for (Han hanListHanToAttach : ciudad.getHanList()) {
-                hanListHanToAttach = em.getReference(hanListHanToAttach.getClass(), hanListHanToAttach.getHan());
-                attachedHanList.add(hanListHanToAttach);
-            }
-            ciudad.setHanList(attachedHanList);
+            ciudad.setBarrioList(attachedBarrioList);
             em.persist(ciudad);
             if (departamento != null) {
                 departamento.getCiudadList().add(ciudad);
                 departamento = em.merge(departamento);
             }
-            for (Direccion direccionListDireccion : ciudad.getDireccionList()) {
-                Ciudad oldCiudadOfDireccionListDireccion = direccionListDireccion.getCiudad();
-                direccionListDireccion.setCiudad(ciudad);
-                direccionListDireccion = em.merge(direccionListDireccion);
-                if (oldCiudadOfDireccionListDireccion != null) {
-                    oldCiudadOfDireccionListDireccion.getDireccionList().remove(direccionListDireccion);
-                    oldCiudadOfDireccionListDireccion = em.merge(oldCiudadOfDireccionListDireccion);
-                }
-            }
-            for (Han hanListHan : ciudad.getHanList()) {
-                Ciudad oldCiudadOfHanListHan = hanListHan.getCiudad();
-                hanListHan.setCiudad(ciudad);
-                hanListHan = em.merge(hanListHan);
-                if (oldCiudadOfHanListHan != null) {
-                    oldCiudadOfHanListHan.getHanList().remove(hanListHan);
-                    oldCiudadOfHanListHan = em.merge(oldCiudadOfHanListHan);
+            for (Barrio barrioListBarrio : ciudad.getBarrioList()) {
+                Ciudad oldCiudadOfBarrioListBarrio = barrioListBarrio.getCiudad();
+                barrioListBarrio.setCiudad(ciudad);
+                barrioListBarrio = em.merge(barrioListBarrio);
+                if (oldCiudadOfBarrioListBarrio != null) {
+                    oldCiudadOfBarrioListBarrio.getBarrioList().remove(barrioListBarrio);
+                    oldCiudadOfBarrioListBarrio = em.merge(oldCiudadOfBarrioListBarrio);
                 }
             }
             em.getTransaction().commit();
@@ -94,7 +76,7 @@ public class CiudadJpaController implements Serializable {
         }
     }
 
-    public void edit(Ciudad ciudad) throws NonexistentEntityException, Exception {
+    public void edit(Ciudad ciudad) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -102,28 +84,31 @@ public class CiudadJpaController implements Serializable {
             Ciudad persistentCiudad = em.find(Ciudad.class, ciudad.getCiudad());
             Departamento departamentoOld = persistentCiudad.getDepartamento();
             Departamento departamentoNew = ciudad.getDepartamento();
-            List<Direccion> direccionListOld = persistentCiudad.getDireccionList();
-            List<Direccion> direccionListNew = ciudad.getDireccionList();
-            List<Han> hanListOld = persistentCiudad.getHanList();
-            List<Han> hanListNew = ciudad.getHanList();
+            List<Barrio> barrioListOld = persistentCiudad.getBarrioList();
+            List<Barrio> barrioListNew = ciudad.getBarrioList();
+            List<String> illegalOrphanMessages = null;
+            for (Barrio barrioListOldBarrio : barrioListOld) {
+                if (!barrioListNew.contains(barrioListOldBarrio)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Barrio " + barrioListOldBarrio + " since its ciudad field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
             if (departamentoNew != null) {
                 departamentoNew = em.getReference(departamentoNew.getClass(), departamentoNew.getDepartamento());
                 ciudad.setDepartamento(departamentoNew);
             }
-            List<Direccion> attachedDireccionListNew = new ArrayList<Direccion>();
-            for (Direccion direccionListNewDireccionToAttach : direccionListNew) {
-                direccionListNewDireccionToAttach = em.getReference(direccionListNewDireccionToAttach.getClass(), direccionListNewDireccionToAttach.getDireccion());
-                attachedDireccionListNew.add(direccionListNewDireccionToAttach);
+            List<Barrio> attachedBarrioListNew = new ArrayList<Barrio>();
+            for (Barrio barrioListNewBarrioToAttach : barrioListNew) {
+                barrioListNewBarrioToAttach = em.getReference(barrioListNewBarrioToAttach.getClass(), barrioListNewBarrioToAttach.getBarrio());
+                attachedBarrioListNew.add(barrioListNewBarrioToAttach);
             }
-            direccionListNew = attachedDireccionListNew;
-            ciudad.setDireccionList(direccionListNew);
-            List<Han> attachedHanListNew = new ArrayList<Han>();
-            for (Han hanListNewHanToAttach : hanListNew) {
-                hanListNewHanToAttach = em.getReference(hanListNewHanToAttach.getClass(), hanListNewHanToAttach.getHan());
-                attachedHanListNew.add(hanListNewHanToAttach);
-            }
-            hanListNew = attachedHanListNew;
-            ciudad.setHanList(hanListNew);
+            barrioListNew = attachedBarrioListNew;
+            ciudad.setBarrioList(barrioListNew);
             ciudad = em.merge(ciudad);
             if (departamentoOld != null && !departamentoOld.equals(departamentoNew)) {
                 departamentoOld.getCiudadList().remove(ciudad);
@@ -133,37 +118,14 @@ public class CiudadJpaController implements Serializable {
                 departamentoNew.getCiudadList().add(ciudad);
                 departamentoNew = em.merge(departamentoNew);
             }
-            for (Direccion direccionListOldDireccion : direccionListOld) {
-                if (!direccionListNew.contains(direccionListOldDireccion)) {
-                    direccionListOldDireccion.setCiudad(null);
-                    direccionListOldDireccion = em.merge(direccionListOldDireccion);
-                }
-            }
-            for (Direccion direccionListNewDireccion : direccionListNew) {
-                if (!direccionListOld.contains(direccionListNewDireccion)) {
-                    Ciudad oldCiudadOfDireccionListNewDireccion = direccionListNewDireccion.getCiudad();
-                    direccionListNewDireccion.setCiudad(ciudad);
-                    direccionListNewDireccion = em.merge(direccionListNewDireccion);
-                    if (oldCiudadOfDireccionListNewDireccion != null && !oldCiudadOfDireccionListNewDireccion.equals(ciudad)) {
-                        oldCiudadOfDireccionListNewDireccion.getDireccionList().remove(direccionListNewDireccion);
-                        oldCiudadOfDireccionListNewDireccion = em.merge(oldCiudadOfDireccionListNewDireccion);
-                    }
-                }
-            }
-            for (Han hanListOldHan : hanListOld) {
-                if (!hanListNew.contains(hanListOldHan)) {
-                    hanListOldHan.setCiudad(null);
-                    hanListOldHan = em.merge(hanListOldHan);
-                }
-            }
-            for (Han hanListNewHan : hanListNew) {
-                if (!hanListOld.contains(hanListNewHan)) {
-                    Ciudad oldCiudadOfHanListNewHan = hanListNewHan.getCiudad();
-                    hanListNewHan.setCiudad(ciudad);
-                    hanListNewHan = em.merge(hanListNewHan);
-                    if (oldCiudadOfHanListNewHan != null && !oldCiudadOfHanListNewHan.equals(ciudad)) {
-                        oldCiudadOfHanListNewHan.getHanList().remove(hanListNewHan);
-                        oldCiudadOfHanListNewHan = em.merge(oldCiudadOfHanListNewHan);
+            for (Barrio barrioListNewBarrio : barrioListNew) {
+                if (!barrioListOld.contains(barrioListNewBarrio)) {
+                    Ciudad oldCiudadOfBarrioListNewBarrio = barrioListNewBarrio.getCiudad();
+                    barrioListNewBarrio.setCiudad(ciudad);
+                    barrioListNewBarrio = em.merge(barrioListNewBarrio);
+                    if (oldCiudadOfBarrioListNewBarrio != null && !oldCiudadOfBarrioListNewBarrio.equals(ciudad)) {
+                        oldCiudadOfBarrioListNewBarrio.getBarrioList().remove(barrioListNewBarrio);
+                        oldCiudadOfBarrioListNewBarrio = em.merge(oldCiudadOfBarrioListNewBarrio);
                     }
                 }
             }
@@ -184,7 +146,7 @@ public class CiudadJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -196,20 +158,21 @@ public class CiudadJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The ciudad with id " + id + " no longer exists.", enfe);
             }
+            List<String> illegalOrphanMessages = null;
+            List<Barrio> barrioListOrphanCheck = ciudad.getBarrioList();
+            for (Barrio barrioListOrphanCheckBarrio : barrioListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Ciudad (" + ciudad + ") cannot be destroyed since the Barrio " + barrioListOrphanCheckBarrio + " in its barrioList field has a non-nullable ciudad field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
             Departamento departamento = ciudad.getDepartamento();
             if (departamento != null) {
                 departamento.getCiudadList().remove(ciudad);
                 departamento = em.merge(departamento);
-            }
-            List<Direccion> direccionList = ciudad.getDireccionList();
-            for (Direccion direccionListDireccion : direccionList) {
-                direccionListDireccion.setCiudad(null);
-                direccionListDireccion = em.merge(direccionListDireccion);
-            }
-            List<Han> hanList = ciudad.getHanList();
-            for (Han hanListHan : hanList) {
-                hanListHan.setCiudad(null);
-                hanListHan = em.merge(hanListHan);
             }
             em.remove(ciudad);
             em.getTransaction().commit();

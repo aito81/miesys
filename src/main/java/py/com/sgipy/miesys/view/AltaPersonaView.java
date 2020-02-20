@@ -24,6 +24,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 import py.com.sgipy.miesys.MiesysUI;
+import py.com.sgipy.miesys.entities.Barrio;
 import py.com.sgipy.miesys.entities.Cabildo;
 import py.com.sgipy.miesys.entities.Ciudad;
 import py.com.sgipy.miesys.entities.Departamento;
@@ -41,6 +42,7 @@ import py.com.sgipy.miesys.entities.Region;
 import py.com.sgipy.miesys.entities.Telefono;
 import py.com.sgipy.miesys.entities.Tenencia;
 import py.com.sgipy.miesys.entities.TipoDocumento;
+import py.com.sgipy.miesys.jpa.JpaBarrio;
 import py.com.sgipy.miesys.jpa.JpaCabildo;
 import py.com.sgipy.miesys.jpa.JpaCiudad;
 import py.com.sgipy.miesys.jpa.JpaDepartamento;
@@ -99,12 +101,14 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private ComboBox<Genero> cbxGenero;
 	private ComboBox<Nacionalidad> cbxNacionalidad;
 	private ComboBox<Departamento> cbxDepartamento;
+	private ComboBox<Barrio> cbxBarrio;
 	private ComboBox<Han> cbxHan;
 	private ComboBox<Cabildo> cbxCabildo;
 	private ComboBox<Distrito> cbxDistrito;
 	private ComboBox<Division> cbxDivision;
 	private ComboBox<Departamento> cbxDptoLaboral;
 	private ComboBox<Ciudad> cbxCiudadLaboral;
+	private ComboBox<Barrio> cbxBarrioLaboral;
 	private ComboBox<Tenencia> cbxTenencia;
 	private ComboBox<Region> cbxRegion;
 	
@@ -135,6 +139,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private JpaDireccion jpaDir = new JpaDireccion(JpaUtil.getEntityManagerFactory());
 	private JpaTenencia jpaTen = new JpaTenencia(JpaUtil.getEntityManagerFactory());
 	private JpaRegion jpaReg = new JpaRegion(JpaUtil.getEntityManagerFactory());
+	private JpaBarrio jpaBa = new JpaBarrio(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -261,7 +266,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 					
 					if ((cbxCiudad.getValue() != null)) {
 						
-						jpaDir.findDireccionByPersona(editPersona, false).get(0).setCiudad(cbxCiudad.getValue());
+						jpaDir.findDireccionByPersona(editPersona, false).get(0).setBarrio(cbxBarrio.getValue());//.setCiudad(cbxCiudad.getValue());
 						
 					}
 					
@@ -287,9 +292,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 					
 					jpaDir.findDireccionByPersona(editPersona, true).get(0).setDescripcion(txtDirLaboral.getValue());
 					
-					if ((cbxCiudadLaboral.getValue() != null)) {
+					if ((cbxBarrioLaboral.getValue() != null)) {
 						
-						jpaDir.findDireccionByPersona(editPersona, true).get(0).setCiudad(cbxCiudadLaboral.getValue());
+						jpaDir.findDireccionByPersona(editPersona, true).get(0).setBarrio(cbxBarrioLaboral.getValue());//.setCiudad(cbxCiudadLaboral.getValue());
 						
 					}
 					
@@ -444,8 +449,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 		if (!listDirLab.isEmpty()) {
 			
 			Direccion dirLab = listDirLab.get(0);
-			cbxDptoLaboral.setValue(dirLab.getCiudad().getDepartamento());
-			cbxCiudadLaboral.setValue(dirLab.getCiudad());
+			cbxDptoLaboral.setValue(dirLab.getBarrio().getCiudad().getDepartamento());
+			cbxCiudadLaboral.setValue(dirLab.getBarrio().getCiudad());
+			cbxBarrioLaboral.setValue(dirLab.getBarrio());
 			txtDirLaboral.setValue(dirLab.getDescripcion());
 			
 		}
@@ -454,8 +460,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 			Direccion dir = listDir.get(0);
 			
-			cbxDepartamento.setValue(dir.getCiudad().getDepartamento());
-			cbxCiudad.setValue(dir.getCiudad());
+			cbxDepartamento.setValue(dir.getBarrio().getCiudad().getDepartamento());
+			cbxCiudad.setValue(dir.getBarrio().getCiudad());
+			cbxBarrio.setValue(dir.getBarrio());
 			txtDir.setValue(dir.getDescripcion());
 			
 		}
@@ -502,9 +509,25 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxCiudad.setItems(jpaCiudad.findCiudadesbyDepto(value));
 		cbxCiudad.setEmptySelectionAllowed(false);
 		cbxCiudad.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
+		cbxCiudad.addValueChangeListener(e -> cargarBarrio(e.getValue()));
 		
 	}
 	
+	private void cargarBarrio(Ciudad value) {
+		
+		if (value == null) {
+			
+			return;
+			
+		}
+		
+		cbxBarrio.setItems(jpaBa.findBarriobyCiudad(value));
+		cbxBarrio.setItemCaptionGenerator(e -> e.getDescripcion());
+		
+		
+		
+	}
+
 	private void cargarCiudadesLaboral(Departamento value) {
 		
 		if (value == null) {
@@ -516,11 +539,25 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxCiudadLaboral.setItems(jpaCiudad.findCiudadesbyDepto(value));
 		cbxCiudadLaboral.setEmptySelectionAllowed(false);
 		cbxCiudadLaboral.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
+		cbxCiudadLaboral.addValueChangeListener(e -> cambiarBarrioLabural(e.getValue()));
 		
 	}
 
 
 
+
+	private void cambiarBarrioLabural(Ciudad value) {
+		
+		if (value == null) {
+			
+			return;
+			
+		}
+		
+		cbxBarrioLaboral.setItems(jpaBa.findBarriobyCiudad(value));
+		cbxBarrioLaboral.setItemCaptionGenerator(e -> e.getDescripcion());
+		
+	}
 
 	private void cargarNuevo(String id) {
 		
@@ -882,9 +919,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 			dirLab.setDireccion(1);
 			dirLab.setPersona(addPer);
 			
-			if (cbxCiudadLaboral.getValue() != null) {
+			if (cbxBarrioLaboral.getValue() != null) {
 				
-				dirLab.setCiudad(cbxCiudadLaboral.getValue());
+				dirLab.setBarrio(cbxBarrioLaboral.getValue());
 				
 			}
 			
@@ -907,9 +944,9 @@ public class AltaPersonaView extends CustomComponent implements View {
 			dir.setDireccion(1);
 			dir.setLaboral(laboral);
 			
-			if (cbxCiudad.getValue() != null) {
+			if (cbxBarrio.getValue() != null) {
 				
-				dir.setCiudad(cbxCiudad.getValue());
+				dir.setBarrio(cbxBarrio.getValue());
 				
 			}
 			
@@ -1217,6 +1254,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxCiudadLaboral.setCaption("Ciudad");
 		direccionLaboralLayout.addComponent(cbxCiudadLaboral);
 		
+		cbxBarrioLaboral = new ComboBox<Barrio>();
+		cbxBarrioLaboral.setCaption("Barrio");
+		direccionLaboralLayout.addComponent(cbxBarrioLaboral);
+		
 		txtDirLaboral = new TextField();
 		txtDirLaboral.setCaption("Direccion");
 		direccionLaboralLayout.addComponent(txtDirLaboral);
@@ -1262,6 +1303,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		cbxCiudad = new ComboBox<Ciudad>();
 		cbxCiudad.setCaption("Ciudad");
 		direccionLayout.addComponent(cbxCiudad);
+		
+		cbxBarrio = new ComboBox<Barrio>();
+		cbxBarrio.setCaption("Barrio");
+		direccionLayout.addComponent(cbxBarrio);
 		
 		txtDir = new TextField();
 		txtDir.setCaption("Direccion");

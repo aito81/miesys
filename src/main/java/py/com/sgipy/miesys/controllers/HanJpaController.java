@@ -10,7 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import py.com.sgipy.miesys.entities.Ciudad;
+import py.com.sgipy.miesys.entities.Barrio;
 import py.com.sgipy.miesys.entities.Distrito;
 import py.com.sgipy.miesys.entities.Persona;
 import java.util.ArrayList;
@@ -48,10 +48,10 @@ public class HanJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Ciudad ciudad = han.getCiudad();
-            if (ciudad != null) {
-                ciudad = em.getReference(ciudad.getClass(), ciudad.getCiudad());
-                han.setCiudad(ciudad);
+            Barrio barrio = han.getBarrio();
+            if (barrio != null) {
+                barrio = em.getReference(barrio.getClass(), barrio.getBarrio());
+                han.setBarrio(barrio);
             }
             Distrito distrito = han.getDistrito();
             if (distrito != null) {
@@ -71,9 +71,9 @@ public class HanJpaController implements Serializable {
             }
             han.setReunionList(attachedReunionList);
             em.persist(han);
-            if (ciudad != null) {
-                ciudad.getHanList().add(han);
-                ciudad = em.merge(ciudad);
+            if (barrio != null) {
+                barrio.getHanList().add(han);
+                barrio = em.merge(barrio);
             }
             if (distrito != null) {
                 distrito.getHanList().add(han);
@@ -111,8 +111,8 @@ public class HanJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Han persistentHan = em.find(Han.class, han.getHan());
-            Ciudad ciudadOld = persistentHan.getCiudad();
-            Ciudad ciudadNew = han.getCiudad();
+            Barrio barrioOld = persistentHan.getBarrio();
+            Barrio barrioNew = han.getBarrio();
             Distrito distritoOld = persistentHan.getDistrito();
             Distrito distritoNew = han.getDistrito();
             List<Persona> personaListOld = persistentHan.getPersonaList();
@@ -131,9 +131,9 @@ public class HanJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            if (ciudadNew != null) {
-                ciudadNew = em.getReference(ciudadNew.getClass(), ciudadNew.getCiudad());
-                han.setCiudad(ciudadNew);
+            if (barrioNew != null) {
+                barrioNew = em.getReference(barrioNew.getClass(), barrioNew.getBarrio());
+                han.setBarrio(barrioNew);
             }
             if (distritoNew != null) {
                 distritoNew = em.getReference(distritoNew.getClass(), distritoNew.getDistrito());
@@ -154,13 +154,13 @@ public class HanJpaController implements Serializable {
             reunionListNew = attachedReunionListNew;
             han.setReunionList(reunionListNew);
             han = em.merge(han);
-            if (ciudadOld != null && !ciudadOld.equals(ciudadNew)) {
-                ciudadOld.getHanList().remove(han);
-                ciudadOld = em.merge(ciudadOld);
+            if (barrioOld != null && !barrioOld.equals(barrioNew)) {
+                barrioOld.getHanList().remove(han);
+                barrioOld = em.merge(barrioOld);
             }
-            if (ciudadNew != null && !ciudadNew.equals(ciudadOld)) {
-                ciudadNew.getHanList().add(han);
-                ciudadNew = em.merge(ciudadNew);
+            if (barrioNew != null && !barrioNew.equals(barrioOld)) {
+                barrioNew.getHanList().add(han);
+                barrioNew = em.merge(barrioNew);
             }
             if (distritoOld != null && !distritoOld.equals(distritoNew)) {
                 distritoOld.getHanList().remove(han);
@@ -238,10 +238,10 @@ public class HanJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            Ciudad ciudad = han.getCiudad();
-            if (ciudad != null) {
-                ciudad.getHanList().remove(han);
-                ciudad = em.merge(ciudad);
+            Barrio barrio = han.getBarrio();
+            if (barrio != null) {
+                barrio.getHanList().remove(han);
+                barrio = em.merge(barrio);
             }
             Distrito distrito = han.getDistrito();
             if (distrito != null) {

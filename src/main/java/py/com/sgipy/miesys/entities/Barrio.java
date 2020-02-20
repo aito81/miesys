@@ -8,7 +8,6 @@ package py.com.sgipy.miesys.entities;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,47 +27,49 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author aito8
  */
 @Entity
-@Table(name = "ciudad")
+@Table(name = "barrio")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Ciudad.findAll", query = "SELECT c FROM Ciudad c")
-    , @NamedQuery(name = "Ciudad.findByCiudad", query = "SELECT c FROM Ciudad c WHERE c.ciudad = :ciudad")
-    , @NamedQuery(name = "Ciudad.findByDescripcion", query = "SELECT c FROM Ciudad c WHERE c.descripcion = :descripcion")})
-public class Ciudad implements Serializable {
+    @NamedQuery(name = "Barrio.findAll", query = "SELECT b FROM Barrio b")
+    , @NamedQuery(name = "Barrio.findByBarrio", query = "SELECT b FROM Barrio b WHERE b.barrio = :barrio")
+    , @NamedQuery(name = "Barrio.findByDescripcion", query = "SELECT b FROM Barrio b WHERE b.descripcion = :descripcion")})
+public class Barrio implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "ciudad")
-    private Integer ciudad;
+    @Column(name = "barrio")
+    private Integer barrio;
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ciudad")
-    private List<Barrio> barrioList;
-    @JoinColumn(name = "departamento", referencedColumnName = "departamento")
+    @JoinColumn(name = "ciudad", referencedColumnName = "ciudad")
     @ManyToOne(optional = false)
-    private Departamento departamento;
+    private Ciudad ciudad;
+    @OneToMany(mappedBy = "barrio")
+    private List<Direccion> direccionList;
+    @OneToMany(mappedBy = "barrio")
+    private List<Han> hanList;
 
-    public Ciudad() {
+    public Barrio() {
     }
 
-    public Ciudad(Integer ciudad) {
-        this.ciudad = ciudad;
+    public Barrio(Integer barrio) {
+        this.barrio = barrio;
     }
 
-    public Ciudad(Integer ciudad, String descripcion) {
-        this.ciudad = ciudad;
+    public Barrio(Integer barrio, String descripcion) {
+        this.barrio = barrio;
         this.descripcion = descripcion;
     }
 
-    public Integer getCiudad() {
-        return ciudad;
+    public Integer getBarrio() {
+        return barrio;
     }
 
-    public void setCiudad(Integer ciudad) {
-        this.ciudad = ciudad;
+    public void setBarrio(Integer barrio) {
+        this.barrio = barrio;
     }
 
     public String getDescripcion() {
@@ -79,38 +80,47 @@ public class Ciudad implements Serializable {
         this.descripcion = descripcion;
     }
 
+    public Ciudad getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(Ciudad ciudad) {
+        this.ciudad = ciudad;
+    }
+
     @XmlTransient
-    public List<Barrio> getBarrioList() {
-        return barrioList;
+    public List<Direccion> getDireccionList() {
+        return direccionList;
     }
 
-    public void setBarrioList(List<Barrio> barrioList) {
-        this.barrioList = barrioList;
+    public void setDireccionList(List<Direccion> direccionList) {
+        this.direccionList = direccionList;
     }
 
-    public Departamento getDepartamento() {
-        return departamento;
+    @XmlTransient
+    public List<Han> getHanList() {
+        return hanList;
     }
 
-    public void setDepartamento(Departamento departamento) {
-        this.departamento = departamento;
+    public void setHanList(List<Han> hanList) {
+        this.hanList = hanList;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (ciudad != null ? ciudad.hashCode() : 0);
+        hash += (barrio != null ? barrio.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Ciudad)) {
+        if (!(object instanceof Barrio)) {
             return false;
         }
-        Ciudad other = (Ciudad) object;
-        if ((this.ciudad == null && other.ciudad != null) || (this.ciudad != null && !this.ciudad.equals(other.ciudad))) {
+        Barrio other = (Barrio) object;
+        if ((this.barrio == null && other.barrio != null) || (this.barrio != null && !this.barrio.equals(other.barrio))) {
             return false;
         }
         return true;
@@ -118,7 +128,7 @@ public class Ciudad implements Serializable {
 
     @Override
     public String toString() {
-        return "py.com.sgipy.miesys.entities.Ciudad[ ciudad=" + ciudad + " ]";
+        return "py.com.sgipy.miesys.entities.Barrio[ barrio=" + barrio + " ]";
     }
     
 }

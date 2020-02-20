@@ -503,7 +503,19 @@ public class AltaReunionView extends CustomComponent implements View{
 		gridPersona.addColumn(per -> per.getNombre()).setCaption("Nombre").setId("nombre");
 		gridPersona.addColumn(Persona::getApellido).setCaption("Apellido").setId("apellido");
 		gridPersona.addColumn(per -> per.getNumeroDocumento()).setCaption("Numero Documento").setId("nroDoc");
-		gridPersona.addColumn(per -> per.getHan().getDescripcion()).setCaption("Han").setId("han");
+		gridPersona.addColumn(per -> {
+			
+			if(per.getHan() == null) {
+				
+				return "Sin Han";
+				
+			}else {
+				
+				return per.getHan().getDescripcion();
+				
+			}
+			//return null;
+		}).setCaption("Han").setId("han");
 		
 	}
 
