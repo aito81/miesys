@@ -26,7 +26,7 @@ public class JpaBarrio extends BarrioJpaController {
 		List<Barrio> listCiudades = null;
 		try {
 			String sqlQry = " select * from barrio c where c.ciudad = ?1";
-			Query q = em.createNativeQuery(sqlQry, Ciudad.class);
+			Query q = em.createNativeQuery(sqlQry, Barrio.class);
 			q.setParameter(1, depto.getCiudad());
 			listCiudades = q.getResultList();
 		} catch (Exception e) {

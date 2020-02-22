@@ -506,6 +506,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 		}
 		
+		cbxCiudad.clear();
 		cbxCiudad.setItems(jpaCiudad.findCiudadesbyDepto(value));
 		cbxCiudad.setEmptySelectionAllowed(false);
 		cbxCiudad.setItemCaptionGenerator(ciu -> ciu.getDescripcion());
@@ -536,6 +537,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 		}
 		
+		cbxCiudadLaboral.clear();
 		cbxCiudadLaboral.setItems(jpaCiudad.findCiudadesbyDepto(value));
 		cbxCiudadLaboral.setEmptySelectionAllowed(false);
 		cbxCiudadLaboral.setItemCaptionGenerator(ciu -> ciu.getDescripcion());

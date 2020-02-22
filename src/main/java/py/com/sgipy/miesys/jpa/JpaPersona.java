@@ -83,6 +83,7 @@ public class JpaPersona extends PersonaJpaController {
 	}
 	
 	
+	
 	public List<Persona> findAsistenteLikeNombreApellido(String busqueda, Reunion reu){
 		
 		EntityManager em = getEntityManager();
@@ -121,5 +122,61 @@ public class JpaPersona extends PersonaJpaController {
 		return listPersona;
 	
 	}
+	
+	
+	public List<Persona> findMiembrosHan(Han han){
+		
+		EntityManager em = getEntityManager();
+		
+		List<Persona> listPersona = null;
+		
+		String sqlQry = "";
+		
+		try {
+			//select * from persona p where p.han = 1
+				
+				sqlQry = " select * from persona p where p.han = ?1 ";
+				
+			
+			Query q = em.createNativeQuery(sqlQry, Persona.class);
+			q.setParameter(1, han.getHan());
+			listPersona = q.getResultList();
+		} catch (Exception e) {
+			Notification.show(e.getMessage() +" Error al buscar persona", Notification.TYPE_ERROR_MESSAGE );
+		}finally {
+			em.close();
+		}
+	
+		return listPersona;
+	
+	}
+	
+	
+	public List<Persona> findMiembrosNotHan(Han han){
+		
+		EntityManager em = getEntityManager();
+		
+		List<Persona> listPersona = null;
+		
+		try {
+			//select * from persona p where p.han = 1
+				
+			String	sqlQry = " select * from persona p where p.han <> ?1 ";
+				
+			
+			Query q = em.createNativeQuery(sqlQry, Persona.class);
+			q.setParameter(1, han.getHan());
+			listPersona = q.getResultList();
+		} catch (Exception e) {
+			Notification.show(e.getMessage() +" Error al buscar persona", Notification.TYPE_ERROR_MESSAGE );
+		}finally {
+			em.close();
+		}
+	
+		return listPersona;
+	
+	}
+	
+	
 
 }

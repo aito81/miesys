@@ -1,12 +1,17 @@
 package py.com.sgipy.miesys.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.vaadin.navigator.View;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -48,12 +53,20 @@ public class PersonaHanView extends CustomComponent implements View {
 	
 	private Button btnGuardar;
 	private Button btnSalir;
+	private Button btnBuscar;
 	
 	private JpaRegion jpaRegion = new JpaRegion(JpaUtil.getEntityManagerFactory());
 	private JpaCabildo jpaCabildo = new JpaCabildo(JpaUtil.getEntityManagerFactory());
 	private JpaDistrito jpaDistrito = new JpaDistrito(JpaUtil.getEntityManagerFactory());
 	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
 	private JpaPersona jpaPersona = new JpaPersona(JpaUtil.getEntityManagerFactory());
+	
+	private List<Persona> listMiembros = new ArrayList<Persona>();
+	private List<Persona> listPersonas = new ArrayList<Persona>();
+	
+	private Registration registration;
+	
+	private Boolean entro = false;
 	
 	
 	
@@ -62,6 +75,8 @@ public class PersonaHanView extends CustomComponent implements View {
 		buildMainLayout();
 		
 		setCompositionRoot(mainLayout);
+		
+		txtBusqueda.setEnabled(false);
 		
 		cargarCombos();
 		
@@ -81,9 +96,138 @@ public class PersonaHanView extends CustomComponent implements View {
 			}
 		});
 		
+		gridPersona.addItemClickListener(e -> hacerMiembro(e.getItem()));
+		
 		gridMiembro.addItemClickListener(e -> cambiarPersona(e.getItem()));
 		
+		btnBuscar.addClickListener(e -> buscarMiembros(cbxHan.getValue()));
 		
+	
+		registration = btnGuardar.addClickListener(event -> buscarMiembros(cbxHan.getValue()));
+		
+		registration.remove();
+		
+		
+		
+		
+	}
+
+	private void buscarMiembros(Han value) {
+		
+		/*if (entro == true) {
+			
+			entro = false;
+			
+			return ;
+			
+		}*/
+		
+		
+		if (value == null) {
+			
+			Notification.show("Debe de seleccionar un Han", Notification.TYPE_ERROR_MESSAGE);
+			
+			/*registration.remove();
+			registration = btnBuscar.addClickListener(e ->  buscarHan());*/
+			
+			//entro = true;
+			
+			return;
+			
+		}
+		
+		
+	/*	registration.remove();
+		registration = btnBuscar.addClickListener(e ->  buscarHan());*/
+		
+		btnBuscar.getListeners(ClickEvent.class)
+	    .forEach( listener -> btnBuscar.removeListener(ClickEvent.class, listener));
+		
+		btnBuscar.addClickListener(e ->  buscarHan());
+		
+		txtBusqueda.setEnabled(true);
+		
+		btnBuscar.setCaption("Cancelar");
+		btnBuscar.setStyleName(ValoTheme.BUTTON_DANGER);
+		
+		cbxRegion.setEnabled(false);
+		cbxCabildo.setEnabled(false);
+		cbxDistrito.setEnabled(false);
+		cbxHan.setEnabled(false);
+		
+		listMiembros.addAll(jpaPersona.findMiembrosHan(value));
+		gridMiembro.setItems(listMiembros);
+		gridMiembro.setEnabled(true);
+		
+		gridPersona.setEnabled(true);
+		
+		
+		//btnBuscar.removeClickListener(e -> buscarMiembros(cbxHan.getValue()));
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+
+	private void buscarHan() {
+		
+		registration.remove();
+		
+		cbxRegion.setEnabled(true);
+		cbxRegion.clear();
+		
+		cbxCabildo.setEnabled(true);
+		cbxCabildo.clear();
+		
+		cbxDistrito.setEnabled(true);
+		cbxDistrito.clear();
+		
+		cbxHan.setEnabled(true);
+		cbxHan.clear();
+		
+		btnBuscar.setCaption("Buscar Miembros");
+		btnBuscar.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		
+		listMiembros.clear();
+		gridMiembro.setItems(listMiembros);
+		gridMiembro.setEnabled(false);
+		
+		listPersonas.clear();
+		gridPersona.setItems(listPersonas);
+		gridPersona.setEnabled(false);
+		
+		txtBusqueda.setEnabled(false);
+		txtBusqueda.clear();
+		
+		btnBuscar.getListeners(ClickEvent.class)
+	    .forEach( listener -> btnBuscar.removeListener(ClickEvent.class, listener));
+		
+	//	btnBuscar.addClickListener(e -> buscarMiembros(cbxHan.getValue()));
+		
+		btnBuscar.addClickListener(e -> buscarMiembros(cbxHan.getValue()));
+		
+		//btnBuscar.removeClickListener(e -> buscarHan());
+		
+		//registration = btnBuscar.addClickListener(e -> buscarMiembros(cbxHan.getValue()));
+		
+		
+	}
+
+	private void hacerMiembro(Persona item) {
+		
+		if (item == null) {
+			
+			return;
+			
+		}
+		
+		gridMiembro.setItems(item);
+		gridPersona.addItemClickListener(e -> buscarPersona(""));
 		
 	}
 
@@ -153,6 +297,13 @@ public class PersonaHanView extends CustomComponent implements View {
 
 	private void cargarCabildo(Region value) {
 		
+		if (value == null) {
+			
+			return;
+			
+		}
+		
+		
 		cbxCabildo.setItems(jpaCabildo.findCabildoByRegion(value));
 		cbxCabildo.setEmptySelectionAllowed(false);
 		cbxCabildo.setItemCaptionGenerator(e -> e.getDescripcion());
@@ -162,6 +313,13 @@ public class PersonaHanView extends CustomComponent implements View {
 
 	private void cargarDistrito(Cabildo value) {
 		
+		if (value == null) {
+			
+			return;
+			
+		}
+		
+		
 		cbxDistrito.setItems(jpaDistrito.findDistritoByCabildo(value));
 		cbxDistrito.setEmptySelectionAllowed(false);
 		cbxDistrito.setItemCaptionGenerator(e-> e.getDescripcion());
@@ -170,6 +328,12 @@ public class PersonaHanView extends CustomComponent implements View {
 	}
 
 	private void cargarHan(Distrito value) {
+		
+		if (value == null) {
+			
+			return;
+			
+		}
 		
 		cbxHan.setItems(jpaHan.findHanByDistrito(value));
 		cbxHan.setEmptySelectionAllowed(false);
@@ -238,9 +402,11 @@ public class PersonaHanView extends CustomComponent implements View {
 		
 		gridPersona = new Grid<Persona>();
 		gridPersona.setCaption("Miembros");
+		gridPersona.setEnabled(false);
 		datosLayout.addComponent(gridPersona);
 		
 		gridMiembro = new Grid<Persona>();
+		gridMiembro.setEnabled(false);
 		gridMiembro.setCaption("Miembros Pertenecientes");
 		datosLayout.addComponent(gridMiembro);
 		
@@ -268,6 +434,12 @@ public class PersonaHanView extends CustomComponent implements View {
 		cbxHan = new ComboBox<Han>();
 		cbxHan.setCaption("Han");
 		cabeceraLayout.addComponent(cbxHan);
+		
+		btnBuscar = new Button();
+		btnBuscar.setCaption("Buscar Miembros");
+		btnBuscar.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		cabeceraLayout.addComponent(btnBuscar);
+		cabeceraLayout.setComponentAlignment(btnBuscar, Alignment.BOTTOM_CENTER);
 		
 		return cabeceraLayout;
 		
