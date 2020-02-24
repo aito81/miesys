@@ -63,6 +63,7 @@ public class PersonaHanView extends CustomComponent implements View {
 	
 	private List<Persona> listMiembros = new ArrayList<Persona>();
 	private List<Persona> listPersonas = new ArrayList<Persona>();
+	private List<Persona> listRemovidos = new ArrayList<Persona>();
 	
 	private Registration registration;
 	
@@ -102,10 +103,13 @@ public class PersonaHanView extends CustomComponent implements View {
 		
 		btnBuscar.addClickListener(e -> buscarMiembros(cbxHan.getValue()));
 		
-	
-		registration = btnGuardar.addClickListener(event -> buscarMiembros(cbxHan.getValue()));
+		//remover listener...revisar..esta mal planteando..tiene que ser el listener de buscar..no el de guardar
 		
-		registration.remove();
+		/*registration = btnGuardar.addClickListener(event -> buscarMiembros(cbxHan.getValue()));
+		
+		registration.remove();*/
+		
+		btnGuardar.addClickListener(e -> guardar(listMiembros, cbxHan.getValue()));
 		
 		
 		
@@ -176,7 +180,7 @@ public class PersonaHanView extends CustomComponent implements View {
 
 	private void buscarHan() {
 		
-		registration.remove();
+		//registration.remove();
 		
 		cbxRegion.setEnabled(true);
 		cbxRegion.clear();
@@ -216,7 +220,42 @@ public class PersonaHanView extends CustomComponent implements View {
 		//registration = btnBuscar.addClickListener(e -> buscarMiembros(cbxHan.getValue()));
 		
 		
+		
+		
 	}
+
+	private void guardar(List<Persona> listMiembros2, Han value) {
+
+		for (Persona miembro : listMiembros2) {
+			
+			miembro.setHan(value);
+			
+			try {
+				
+				jpaPersona.edit(miembro);
+				
+			} catch (Exception e) {
+				
+				Notification.show(e.getMessage() + " Error al asignar han a persona ", Notification.TYPE_ERROR_MESSAGE);
+				
+				return;
+				
+			}
+			
+		}
+		
+		Notification.show("Miembros agregados correctamente.");
+		
+		listRemovidos.removeAll(listMiembros2);
+		
+		buscarHan();
+		
+		
+		
+		
+	}
+
+	
 
 	private void hacerMiembro(Persona item) {
 		
@@ -226,8 +265,14 @@ public class PersonaHanView extends CustomComponent implements View {
 			
 		}
 		
-		gridMiembro.setItems(item);
-		gridPersona.addItemClickListener(e -> buscarPersona(""));
+		listPersonas.remove(item);
+		listMiembros.add(item);
+		
+		gridPersona.setItems(listPersonas);
+		gridMiembro.setItems(listMiembros);
+		
+		
+		
 		
 	}
 
@@ -238,6 +283,14 @@ public class PersonaHanView extends CustomComponent implements View {
 			return;
 			
 		}
+		
+		listPersonas.add(item);
+		item.setHan(null);
+		listRemovidos.add(item);
+		listMiembros.remove(item);
+		
+		gridMiembro.setItems(listMiembros);
+		gridPersona.setItems(listPersonas);
 		
 		
 		
@@ -251,7 +304,7 @@ public class PersonaHanView extends CustomComponent implements View {
 			
 		}
 		
-		gridPersona.setItems(jpaPersona.findPersonaByParam(value, null, null, null, null));
+		gridPersona.setItems(jpaPersona.findPersonaLikeNombreApellidoNotInHan(value, cbxHan.getValue()));
 		
 		
 	}

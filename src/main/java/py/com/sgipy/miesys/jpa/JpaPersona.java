@@ -124,6 +124,49 @@ public class JpaPersona extends PersonaJpaController {
 	}
 	
 	
+public List<Persona> findPersonaLikeNombreApellidoNotInHan(String busqueda, Han reu){
+		
+		EntityManager em = getEntityManager();
+		
+		List<Persona> listPersona = null;
+		
+		String sqlQry = "";
+		
+		try {
+			
+			
+			if (!busqueda.isEmpty()) {
+				
+				String buscar = "'%" + busqueda + "%'";
+				
+				sqlQry = " select * from persona p where upper(p.nombre || p.apellido) like upper("+ buscar+ ") and  " + 
+						" p.han <> ?1 or p.han is null ";
+						
+				
+				//select * from persona p where upper(p.nombre || p.apellido) like upper() and  han <> 
+				
+			}else {
+				
+				sqlQry = " select * from persona p where p.persona < 0 ";
+				
+			}
+			
+			
+			
+			Query q = em.createNativeQuery(sqlQry, Persona.class);
+			q.setParameter(1, reu.getHan());
+			listPersona = q.getResultList();
+		} catch (Exception e) {
+			Notification.show(e.getMessage() +" Error al buscar persona", Notification.TYPE_ERROR_MESSAGE );
+		}finally {
+			em.close();
+		}
+	
+		return listPersona;
+	
+	}
+	
+	
 	public List<Persona> findMiembrosHan(Han han){
 		
 		EntityManager em = getEntityManager();
