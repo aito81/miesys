@@ -248,6 +248,18 @@ public class PersonaHanView extends CustomComponent implements View {
 		
 		listRemovidos.removeAll(listMiembros2);
 		
+		for (Persona per : listRemovidos) {
+			
+			try {
+				
+				jpaPersona.edit(per);
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+		}
+		
 		buscarHan();
 		
 		
