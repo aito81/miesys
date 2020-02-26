@@ -92,31 +92,29 @@ public class JpaHan extends HanJpaController {
 		try {
 			String sqlQry = " select * from han h  ";
 			
+			sqlQry = sqlQry + "inner join distrito d on d.distrito = h.distrito ";
+			
 			if (dis != null) {
 				
-				sqlQry = sqlQry + " inner join distrito d on d.distrito = "+ dis.getDistrito();
-				
-			}else {
-				
-				sqlQry = sqlQry + "inner join distrito d on d.distrito = h.distrito ";
+				sqlQry = sqlQry + " and d.distrito = "+ dis.getDistrito();
+			
 			}
+			
+			sqlQry = sqlQry + " inner join cabildo c on c.cabildo = d.cabildo ";
 			
 			if (cab != null) {
 				
-				sqlQry = sqlQry + " inner join cabildo c on c.cabildo = " + cab.getCabildo();
+				sqlQry = sqlQry + " and c.cabildo = " + cab.getCabildo();
 				
-			}else {
-				
-				sqlQry = sqlQry + " inner join cabildo c on c.cabildo = d.cabildo ";
 			}
+			
+			sqlQry = sqlQry+ " inner join region r on r.region = c.region ";
 			
 			if (reg != null) {
 			
-				sqlQry = sqlQry+" inner join region r on r.region = " + reg.getRegion();
+				sqlQry = sqlQry+" and r.region = " + reg.getRegion();
 				
-			}else {
-				
-				sqlQry = sqlQry+ " inner join region r on r.region = c.region "; 
+				 
 			}
 			
 			
