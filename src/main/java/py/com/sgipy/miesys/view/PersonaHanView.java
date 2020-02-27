@@ -71,6 +71,70 @@ public class PersonaHanView extends CustomComponent implements View {
 	
 	
 	
+	public HorizontalLayout getCabeceraLayout() {
+		return cabeceraLayout;
+	}
+
+
+	public void setCabeceraLayout(HorizontalLayout cabeceraLayout) {
+		this.cabeceraLayout = cabeceraLayout;
+	}
+
+
+	public Grid<Persona> getGridPersona() {
+		return gridPersona;
+	}
+
+
+	public void setGridPersona(Grid<Persona> gridPersona) {
+		this.gridPersona = gridPersona;
+	}
+
+
+	public Grid<Persona> getGridMiembro() {
+		return gridMiembro;
+	}
+
+
+	public void setGridMiembro(Grid<Persona> gridMiembro) {
+		this.gridMiembro = gridMiembro;
+	}
+
+	
+	
+	
+	public TextField getTxtBusqueda() {
+		return txtBusqueda;
+	}
+
+
+	public void setTxtBusqueda(TextField txtBusqueda) {
+		this.txtBusqueda = txtBusqueda;
+	}
+
+	
+
+	public Button getBtnGuardar() {
+		return btnGuardar;
+	}
+
+
+	public void setBtnGuardar(Button btnGuardar) {
+		this.btnGuardar = btnGuardar;
+	}
+	
+	
+
+	public Button getBtnSalir() {
+		return btnSalir;
+	}
+
+
+	public void setBtnSalir(Button btnSalir) {
+		this.btnSalir = btnSalir;
+	}
+
+
 	public PersonaHanView() {
 		
 		buildMainLayout();
@@ -115,6 +179,57 @@ public class PersonaHanView extends CustomComponent implements View {
 		
 		
 	}
+	
+	
+	public PersonaHanView(Han han) {
+		
+		buildMainLayout();
+		
+		setCompositionRoot(mainLayout);
+		
+		cargarCombos();
+		
+		crearGrillaPersona();
+		
+		crearGrillaMiembro();
+		
+		txtBusqueda.addValueChangeListener(e -> buscarPersona(e.getValue()));
+		
+	
+		
+		gridPersona.addItemClickListener(e -> hacerMiembro(e.getItem()));
+		
+		gridMiembro.addItemClickListener(e -> cambiarPersona(e.getItem()));
+		
+		btnBuscar.addClickListener(e -> buscarMiembros(cbxHan.getValue()));
+		
+		cargarCabecera(han);
+		
+		cabeceraLayout.setEnabled(false);
+		
+		buscarMiembros(han);
+		
+		btnBuscar.setVisible(false);
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+	
+
+	private void cargarCabecera(Han han) {
+		
+		cbxRegion.setSelectedItem(han.getDistrito().getCabildo().getRegion());
+		cbxCabildo.setSelectedItem(han.getDistrito().getCabildo());
+		cbxDistrito.setSelectedItem(han.getDistrito());
+		cbxHan.setSelectedItem(han);
+		
+	}
+
 
 	private void buscarMiembros(Han value) {
 		

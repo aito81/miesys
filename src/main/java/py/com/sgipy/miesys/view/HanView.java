@@ -7,9 +7,13 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.ItemClick;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.components.grid.ItemClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -50,6 +54,10 @@ public class HanView extends CustomComponent implements View {
 	private JpaDistrito jpaDistrito = new JpaDistrito(JpaUtil.getEntityManagerFactory());
 	private JpaHan jpaHan = new JpaHan(JpaUtil.getEntityManagerFactory());
 	
+	private PersonaHanView hanView;
+	
+	private Window ventana;
+	
 	
 	
 	
@@ -86,6 +94,65 @@ public class HanView extends CustomComponent implements View {
 		"align-center").setWidth(70).setCaption("Editar");
 		
 		gridHan.getDefaultHeaderRow().join("ver","editar").setText("Opciones");
+		
+		gridHan.addItemClickListener( new ItemClickListener<Han>() {
+
+			@Override
+			public void itemClick(ItemClick<Han> event) {
+				
+				if (event.getColumn().getId().equals("ver")) {
+					verHanDetalle(event.getItem());
+				}
+				
+				if (event.getColumn().getId().equals("editar")) {
+					editarReunionDetalle(event.getItem());
+				}
+				
+			}
+
+			
+
+			
+		});
+		
+	}
+	
+	
+	
+	private void verHanDetalle(Han item) {
+		
+		hanView = new PersonaHanView(item);
+		hanView.getGridPersona().setVisible(false);
+		hanView.getTxtBusqueda().setVisible(false);
+		hanView.getGridMiembro().setEnabled(false);
+		hanView.getBtnGuardar().setVisible(false);
+		hanView.getBtnSalir().addClickListener(e -> ventana.close());
+		
+		ventana = new Window("Consulta de Han", hanView);
+		ventana.center();
+		ventana.setSizeFull();
+		ventana.setClosable(false);
+		ventana.setResizable(false);
+		
+		
+		UI.getCurrent().addWindow(ventana);
+		
+	}
+	
+	
+	private void editarReunionDetalle(Han item) {
+		
+		hanView = new PersonaHanView(item);
+		hanView.getBtnSalir().addClickListener(e -> ventana.close());
+		
+		ventana = new Window("Edición de Miembros de Han", hanView);
+		ventana.center();
+		ventana.setSizeFull();
+		ventana.setClosable(false);
+		ventana.setResizable(false);
+		
+		UI.getCurrent().addWindow(ventana);
+		
 		
 	}
 
