@@ -13,9 +13,11 @@ import javax.persistence.criteria.Root;
 import py.com.sgipy.miesys.entities.Division;
 import py.com.sgipy.miesys.entities.Empresa;
 import py.com.sgipy.miesys.entities.EstadoCivil;
+import py.com.sgipy.miesys.entities.Genero;
 import py.com.sgipy.miesys.entities.Han;
 import py.com.sgipy.miesys.entities.Nacionalidad;
 import py.com.sgipy.miesys.entities.Ocupacion;
+import py.com.sgipy.miesys.entities.Tenencia;
 import py.com.sgipy.miesys.entities.TipoDocumento;
 import py.com.sgipy.miesys.entities.Direccion;
 import java.util.ArrayList;
@@ -25,7 +27,10 @@ import javax.persistence.EntityManagerFactory;
 import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Persona;
+import py.com.sgipy.miesys.entities.ReunionAsistencia;
 import py.com.sgipy.miesys.entities.Recomendado;
+import py.com.sgipy.miesys.entities.Reunion;
+import py.com.sgipy.miesys.entities.Usuario;
 import py.com.sgipy.miesys.entities.Telefono;
 
 /**
@@ -47,6 +52,9 @@ public class PersonaJpaController implements Serializable {
         if (persona.getDireccionList() == null) {
             persona.setDireccionList(new ArrayList<Direccion>());
         }
+        if (persona.getReunionAsistenciaList() == null) {
+            persona.setReunionAsistenciaList(new ArrayList<ReunionAsistencia>());
+        }
         if (persona.getRecomendadoList() == null) {
             persona.setRecomendadoList(new ArrayList<Recomendado>());
         }
@@ -55,6 +63,12 @@ public class PersonaJpaController implements Serializable {
         }
         if (persona.getRecomendadoList2() == null) {
             persona.setRecomendadoList2(new ArrayList<Recomendado>());
+        }
+        if (persona.getReunionList() == null) {
+            persona.setReunionList(new ArrayList<Reunion>());
+        }
+        if (persona.getUsuarioList() == null) {
+            persona.setUsuarioList(new ArrayList<Usuario>());
         }
         if (persona.getTelefonoList() == null) {
             persona.setTelefonoList(new ArrayList<Telefono>());
@@ -78,6 +92,11 @@ public class PersonaJpaController implements Serializable {
                 estadoCivil = em.getReference(estadoCivil.getClass(), estadoCivil.getEstadoCivil());
                 persona.setEstadoCivil(estadoCivil);
             }
+            Genero genero = persona.getGenero();
+            if (genero != null) {
+                genero = em.getReference(genero.getClass(), genero.getGenero());
+                persona.setGenero(genero);
+            }
             Han han = persona.getHan();
             if (han != null) {
                 han = em.getReference(han.getClass(), han.getHan());
@@ -93,6 +112,11 @@ public class PersonaJpaController implements Serializable {
                 ocupacion = em.getReference(ocupacion.getClass(), ocupacion.getOcupacion());
                 persona.setOcupacion(ocupacion);
             }
+            Tenencia miembroCon = persona.getMiembroCon();
+            if (miembroCon != null) {
+                miembroCon = em.getReference(miembroCon.getClass(), miembroCon.getTenencia());
+                persona.setMiembroCon(miembroCon);
+            }
             TipoDocumento tipoDocumento = persona.getTipoDocumento();
             if (tipoDocumento != null) {
                 tipoDocumento = em.getReference(tipoDocumento.getClass(), tipoDocumento.getTipoDocumento());
@@ -104,6 +128,12 @@ public class PersonaJpaController implements Serializable {
                 attachedDireccionList.add(direccionListDireccionToAttach);
             }
             persona.setDireccionList(attachedDireccionList);
+            List<ReunionAsistencia> attachedReunionAsistenciaList = new ArrayList<ReunionAsistencia>();
+            for (ReunionAsistencia reunionAsistenciaListReunionAsistenciaToAttach : persona.getReunionAsistenciaList()) {
+                reunionAsistenciaListReunionAsistenciaToAttach = em.getReference(reunionAsistenciaListReunionAsistenciaToAttach.getClass(), reunionAsistenciaListReunionAsistenciaToAttach.getReunionAsistencia());
+                attachedReunionAsistenciaList.add(reunionAsistenciaListReunionAsistenciaToAttach);
+            }
+            persona.setReunionAsistenciaList(attachedReunionAsistenciaList);
             List<Recomendado> attachedRecomendadoList = new ArrayList<Recomendado>();
             for (Recomendado recomendadoListRecomendadoToAttach : persona.getRecomendadoList()) {
                 recomendadoListRecomendadoToAttach = em.getReference(recomendadoListRecomendadoToAttach.getClass(), recomendadoListRecomendadoToAttach.getRecomendado());
@@ -122,9 +152,21 @@ public class PersonaJpaController implements Serializable {
                 attachedRecomendadoList2.add(recomendadoList2RecomendadoToAttach);
             }
             persona.setRecomendadoList2(attachedRecomendadoList2);
+            List<Reunion> attachedReunionList = new ArrayList<Reunion>();
+            for (Reunion reunionListReunionToAttach : persona.getReunionList()) {
+                reunionListReunionToAttach = em.getReference(reunionListReunionToAttach.getClass(), reunionListReunionToAttach.getReunion());
+                attachedReunionList.add(reunionListReunionToAttach);
+            }
+            persona.setReunionList(attachedReunionList);
+            List<Usuario> attachedUsuarioList = new ArrayList<Usuario>();
+            for (Usuario usuarioListUsuarioToAttach : persona.getUsuarioList()) {
+                usuarioListUsuarioToAttach = em.getReference(usuarioListUsuarioToAttach.getClass(), usuarioListUsuarioToAttach.getUsuario());
+                attachedUsuarioList.add(usuarioListUsuarioToAttach);
+            }
+            persona.setUsuarioList(attachedUsuarioList);
             List<Telefono> attachedTelefonoList = new ArrayList<Telefono>();
             for (Telefono telefonoListTelefonoToAttach : persona.getTelefonoList()) {
-                telefonoListTelefonoToAttach = em.getReference(telefonoListTelefonoToAttach.getClass(), telefonoListTelefonoToAttach.getIdTelefono());
+                telefonoListTelefonoToAttach = em.getReference(telefonoListTelefonoToAttach.getClass(), telefonoListTelefonoToAttach.getTelefono());
                 attachedTelefonoList.add(telefonoListTelefonoToAttach);
             }
             persona.setTelefonoList(attachedTelefonoList);
@@ -141,6 +183,10 @@ public class PersonaJpaController implements Serializable {
                 estadoCivil.getPersonaList().add(persona);
                 estadoCivil = em.merge(estadoCivil);
             }
+            if (genero != null) {
+                genero.getPersonaList().add(persona);
+                genero = em.merge(genero);
+            }
             if (han != null) {
                 han.getPersonaList().add(persona);
                 han = em.merge(han);
@@ -153,6 +199,10 @@ public class PersonaJpaController implements Serializable {
                 ocupacion.getPersonaList().add(persona);
                 ocupacion = em.merge(ocupacion);
             }
+            if (miembroCon != null) {
+                miembroCon.getPersonaList().add(persona);
+                miembroCon = em.merge(miembroCon);
+            }
             if (tipoDocumento != null) {
                 tipoDocumento.getPersonaList().add(persona);
                 tipoDocumento = em.merge(tipoDocumento);
@@ -164,6 +214,15 @@ public class PersonaJpaController implements Serializable {
                 if (oldPersonaOfDireccionListDireccion != null) {
                     oldPersonaOfDireccionListDireccion.getDireccionList().remove(direccionListDireccion);
                     oldPersonaOfDireccionListDireccion = em.merge(oldPersonaOfDireccionListDireccion);
+                }
+            }
+            for (ReunionAsistencia reunionAsistenciaListReunionAsistencia : persona.getReunionAsistenciaList()) {
+                Persona oldPersonaOfReunionAsistenciaListReunionAsistencia = reunionAsistenciaListReunionAsistencia.getPersona();
+                reunionAsistenciaListReunionAsistencia.setPersona(persona);
+                reunionAsistenciaListReunionAsistencia = em.merge(reunionAsistenciaListReunionAsistencia);
+                if (oldPersonaOfReunionAsistenciaListReunionAsistencia != null) {
+                    oldPersonaOfReunionAsistenciaListReunionAsistencia.getReunionAsistenciaList().remove(reunionAsistenciaListReunionAsistencia);
+                    oldPersonaOfReunionAsistenciaListReunionAsistencia = em.merge(oldPersonaOfReunionAsistenciaListReunionAsistencia);
                 }
             }
             for (Recomendado recomendadoListRecomendado : persona.getRecomendadoList()) {
@@ -191,6 +250,24 @@ public class PersonaJpaController implements Serializable {
                 if (oldRecomendador2OfRecomendadoList2Recomendado != null) {
                     oldRecomendador2OfRecomendadoList2Recomendado.getRecomendadoList2().remove(recomendadoList2Recomendado);
                     oldRecomendador2OfRecomendadoList2Recomendado = em.merge(oldRecomendador2OfRecomendadoList2Recomendado);
+                }
+            }
+            for (Reunion reunionListReunion : persona.getReunionList()) {
+                Persona oldPersonaOfReunionListReunion = reunionListReunion.getPersona();
+                reunionListReunion.setPersona(persona);
+                reunionListReunion = em.merge(reunionListReunion);
+                if (oldPersonaOfReunionListReunion != null) {
+                    oldPersonaOfReunionListReunion.getReunionList().remove(reunionListReunion);
+                    oldPersonaOfReunionListReunion = em.merge(oldPersonaOfReunionListReunion);
+                }
+            }
+            for (Usuario usuarioListUsuario : persona.getUsuarioList()) {
+                Persona oldPersonaOfUsuarioListUsuario = usuarioListUsuario.getPersona();
+                usuarioListUsuario.setPersona(persona);
+                usuarioListUsuario = em.merge(usuarioListUsuario);
+                if (oldPersonaOfUsuarioListUsuario != null) {
+                    oldPersonaOfUsuarioListUsuario.getUsuarioList().remove(usuarioListUsuario);
+                    oldPersonaOfUsuarioListUsuario = em.merge(oldPersonaOfUsuarioListUsuario);
                 }
             }
             for (Telefono telefonoListTelefono : persona.getTelefonoList()) {
@@ -222,22 +299,32 @@ public class PersonaJpaController implements Serializable {
             Empresa empresaNew = persona.getEmpresa();
             EstadoCivil estadoCivilOld = persistentPersona.getEstadoCivil();
             EstadoCivil estadoCivilNew = persona.getEstadoCivil();
+            Genero generoOld = persistentPersona.getGenero();
+            Genero generoNew = persona.getGenero();
             Han hanOld = persistentPersona.getHan();
             Han hanNew = persona.getHan();
             Nacionalidad nacionalidadOld = persistentPersona.getNacionalidad();
             Nacionalidad nacionalidadNew = persona.getNacionalidad();
             Ocupacion ocupacionOld = persistentPersona.getOcupacion();
             Ocupacion ocupacionNew = persona.getOcupacion();
+            Tenencia miembroConOld = persistentPersona.getMiembroCon();
+            Tenencia miembroConNew = persona.getMiembroCon();
             TipoDocumento tipoDocumentoOld = persistentPersona.getTipoDocumento();
             TipoDocumento tipoDocumentoNew = persona.getTipoDocumento();
             List<Direccion> direccionListOld = persistentPersona.getDireccionList();
             List<Direccion> direccionListNew = persona.getDireccionList();
+            List<ReunionAsistencia> reunionAsistenciaListOld = persistentPersona.getReunionAsistenciaList();
+            List<ReunionAsistencia> reunionAsistenciaListNew = persona.getReunionAsistenciaList();
             List<Recomendado> recomendadoListOld = persistentPersona.getRecomendadoList();
             List<Recomendado> recomendadoListNew = persona.getRecomendadoList();
             List<Recomendado> recomendadoList1Old = persistentPersona.getRecomendadoList1();
             List<Recomendado> recomendadoList1New = persona.getRecomendadoList1();
             List<Recomendado> recomendadoList2Old = persistentPersona.getRecomendadoList2();
             List<Recomendado> recomendadoList2New = persona.getRecomendadoList2();
+            List<Reunion> reunionListOld = persistentPersona.getReunionList();
+            List<Reunion> reunionListNew = persona.getReunionList();
+            List<Usuario> usuarioListOld = persistentPersona.getUsuarioList();
+            List<Usuario> usuarioListNew = persona.getUsuarioList();
             List<Telefono> telefonoListOld = persistentPersona.getTelefonoList();
             List<Telefono> telefonoListNew = persona.getTelefonoList();
             List<String> illegalOrphanMessages = null;
@@ -249,12 +336,28 @@ public class PersonaJpaController implements Serializable {
                     illegalOrphanMessages.add("You must retain Direccion " + direccionListOldDireccion + " since its persona field is not nullable.");
                 }
             }
+            for (ReunionAsistencia reunionAsistenciaListOldReunionAsistencia : reunionAsistenciaListOld) {
+                if (!reunionAsistenciaListNew.contains(reunionAsistenciaListOldReunionAsistencia)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain ReunionAsistencia " + reunionAsistenciaListOldReunionAsistencia + " since its persona field is not nullable.");
+                }
+            }
             for (Recomendado recomendadoListOldRecomendado : recomendadoListOld) {
                 if (!recomendadoListNew.contains(recomendadoListOldRecomendado)) {
                     if (illegalOrphanMessages == null) {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
                     illegalOrphanMessages.add("You must retain Recomendado " + recomendadoListOldRecomendado + " since its persona field is not nullable.");
+                }
+            }
+            for (Usuario usuarioListOldUsuario : usuarioListOld) {
+                if (!usuarioListNew.contains(usuarioListOldUsuario)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Usuario " + usuarioListOldUsuario + " since its persona field is not nullable.");
                 }
             }
             for (Telefono telefonoListOldTelefono : telefonoListOld) {
@@ -280,6 +383,10 @@ public class PersonaJpaController implements Serializable {
                 estadoCivilNew = em.getReference(estadoCivilNew.getClass(), estadoCivilNew.getEstadoCivil());
                 persona.setEstadoCivil(estadoCivilNew);
             }
+            if (generoNew != null) {
+                generoNew = em.getReference(generoNew.getClass(), generoNew.getGenero());
+                persona.setGenero(generoNew);
+            }
             if (hanNew != null) {
                 hanNew = em.getReference(hanNew.getClass(), hanNew.getHan());
                 persona.setHan(hanNew);
@@ -292,6 +399,10 @@ public class PersonaJpaController implements Serializable {
                 ocupacionNew = em.getReference(ocupacionNew.getClass(), ocupacionNew.getOcupacion());
                 persona.setOcupacion(ocupacionNew);
             }
+            if (miembroConNew != null) {
+                miembroConNew = em.getReference(miembroConNew.getClass(), miembroConNew.getTenencia());
+                persona.setMiembroCon(miembroConNew);
+            }
             if (tipoDocumentoNew != null) {
                 tipoDocumentoNew = em.getReference(tipoDocumentoNew.getClass(), tipoDocumentoNew.getTipoDocumento());
                 persona.setTipoDocumento(tipoDocumentoNew);
@@ -303,6 +414,13 @@ public class PersonaJpaController implements Serializable {
             }
             direccionListNew = attachedDireccionListNew;
             persona.setDireccionList(direccionListNew);
+            List<ReunionAsistencia> attachedReunionAsistenciaListNew = new ArrayList<ReunionAsistencia>();
+            for (ReunionAsistencia reunionAsistenciaListNewReunionAsistenciaToAttach : reunionAsistenciaListNew) {
+                reunionAsistenciaListNewReunionAsistenciaToAttach = em.getReference(reunionAsistenciaListNewReunionAsistenciaToAttach.getClass(), reunionAsistenciaListNewReunionAsistenciaToAttach.getReunionAsistencia());
+                attachedReunionAsistenciaListNew.add(reunionAsistenciaListNewReunionAsistenciaToAttach);
+            }
+            reunionAsistenciaListNew = attachedReunionAsistenciaListNew;
+            persona.setReunionAsistenciaList(reunionAsistenciaListNew);
             List<Recomendado> attachedRecomendadoListNew = new ArrayList<Recomendado>();
             for (Recomendado recomendadoListNewRecomendadoToAttach : recomendadoListNew) {
                 recomendadoListNewRecomendadoToAttach = em.getReference(recomendadoListNewRecomendadoToAttach.getClass(), recomendadoListNewRecomendadoToAttach.getRecomendado());
@@ -324,9 +442,23 @@ public class PersonaJpaController implements Serializable {
             }
             recomendadoList2New = attachedRecomendadoList2New;
             persona.setRecomendadoList2(recomendadoList2New);
+            List<Reunion> attachedReunionListNew = new ArrayList<Reunion>();
+            for (Reunion reunionListNewReunionToAttach : reunionListNew) {
+                reunionListNewReunionToAttach = em.getReference(reunionListNewReunionToAttach.getClass(), reunionListNewReunionToAttach.getReunion());
+                attachedReunionListNew.add(reunionListNewReunionToAttach);
+            }
+            reunionListNew = attachedReunionListNew;
+            persona.setReunionList(reunionListNew);
+            List<Usuario> attachedUsuarioListNew = new ArrayList<Usuario>();
+            for (Usuario usuarioListNewUsuarioToAttach : usuarioListNew) {
+                usuarioListNewUsuarioToAttach = em.getReference(usuarioListNewUsuarioToAttach.getClass(), usuarioListNewUsuarioToAttach.getUsuario());
+                attachedUsuarioListNew.add(usuarioListNewUsuarioToAttach);
+            }
+            usuarioListNew = attachedUsuarioListNew;
+            persona.setUsuarioList(usuarioListNew);
             List<Telefono> attachedTelefonoListNew = new ArrayList<Telefono>();
             for (Telefono telefonoListNewTelefonoToAttach : telefonoListNew) {
-                telefonoListNewTelefonoToAttach = em.getReference(telefonoListNewTelefonoToAttach.getClass(), telefonoListNewTelefonoToAttach.getIdTelefono());
+                telefonoListNewTelefonoToAttach = em.getReference(telefonoListNewTelefonoToAttach.getClass(), telefonoListNewTelefonoToAttach.getTelefono());
                 attachedTelefonoListNew.add(telefonoListNewTelefonoToAttach);
             }
             telefonoListNew = attachedTelefonoListNew;
@@ -356,6 +488,14 @@ public class PersonaJpaController implements Serializable {
                 estadoCivilNew.getPersonaList().add(persona);
                 estadoCivilNew = em.merge(estadoCivilNew);
             }
+            if (generoOld != null && !generoOld.equals(generoNew)) {
+                generoOld.getPersonaList().remove(persona);
+                generoOld = em.merge(generoOld);
+            }
+            if (generoNew != null && !generoNew.equals(generoOld)) {
+                generoNew.getPersonaList().add(persona);
+                generoNew = em.merge(generoNew);
+            }
             if (hanOld != null && !hanOld.equals(hanNew)) {
                 hanOld.getPersonaList().remove(persona);
                 hanOld = em.merge(hanOld);
@@ -380,6 +520,14 @@ public class PersonaJpaController implements Serializable {
                 ocupacionNew.getPersonaList().add(persona);
                 ocupacionNew = em.merge(ocupacionNew);
             }
+            if (miembroConOld != null && !miembroConOld.equals(miembroConNew)) {
+                miembroConOld.getPersonaList().remove(persona);
+                miembroConOld = em.merge(miembroConOld);
+            }
+            if (miembroConNew != null && !miembroConNew.equals(miembroConOld)) {
+                miembroConNew.getPersonaList().add(persona);
+                miembroConNew = em.merge(miembroConNew);
+            }
             if (tipoDocumentoOld != null && !tipoDocumentoOld.equals(tipoDocumentoNew)) {
                 tipoDocumentoOld.getPersonaList().remove(persona);
                 tipoDocumentoOld = em.merge(tipoDocumentoOld);
@@ -396,6 +544,17 @@ public class PersonaJpaController implements Serializable {
                     if (oldPersonaOfDireccionListNewDireccion != null && !oldPersonaOfDireccionListNewDireccion.equals(persona)) {
                         oldPersonaOfDireccionListNewDireccion.getDireccionList().remove(direccionListNewDireccion);
                         oldPersonaOfDireccionListNewDireccion = em.merge(oldPersonaOfDireccionListNewDireccion);
+                    }
+                }
+            }
+            for (ReunionAsistencia reunionAsistenciaListNewReunionAsistencia : reunionAsistenciaListNew) {
+                if (!reunionAsistenciaListOld.contains(reunionAsistenciaListNewReunionAsistencia)) {
+                    Persona oldPersonaOfReunionAsistenciaListNewReunionAsistencia = reunionAsistenciaListNewReunionAsistencia.getPersona();
+                    reunionAsistenciaListNewReunionAsistencia.setPersona(persona);
+                    reunionAsistenciaListNewReunionAsistencia = em.merge(reunionAsistenciaListNewReunionAsistencia);
+                    if (oldPersonaOfReunionAsistenciaListNewReunionAsistencia != null && !oldPersonaOfReunionAsistenciaListNewReunionAsistencia.equals(persona)) {
+                        oldPersonaOfReunionAsistenciaListNewReunionAsistencia.getReunionAsistenciaList().remove(reunionAsistenciaListNewReunionAsistencia);
+                        oldPersonaOfReunionAsistenciaListNewReunionAsistencia = em.merge(oldPersonaOfReunionAsistenciaListNewReunionAsistencia);
                     }
                 }
             }
@@ -441,6 +600,34 @@ public class PersonaJpaController implements Serializable {
                     if (oldRecomendador2OfRecomendadoList2NewRecomendado != null && !oldRecomendador2OfRecomendadoList2NewRecomendado.equals(persona)) {
                         oldRecomendador2OfRecomendadoList2NewRecomendado.getRecomendadoList2().remove(recomendadoList2NewRecomendado);
                         oldRecomendador2OfRecomendadoList2NewRecomendado = em.merge(oldRecomendador2OfRecomendadoList2NewRecomendado);
+                    }
+                }
+            }
+            for (Reunion reunionListOldReunion : reunionListOld) {
+                if (!reunionListNew.contains(reunionListOldReunion)) {
+                    reunionListOldReunion.setPersona(null);
+                    reunionListOldReunion = em.merge(reunionListOldReunion);
+                }
+            }
+            for (Reunion reunionListNewReunion : reunionListNew) {
+                if (!reunionListOld.contains(reunionListNewReunion)) {
+                    Persona oldPersonaOfReunionListNewReunion = reunionListNewReunion.getPersona();
+                    reunionListNewReunion.setPersona(persona);
+                    reunionListNewReunion = em.merge(reunionListNewReunion);
+                    if (oldPersonaOfReunionListNewReunion != null && !oldPersonaOfReunionListNewReunion.equals(persona)) {
+                        oldPersonaOfReunionListNewReunion.getReunionList().remove(reunionListNewReunion);
+                        oldPersonaOfReunionListNewReunion = em.merge(oldPersonaOfReunionListNewReunion);
+                    }
+                }
+            }
+            for (Usuario usuarioListNewUsuario : usuarioListNew) {
+                if (!usuarioListOld.contains(usuarioListNewUsuario)) {
+                    Persona oldPersonaOfUsuarioListNewUsuario = usuarioListNewUsuario.getPersona();
+                    usuarioListNewUsuario.setPersona(persona);
+                    usuarioListNewUsuario = em.merge(usuarioListNewUsuario);
+                    if (oldPersonaOfUsuarioListNewUsuario != null && !oldPersonaOfUsuarioListNewUsuario.equals(persona)) {
+                        oldPersonaOfUsuarioListNewUsuario.getUsuarioList().remove(usuarioListNewUsuario);
+                        oldPersonaOfUsuarioListNewUsuario = em.merge(oldPersonaOfUsuarioListNewUsuario);
                     }
                 }
             }
@@ -492,12 +679,26 @@ public class PersonaJpaController implements Serializable {
                 }
                 illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the Direccion " + direccionListOrphanCheckDireccion + " in its direccionList field has a non-nullable persona field.");
             }
+            List<ReunionAsistencia> reunionAsistenciaListOrphanCheck = persona.getReunionAsistenciaList();
+            for (ReunionAsistencia reunionAsistenciaListOrphanCheckReunionAsistencia : reunionAsistenciaListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the ReunionAsistencia " + reunionAsistenciaListOrphanCheckReunionAsistencia + " in its reunionAsistenciaList field has a non-nullable persona field.");
+            }
             List<Recomendado> recomendadoListOrphanCheck = persona.getRecomendadoList();
             for (Recomendado recomendadoListOrphanCheckRecomendado : recomendadoListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
                 illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the Recomendado " + recomendadoListOrphanCheckRecomendado + " in its recomendadoList field has a non-nullable persona field.");
+            }
+            List<Usuario> usuarioListOrphanCheck = persona.getUsuarioList();
+            for (Usuario usuarioListOrphanCheckUsuario : usuarioListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the Usuario " + usuarioListOrphanCheckUsuario + " in its usuarioList field has a non-nullable persona field.");
             }
             List<Telefono> telefonoListOrphanCheck = persona.getTelefonoList();
             for (Telefono telefonoListOrphanCheckTelefono : telefonoListOrphanCheck) {
@@ -524,6 +725,11 @@ public class PersonaJpaController implements Serializable {
                 estadoCivil.getPersonaList().remove(persona);
                 estadoCivil = em.merge(estadoCivil);
             }
+            Genero genero = persona.getGenero();
+            if (genero != null) {
+                genero.getPersonaList().remove(persona);
+                genero = em.merge(genero);
+            }
             Han han = persona.getHan();
             if (han != null) {
                 han.getPersonaList().remove(persona);
@@ -539,6 +745,11 @@ public class PersonaJpaController implements Serializable {
                 ocupacion.getPersonaList().remove(persona);
                 ocupacion = em.merge(ocupacion);
             }
+            Tenencia miembroCon = persona.getMiembroCon();
+            if (miembroCon != null) {
+                miembroCon.getPersonaList().remove(persona);
+                miembroCon = em.merge(miembroCon);
+            }
             TipoDocumento tipoDocumento = persona.getTipoDocumento();
             if (tipoDocumento != null) {
                 tipoDocumento.getPersonaList().remove(persona);
@@ -553,6 +764,11 @@ public class PersonaJpaController implements Serializable {
             for (Recomendado recomendadoList2Recomendado : recomendadoList2) {
                 recomendadoList2Recomendado.setRecomendador2(null);
                 recomendadoList2Recomendado = em.merge(recomendadoList2Recomendado);
+            }
+            List<Reunion> reunionList = persona.getReunionList();
+            for (Reunion reunionListReunion : reunionList) {
+                reunionListReunion.setPersona(null);
+                reunionListReunion = em.merge(reunionListReunion);
             }
             em.remove(persona);
             em.getTransaction().commit();

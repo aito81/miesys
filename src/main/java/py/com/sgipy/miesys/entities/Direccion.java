@@ -45,9 +45,9 @@ public class Direccion implements Serializable {
     @Basic(optional = false)
     @Column(name = "laboral")
     private boolean laboral;
-    @JoinColumn(name = "ciudad", referencedColumnName = "ciudad")
+    @JoinColumn(name = "barrio", referencedColumnName = "barrio")
     @ManyToOne
-    private Ciudad ciudad;
+    private Barrio barrio;
     @JoinColumn(name = "persona", referencedColumnName = "persona")
     @ManyToOne(optional = false)
     private Persona persona;
@@ -89,12 +89,12 @@ public class Direccion implements Serializable {
         this.laboral = laboral;
     }
 
-    public Ciudad getCiudad() {
-        return ciudad;
+    public Barrio getBarrio() {
+        return barrio;
     }
 
-    public void setCiudad(Ciudad ciudad) {
-        this.ciudad = ciudad;
+    public void setBarrio(Barrio barrio) {
+        this.barrio = barrio;
     }
 
     public Persona getPersona() {

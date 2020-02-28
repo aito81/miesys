@@ -8,6 +8,7 @@ package py.com.sgipy.miesys.entities;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,7 +33,9 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Han.findAll", query = "SELECT h FROM Han h")
     , @NamedQuery(name = "Han.findByHan", query = "SELECT h FROM Han h WHERE h.han = :han")
-    , @NamedQuery(name = "Han.findByDescripcion", query = "SELECT h FROM Han h WHERE h.descripcion = :descripcion")})
+    , @NamedQuery(name = "Han.findByDescripcion", query = "SELECT h FROM Han h WHERE h.descripcion = :descripcion")
+    , @NamedQuery(name = "Han.findByDireccion", query = "SELECT h FROM Han h WHERE h.direccion = :direccion")
+    , @NamedQuery(name = "Han.findByCantidadMiembros", query = "SELECT h FROM Han h WHERE h.cantidadMiembros = :cantidadMiembros")})
 public class Han implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -44,11 +47,20 @@ public class Han implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
+    @Column(name = "direccion")
+    private String direccion;
+    @Column(name = "cantidad_miembros")
+    private Integer cantidadMiembros;
     @OneToMany(mappedBy = "han")
     private List<Persona> personaList;
+    @JoinColumn(name = "barrio", referencedColumnName = "barrio")
+    @ManyToOne
+    private Barrio barrio;
     @JoinColumn(name = "distrito", referencedColumnName = "distrito")
     @ManyToOne(optional = false)
     private Distrito distrito;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "han")
+    private List<Reunion> reunionList;
 
     public Han() {
     }
@@ -78,6 +90,22 @@ public class Han implements Serializable {
         this.descripcion = descripcion;
     }
 
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public Integer getCantidadMiembros() {
+        return cantidadMiembros;
+    }
+
+    public void setCantidadMiembros(Integer cantidadMiembros) {
+        this.cantidadMiembros = cantidadMiembros;
+    }
+
     @XmlTransient
     public List<Persona> getPersonaList() {
         return personaList;
@@ -87,12 +115,29 @@ public class Han implements Serializable {
         this.personaList = personaList;
     }
 
+    public Barrio getBarrio() {
+        return barrio;
+    }
+
+    public void setBarrio(Barrio barrio) {
+        this.barrio = barrio;
+    }
+
     public Distrito getDistrito() {
         return distrito;
     }
 
     public void setDistrito(Distrito distrito) {
         this.distrito = distrito;
+    }
+
+    @XmlTransient
+    public List<Reunion> getReunionList() {
+        return reunionList;
+    }
+
+    public void setReunionList(List<Reunion> reunionList) {
+        this.reunionList = reunionList;
     }
 
     @Override

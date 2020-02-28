@@ -41,8 +41,7 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Persona.findByNumeroDocumento", query = "SELECT p FROM Persona p WHERE p.numeroDocumento = :numeroDocumento")
     , @NamedQuery(name = "Persona.findByCantidadHijos", query = "SELECT p FROM Persona p WHERE p.cantidadHijos = :cantidadHijos")
     , @NamedQuery(name = "Persona.findByFechaNacimiento", query = "SELECT p FROM Persona p WHERE p.fechaNacimiento = :fechaNacimiento")
-    , @NamedQuery(name = "Persona.findByFechaInicio", query = "SELECT p FROM Persona p WHERE p.fechaInicio = :fechaInicio")
-    , @NamedQuery(name = "Persona.findByGenero", query = "SELECT p FROM Persona p WHERE p.genero = :genero")})
+    , @NamedQuery(name = "Persona.findByFechaInicio", query = "SELECT p FROM Persona p WHERE p.fechaInicio = :fechaInicio")})
 public class Persona implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -67,9 +66,6 @@ public class Persona implements Serializable {
     @Column(name = "fecha_inicio")
     @Temporal(TemporalType.DATE)
     private Date fechaInicio;
-    @Basic(optional = false)
-    @Column(name = "genero")
-    private int genero;
     @JoinColumn(name = "division", referencedColumnName = "division")
     @ManyToOne
     private Division division;
@@ -79,6 +75,9 @@ public class Persona implements Serializable {
     @JoinColumn(name = "estado_civil", referencedColumnName = "estado_civil")
     @ManyToOne
     private EstadoCivil estadoCivil;
+    @JoinColumn(name = "genero", referencedColumnName = "genero")
+    @ManyToOne(optional = false)
+    private Genero genero;
     @JoinColumn(name = "han", referencedColumnName = "han")
     @ManyToOne
     private Han han;
@@ -88,17 +87,26 @@ public class Persona implements Serializable {
     @JoinColumn(name = "ocupacion", referencedColumnName = "ocupacion")
     @ManyToOne
     private Ocupacion ocupacion;
+    @JoinColumn(name = "miembro_con", referencedColumnName = "tenencia")
+    @ManyToOne
+    private Tenencia miembroCon;
     @JoinColumn(name = "tipo_documento", referencedColumnName = "tipo_documento")
     @ManyToOne
     private TipoDocumento tipoDocumento;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
     private List<Direccion> direccionList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
+    private List<ReunionAsistencia> reunionAsistenciaList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
     private List<Recomendado> recomendadoList;
     @OneToMany(mappedBy = "recomendador1")
     private List<Recomendado> recomendadoList1;
     @OneToMany(mappedBy = "recomendador2")
     private List<Recomendado> recomendadoList2;
+    @OneToMany(mappedBy = "persona")
+    private List<Reunion> reunionList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
+    private List<Usuario> usuarioList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "persona")
     private List<Telefono> telefonoList;
 
@@ -109,11 +117,10 @@ public class Persona implements Serializable {
         this.persona = persona;
     }
 
-    public Persona(Integer persona, String nombre, String apellido, int genero) {
+    public Persona(Integer persona, String nombre, String apellido) {
         this.persona = persona;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.genero = genero;
     }
 
     public Integer getPersona() {
@@ -172,14 +179,6 @@ public class Persona implements Serializable {
         this.fechaInicio = fechaInicio;
     }
 
-    public int getGenero() {
-        return genero;
-    }
-
-    public void setGenero(int genero) {
-        this.genero = genero;
-    }
-
     public Division getDivision() {
         return division;
     }
@@ -202,6 +201,14 @@ public class Persona implements Serializable {
 
     public void setEstadoCivil(EstadoCivil estadoCivil) {
         this.estadoCivil = estadoCivil;
+    }
+
+    public Genero getGenero() {
+        return genero;
+    }
+
+    public void setGenero(Genero genero) {
+        this.genero = genero;
     }
 
     public Han getHan() {
@@ -228,6 +235,14 @@ public class Persona implements Serializable {
         this.ocupacion = ocupacion;
     }
 
+    public Tenencia getMiembroCon() {
+        return miembroCon;
+    }
+
+    public void setMiembroCon(Tenencia miembroCon) {
+        this.miembroCon = miembroCon;
+    }
+
     public TipoDocumento getTipoDocumento() {
         return tipoDocumento;
     }
@@ -243,6 +258,15 @@ public class Persona implements Serializable {
 
     public void setDireccionList(List<Direccion> direccionList) {
         this.direccionList = direccionList;
+    }
+
+    @XmlTransient
+    public List<ReunionAsistencia> getReunionAsistenciaList() {
+        return reunionAsistenciaList;
+    }
+
+    public void setReunionAsistenciaList(List<ReunionAsistencia> reunionAsistenciaList) {
+        this.reunionAsistenciaList = reunionAsistenciaList;
     }
 
     @XmlTransient
@@ -270,6 +294,24 @@ public class Persona implements Serializable {
 
     public void setRecomendadoList2(List<Recomendado> recomendadoList2) {
         this.recomendadoList2 = recomendadoList2;
+    }
+
+    @XmlTransient
+    public List<Reunion> getReunionList() {
+        return reunionList;
+    }
+
+    public void setReunionList(List<Reunion> reunionList) {
+        this.reunionList = reunionList;
+    }
+
+    @XmlTransient
+    public List<Usuario> getUsuarioList() {
+        return usuarioList;
+    }
+
+    public void setUsuarioList(List<Usuario> usuarioList) {
+        this.usuarioList = usuarioList;
     }
 
     @XmlTransient

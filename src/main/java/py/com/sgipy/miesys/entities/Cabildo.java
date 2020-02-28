@@ -14,6 +14,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -45,6 +47,9 @@ public class Cabildo implements Serializable {
     private String descripcion;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cabildo")
     private List<Distrito> distritoList;
+    @JoinColumn(name = "region", referencedColumnName = "region")
+    @ManyToOne(optional = false)
+    private Region region;
 
     public Cabildo() {
     }
@@ -81,6 +86,14 @@ public class Cabildo implements Serializable {
 
     public void setDistritoList(List<Distrito> distritoList) {
         this.distritoList = distritoList;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
     }
 
     @Override

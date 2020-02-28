@@ -7,6 +7,9 @@ package py.com.sgipy.miesys.util;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -189,6 +192,11 @@ public class StringUtils {
 		}
 	}
     
+    
+    
+    public static Date convertirLocalDateToDate(LocalDate dateToConvert) {
+    	return Date.from(dateToConvert.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
     
     
     

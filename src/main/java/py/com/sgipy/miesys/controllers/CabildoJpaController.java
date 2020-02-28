@@ -10,6 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.sgipy.miesys.entities.Region;
 import py.com.sgipy.miesys.entities.Distrito;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,11 @@ public class CabildoJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Region region = cabildo.getRegion();
+            if (region != null) {
+                region = em.getReference(region.getClass(), region.getRegion());
+                cabildo.setRegion(region);
+            }
             List<Distrito> attachedDistritoList = new ArrayList<Distrito>();
             for (Distrito distritoListDistritoToAttach : cabildo.getDistritoList()) {
                 distritoListDistritoToAttach = em.getReference(distritoListDistritoToAttach.getClass(), distritoListDistritoToAttach.getDistrito());
@@ -49,6 +55,10 @@ public class CabildoJpaController implements Serializable {
             }
             cabildo.setDistritoList(attachedDistritoList);
             em.persist(cabildo);
+            if (region != null) {
+                region.getCabildoList().add(cabildo);
+                region = em.merge(region);
+            }
             for (Distrito distritoListDistrito : cabildo.getDistritoList()) {
                 Cabildo oldCabildoOfDistritoListDistrito = distritoListDistrito.getCabildo();
                 distritoListDistrito.setCabildo(cabildo);
@@ -72,6 +82,8 @@ public class CabildoJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Cabildo persistentCabildo = em.find(Cabildo.class, cabildo.getCabildo());
+            Region regionOld = persistentCabildo.getRegion();
+            Region regionNew = cabildo.getRegion();
             List<Distrito> distritoListOld = persistentCabildo.getDistritoList();
             List<Distrito> distritoListNew = cabildo.getDistritoList();
             List<String> illegalOrphanMessages = null;
@@ -86,6 +98,10 @@ public class CabildoJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            if (regionNew != null) {
+                regionNew = em.getReference(regionNew.getClass(), regionNew.getRegion());
+                cabildo.setRegion(regionNew);
+            }
             List<Distrito> attachedDistritoListNew = new ArrayList<Distrito>();
             for (Distrito distritoListNewDistritoToAttach : distritoListNew) {
                 distritoListNewDistritoToAttach = em.getReference(distritoListNewDistritoToAttach.getClass(), distritoListNewDistritoToAttach.getDistrito());
@@ -94,6 +110,14 @@ public class CabildoJpaController implements Serializable {
             distritoListNew = attachedDistritoListNew;
             cabildo.setDistritoList(distritoListNew);
             cabildo = em.merge(cabildo);
+            if (regionOld != null && !regionOld.equals(regionNew)) {
+                regionOld.getCabildoList().remove(cabildo);
+                regionOld = em.merge(regionOld);
+            }
+            if (regionNew != null && !regionNew.equals(regionOld)) {
+                regionNew.getCabildoList().add(cabildo);
+                regionNew = em.merge(regionNew);
+            }
             for (Distrito distritoListNewDistrito : distritoListNew) {
                 if (!distritoListOld.contains(distritoListNewDistrito)) {
                     Cabildo oldCabildoOfDistritoListNewDistrito = distritoListNewDistrito.getCabildo();
@@ -144,6 +168,11 @@ public class CabildoJpaController implements Serializable {
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            Region region = cabildo.getRegion();
+            if (region != null) {
+                region.getCabildoList().remove(cabildo);
+                region = em.merge(region);
             }
             em.remove(cabildo);
             em.getTransaction().commit();

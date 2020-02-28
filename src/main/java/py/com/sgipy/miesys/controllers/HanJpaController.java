@@ -10,14 +10,17 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.sgipy.miesys.entities.Barrio;
 import py.com.sgipy.miesys.entities.Distrito;
 import py.com.sgipy.miesys.entities.Persona;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import py.com.sgipy.miesys.controllers.exceptions.IllegalOrphanException;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
 import py.com.sgipy.miesys.entities.Han;
+import py.com.sgipy.miesys.entities.Reunion;
 
 /**
  *
@@ -38,10 +41,18 @@ public class HanJpaController implements Serializable {
         if (han.getPersonaList() == null) {
             han.setPersonaList(new ArrayList<Persona>());
         }
+        if (han.getReunionList() == null) {
+            han.setReunionList(new ArrayList<Reunion>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Barrio barrio = han.getBarrio();
+            if (barrio != null) {
+                barrio = em.getReference(barrio.getClass(), barrio.getBarrio());
+                han.setBarrio(barrio);
+            }
             Distrito distrito = han.getDistrito();
             if (distrito != null) {
                 distrito = em.getReference(distrito.getClass(), distrito.getDistrito());
@@ -53,7 +64,17 @@ public class HanJpaController implements Serializable {
                 attachedPersonaList.add(personaListPersonaToAttach);
             }
             han.setPersonaList(attachedPersonaList);
+            List<Reunion> attachedReunionList = new ArrayList<Reunion>();
+            for (Reunion reunionListReunionToAttach : han.getReunionList()) {
+                reunionListReunionToAttach = em.getReference(reunionListReunionToAttach.getClass(), reunionListReunionToAttach.getReunion());
+                attachedReunionList.add(reunionListReunionToAttach);
+            }
+            han.setReunionList(attachedReunionList);
             em.persist(han);
+            if (barrio != null) {
+                barrio.getHanList().add(han);
+                barrio = em.merge(barrio);
+            }
             if (distrito != null) {
                 distrito.getHanList().add(han);
                 distrito = em.merge(distrito);
@@ -67,6 +88,15 @@ public class HanJpaController implements Serializable {
                     oldHanOfPersonaListPersona = em.merge(oldHanOfPersonaListPersona);
                 }
             }
+            for (Reunion reunionListReunion : han.getReunionList()) {
+                Han oldHanOfReunionListReunion = reunionListReunion.getHan();
+                reunionListReunion.setHan(han);
+                reunionListReunion = em.merge(reunionListReunion);
+                if (oldHanOfReunionListReunion != null) {
+                    oldHanOfReunionListReunion.getReunionList().remove(reunionListReunion);
+                    oldHanOfReunionListReunion = em.merge(oldHanOfReunionListReunion);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -75,16 +105,36 @@ public class HanJpaController implements Serializable {
         }
     }
 
-    public void edit(Han han) throws NonexistentEntityException, Exception {
+    public void edit(Han han) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
             Han persistentHan = em.find(Han.class, han.getHan());
+            Barrio barrioOld = persistentHan.getBarrio();
+            Barrio barrioNew = han.getBarrio();
             Distrito distritoOld = persistentHan.getDistrito();
             Distrito distritoNew = han.getDistrito();
             List<Persona> personaListOld = persistentHan.getPersonaList();
             List<Persona> personaListNew = han.getPersonaList();
+            List<Reunion> reunionListOld = persistentHan.getReunionList();
+            List<Reunion> reunionListNew = han.getReunionList();
+            List<String> illegalOrphanMessages = null;
+            for (Reunion reunionListOldReunion : reunionListOld) {
+                if (!reunionListNew.contains(reunionListOldReunion)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Reunion " + reunionListOldReunion + " since its han field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            if (barrioNew != null) {
+                barrioNew = em.getReference(barrioNew.getClass(), barrioNew.getBarrio());
+                han.setBarrio(barrioNew);
+            }
             if (distritoNew != null) {
                 distritoNew = em.getReference(distritoNew.getClass(), distritoNew.getDistrito());
                 han.setDistrito(distritoNew);
@@ -96,7 +146,22 @@ public class HanJpaController implements Serializable {
             }
             personaListNew = attachedPersonaListNew;
             han.setPersonaList(personaListNew);
+            List<Reunion> attachedReunionListNew = new ArrayList<Reunion>();
+            for (Reunion reunionListNewReunionToAttach : reunionListNew) {
+                reunionListNewReunionToAttach = em.getReference(reunionListNewReunionToAttach.getClass(), reunionListNewReunionToAttach.getReunion());
+                attachedReunionListNew.add(reunionListNewReunionToAttach);
+            }
+            reunionListNew = attachedReunionListNew;
+            han.setReunionList(reunionListNew);
             han = em.merge(han);
+            if (barrioOld != null && !barrioOld.equals(barrioNew)) {
+                barrioOld.getHanList().remove(han);
+                barrioOld = em.merge(barrioOld);
+            }
+            if (barrioNew != null && !barrioNew.equals(barrioOld)) {
+                barrioNew.getHanList().add(han);
+                barrioNew = em.merge(barrioNew);
+            }
             if (distritoOld != null && !distritoOld.equals(distritoNew)) {
                 distritoOld.getHanList().remove(han);
                 distritoOld = em.merge(distritoOld);
@@ -122,6 +187,17 @@ public class HanJpaController implements Serializable {
                     }
                 }
             }
+            for (Reunion reunionListNewReunion : reunionListNew) {
+                if (!reunionListOld.contains(reunionListNewReunion)) {
+                    Han oldHanOfReunionListNewReunion = reunionListNewReunion.getHan();
+                    reunionListNewReunion.setHan(han);
+                    reunionListNewReunion = em.merge(reunionListNewReunion);
+                    if (oldHanOfReunionListNewReunion != null && !oldHanOfReunionListNewReunion.equals(han)) {
+                        oldHanOfReunionListNewReunion.getReunionList().remove(reunionListNewReunion);
+                        oldHanOfReunionListNewReunion = em.merge(oldHanOfReunionListNewReunion);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -139,7 +215,7 @@ public class HanJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -150,6 +226,22 @@ public class HanJpaController implements Serializable {
                 han.getHan();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The han with id " + id + " no longer exists.", enfe);
+            }
+            List<String> illegalOrphanMessages = null;
+            List<Reunion> reunionListOrphanCheck = han.getReunionList();
+            for (Reunion reunionListOrphanCheckReunion : reunionListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Han (" + han + ") cannot be destroyed since the Reunion " + reunionListOrphanCheckReunion + " in its reunionList field has a non-nullable han field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            Barrio barrio = han.getBarrio();
+            if (barrio != null) {
+                barrio.getHanList().remove(han);
+                barrio = em.merge(barrio);
             }
             Distrito distrito = han.getDistrito();
             if (distrito != null) {

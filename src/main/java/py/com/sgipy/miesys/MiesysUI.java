@@ -2,10 +2,14 @@ package py.com.sgipy.miesys;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -13,7 +17,17 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import py.com.sgipy.miesys.events.LoginEvent;
+import py.com.sgipy.miesys.events.LogoutEvent;
+import py.com.sgipy.miesys.events.NavigationEvent;
+import py.com.sgipy.miesys.util.UserUtil;
 import py.com.sgipy.miesys.view.AltaPersonaView;
+import py.com.sgipy.miesys.view.LoginView;
+import py.com.sgipy.miesys.view.Main;
+
+
+
+
 
 
 /**
@@ -25,45 +39,68 @@ import py.com.sgipy.miesys.view.AltaPersonaView;
  */
 @Theme("mytheme")
 public class MiesysUI extends UI {
+	
+	
+	
+private EventBus eventBus;
+	
+	@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
+	@VaadinServletConfiguration(ui = MiesysUI.class, productionMode = false)
+	public static class Servlet extends VaadinServlet {
+	}
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-      /*  final VerticalLayout layout = new VerticalLayout();
-        
-        final TextField name = new TextField();
-        name.setCaption("Type your name here:");
+    	
+    	
+    	
+    	
+    	setupEventBus();
+    	if (UserUtil.isLoggedIn()){
+    			setContent(new Main());
+    		} else {
+    			setContent(new LoginView());
+    		}
+     
+    	
+    }	
+    	
+    	
+    
 
-        Button button = new Button("Click Me");
-        button.addClickListener(e -> {
-            layout.addComponent(new Label("Thanks " + name.getValue() 
-                    + ", it works!"));
-        });
-        
-        layout.addComponents(name, button);
-        
-        setContent(layout);*/
-    	
-    	
-    	
-    	
-    	AltaPersonaView alta = new AltaPersonaView();
-		//AltaPersonaView alta = new AltaPersonaView();
-		//AltaCustomerView alta = new AltaCustomerView();
-		//AltaFuncionarioView login = new AltaFuncionarioView();
-		//VacacionesView login = new VacacionesView();
-		Window ventana = new Window("", alta);
-		ventana.center();
-		ventana.setResizable(true);
-		ventana.setModal(true);
-		ventana.setWidth("100%");
-		ventana.setHeight("100%");
-		//ventana.setClosable(false);
-		//ventana.setResizable(true);
-		UI.getCurrent().addWindow(ventana);
+    private void setupEventBus() {
+		eventBus = new EventBus();
+		
+		eventBus.register(this);
+		
+	}
+	
+	public static MiesysUI getCurrent(){
+		return (MiesysUI) UI.getCurrent();
+	}
+	
+	@Subscribe
+	public void userLoggedIn(LoginEvent event){
+		UserUtil.set(event.getUser());
+		setContent(new Main());
+	}
+	
+	public static EventBus getEventBus(){
+		return getCurrent().eventBus;
+		
+	}
+	public void navigateTo(NavigationEvent view) {
+        getNavigator().navigateTo(view.getViewName());
     }
+	
+	@Subscribe
+    public void logout(LogoutEvent logoutEvent) {
+        // Don't invalidate the underlying HTTP session if you are using it for something else
+        VaadinSession.getCurrent().getSession().invalidate();
+        VaadinSession.getCurrent().close();
+        Page.getCurrent().reload();
 
-    @WebServlet(urlPatterns = "/*", name = "MiesysUIServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = MiesysUI.class, productionMode = false)
-    public static class MiesysUIServlet extends VaadinServlet {
-    }
+    } 
 }
+    
+

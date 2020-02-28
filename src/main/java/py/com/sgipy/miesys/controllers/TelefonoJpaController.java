@@ -60,7 +60,7 @@ public class TelefonoJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Telefono persistentTelefono = em.find(Telefono.class, telefono.getIdTelefono());
+            Telefono persistentTelefono = em.find(Telefono.class, telefono.getTelefono());
             Persona personaOld = persistentTelefono.getPersona();
             Persona personaNew = telefono.getPersona();
             if (personaNew != null) {
@@ -80,7 +80,7 @@ public class TelefonoJpaController implements Serializable {
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                Integer id = telefono.getIdTelefono();
+                Integer id = telefono.getTelefono();
                 if (findTelefono(id) == null) {
                     throw new NonexistentEntityException("The telefono with id " + id + " no longer exists.");
                 }
@@ -101,7 +101,7 @@ public class TelefonoJpaController implements Serializable {
             Telefono telefono;
             try {
                 telefono = em.getReference(Telefono.class, id);
-                telefono.getIdTelefono();
+                telefono.getTelefono();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The telefono with id " + id + " no longer exists.", enfe);
             }

@@ -14,7 +14,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import py.com.sgipy.miesys.controllers.exceptions.NonexistentEntityException;
-import py.com.sgipy.miesys.entities.Ciudad;
+import py.com.sgipy.miesys.entities.Barrio;
 import py.com.sgipy.miesys.entities.Direccion;
 import py.com.sgipy.miesys.entities.Persona;
 
@@ -38,10 +38,10 @@ public class DireccionJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Ciudad ciudad = direccion.getCiudad();
-            if (ciudad != null) {
-                ciudad = em.getReference(ciudad.getClass(), ciudad.getCiudad());
-                direccion.setCiudad(ciudad);
+            Barrio barrio = direccion.getBarrio();
+            if (barrio != null) {
+                barrio = em.getReference(barrio.getClass(), barrio.getBarrio());
+                direccion.setBarrio(barrio);
             }
             Persona persona = direccion.getPersona();
             if (persona != null) {
@@ -49,9 +49,9 @@ public class DireccionJpaController implements Serializable {
                 direccion.setPersona(persona);
             }
             em.persist(direccion);
-            if (ciudad != null) {
-                ciudad.getDireccionList().add(direccion);
-                ciudad = em.merge(ciudad);
+            if (barrio != null) {
+                barrio.getDireccionList().add(direccion);
+                barrio = em.merge(barrio);
             }
             if (persona != null) {
                 persona.getDireccionList().add(direccion);
@@ -71,26 +71,26 @@ public class DireccionJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Direccion persistentDireccion = em.find(Direccion.class, direccion.getDireccion());
-            Ciudad ciudadOld = persistentDireccion.getCiudad();
-            Ciudad ciudadNew = direccion.getCiudad();
+            Barrio barrioOld = persistentDireccion.getBarrio();
+            Barrio barrioNew = direccion.getBarrio();
             Persona personaOld = persistentDireccion.getPersona();
             Persona personaNew = direccion.getPersona();
-            if (ciudadNew != null) {
-                ciudadNew = em.getReference(ciudadNew.getClass(), ciudadNew.getCiudad());
-                direccion.setCiudad(ciudadNew);
+            if (barrioNew != null) {
+                barrioNew = em.getReference(barrioNew.getClass(), barrioNew.getBarrio());
+                direccion.setBarrio(barrioNew);
             }
             if (personaNew != null) {
                 personaNew = em.getReference(personaNew.getClass(), personaNew.getPersona());
                 direccion.setPersona(personaNew);
             }
             direccion = em.merge(direccion);
-            if (ciudadOld != null && !ciudadOld.equals(ciudadNew)) {
-                ciudadOld.getDireccionList().remove(direccion);
-                ciudadOld = em.merge(ciudadOld);
+            if (barrioOld != null && !barrioOld.equals(barrioNew)) {
+                barrioOld.getDireccionList().remove(direccion);
+                barrioOld = em.merge(barrioOld);
             }
-            if (ciudadNew != null && !ciudadNew.equals(ciudadOld)) {
-                ciudadNew.getDireccionList().add(direccion);
-                ciudadNew = em.merge(ciudadNew);
+            if (barrioNew != null && !barrioNew.equals(barrioOld)) {
+                barrioNew.getDireccionList().add(direccion);
+                barrioNew = em.merge(barrioNew);
             }
             if (personaOld != null && !personaOld.equals(personaNew)) {
                 personaOld.getDireccionList().remove(direccion);
@@ -129,10 +129,10 @@ public class DireccionJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The direccion with id " + id + " no longer exists.", enfe);
             }
-            Ciudad ciudad = direccion.getCiudad();
-            if (ciudad != null) {
-                ciudad.getDireccionList().remove(direccion);
-                ciudad = em.merge(ciudad);
+            Barrio barrio = direccion.getBarrio();
+            if (barrio != null) {
+                barrio.getDireccionList().remove(direccion);
+                barrio = em.merge(barrio);
             }
             Persona persona = direccion.getPersona();
             if (persona != null) {

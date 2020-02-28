@@ -8,11 +8,14 @@ package py.com.sgipy.miesys.entities;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -42,8 +45,11 @@ public class Ciudad implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
-    @OneToMany(mappedBy = "ciudad")
-    private List<Direccion> direccionList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ciudad")
+    private List<Barrio> barrioList;
+    @JoinColumn(name = "departamento", referencedColumnName = "departamento")
+    @ManyToOne(optional = false)
+    private Departamento departamento;
 
     public Ciudad() {
     }
@@ -74,12 +80,20 @@ public class Ciudad implements Serializable {
     }
 
     @XmlTransient
-    public List<Direccion> getDireccionList() {
-        return direccionList;
+    public List<Barrio> getBarrioList() {
+        return barrioList;
     }
 
-    public void setDireccionList(List<Direccion> direccionList) {
-        this.direccionList = direccionList;
+    public void setBarrioList(List<Barrio> barrioList) {
+        this.barrioList = barrioList;
+    }
+
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(Departamento departamento) {
+        this.departamento = departamento;
     }
 
     @Override
