@@ -340,6 +340,12 @@ public class PersonaHanView extends CustomComponent implements View {
 	}
 
 	private void guardar(List<Persona> listMiembros2, Han value) {
+		
+		if (listMiembros2.isEmpty()) {
+			
+			return;
+			
+		}
 
 		for (Persona miembro : listMiembros2) {
 			
@@ -361,19 +367,27 @@ public class PersonaHanView extends CustomComponent implements View {
 		
 		Notification.show("Miembros agregados correctamente.");
 		
-		listRemovidos.removeAll(listMiembros2);
 		
-		for (Persona per : listRemovidos) {
+		
+		if (! listRemovidos.isEmpty()) {
 			
-			try {
+			listRemovidos.removeAll(listMiembros2);
+			
+			for (Persona per : listRemovidos) {
 				
-				jpaPersona.edit(per);
+				try {
+					
+					jpaPersona.edit(per);
+					
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 				
-			} catch (Exception e) {
-				// TODO: handle exception
 			}
 			
 		}
+		
+		
 		
 		buscarHan();
 		
@@ -425,13 +439,23 @@ public class PersonaHanView extends CustomComponent implements View {
 
 	private void buscarPersona(String value) {
 		
-		if ((value.isEmpty()) || (value == null)) {
+		/*if ((value.isEmpty()) || (value == null)) {
 			
 			return;
 			
-		}
+		}*/
 		
-		gridPersona.setItems(jpaPersona.findPersonaLikeNombreApellidoNotInHan(value, cbxHan.getValue()));
+		listPersonas.clear();
+		
+		if (jpaPersona.findPersonaLikeNombreApellidoNotInHan(value, cbxHan.getValue()) != null  ) {
+			
+			listPersonas.addAll(jpaPersona.findPersonaLikeNombreApellidoNotInHan(value, cbxHan.getValue()));
+			
+		}
+			
+		
+		
+		gridPersona.setItems(listPersonas);
 		
 		
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import com.vaadin.ui.Notification;
@@ -153,9 +154,18 @@ public List<Persona> findPersonaLikeNombreApellidoNotInHan(String busqueda, Han 
 			
 			
 			
+			
 			Query q = em.createNativeQuery(sqlQry, Persona.class);
 			q.setParameter(1, reu.getHan());
-			listPersona = q.getResultList();
+			try {
+				if (!q.getResultList().isEmpty()) {
+					listPersona = q.getResultList();
+				}
+				
+			} catch (NoResultException e) {
+				// TODO: handle exception
+			}
+			
 		} catch (Exception e) {
 			Notification.show(e.getMessage() +" Error al buscar persona", Notification.TYPE_ERROR_MESSAGE );
 		}finally {
